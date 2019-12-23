@@ -43,12 +43,13 @@ Hermitian matrices have some pleasing properties, which can be used to prove a s
 
 Recall that two vectors $x$ and $y$ are **orthogonal** if their inner product is zero, that is, $\left< x, y \right> = 0$, that a set of vectors $V$ is orthogonal if every pair $v_1, v_2$ with $v_1 \not= v_2$ is orthogonal, and that it is orthonormal if it is orthogonal and every vector $v \in V$ has unit norm, that is, $||v|| = 1$.
 
-The following lemma is necessary to prove a theorem about the eigenvectors of Hermitian matrices.
+We will need some lemma's to prove the main result later on. The first is a simple result that states that vectors orthogonal to eigenvectors stay orthogonal when multiplied by $A$.
 
 **Lemma**: *If $x$ is orthogonal to an eigenvector $v$ of a Hermitian matrix $A$, then $Ax$ is orthogonal to $v$ as well.*
 
 **Proof**: Suppose that $\lambda$ is the eigenvalue associated to $v$. Then $\left< Ax, v \right> = \left< x, Av \right> = \left< x, \lambda v \right > = \lambda \left< x, v \right> = 0$. $\square$
 
+The second lemma is about the behavior of matrices with orthogonal rows.
 
 **Lemma**: *Let $U \in \mathbb{C}^{m \times n}$ be a matrix with $m \leq n$ orthonormal rows $u_1, u_2, ..., u_m$, and $S$ be the space spanned by these vectors. Then*
 
@@ -79,9 +80,7 @@ $$ Av = \lambda v $$
 
 So $v$ is an eigenvector of $A$. Moreover, since $v = U^* w$, $v$ is a linear combination of $u_1, u_2, ..., u_m$, so it is orthogonal to the eigenvectors $v_1, v_2, ..., v_{n - m}$. So this completes the induction step. $\square$
 
-
 Of course, it is now easy to make this basis orthonormal by scaling the vectors in the basis.
-
 
 **Corollary**: *An Hermitian matrix $A$ has a basis of orthonormal eigenvectors.*
 
