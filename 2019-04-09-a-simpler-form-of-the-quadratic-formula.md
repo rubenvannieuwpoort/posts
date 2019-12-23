@@ -1,4 +1,4 @@
-﻿# A simpler form of the abc formula
+﻿# A simpler form of the quadratic formula
 
 In high school, I had to learn the famous *abc-formula* by heart. It states that a polynomial $p$ defined as
 $$p(x) = ax^2 + bx +c$$
