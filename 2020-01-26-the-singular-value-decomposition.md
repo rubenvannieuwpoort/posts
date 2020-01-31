@@ -1,6 +1,6 @@
 # The singular value decomposition
 
-In this article, I will prove that every matrix has a *compact singular value decomposition*.
+In this article, I will prove that every matrix has a *compact singular value decomposition*. I have chosen to prove the existence of the compact singular value decomposition instead of the normal singular value decomposition, since this makes the proof much more natural. The existence of the singular value decomposition and other variants then follows from the existence of the compact singular value decomposition.
 
 
 **Theorem**: *Any matrix $M \in \mathbb{C}^{m \times n}$ of rank $r$ has a decomposition*
@@ -29,23 +29,20 @@ and let $U \in \mathbb{C}^{m \times r}$ be the matrix with $u_1, u_2, ..., u_r$,
 
 I claim now that $M = U \Sigma V^*$ is the desired decomposition. First, the elements of $U^* U$ are given by $u_i^* u_j = \frac{(Av_i)^* Av_j}{\sigma_i \sigma_j} = \frac{v_i^* (A^* A v_j)}{\sigma_i \sigma_j} = \lambda_j \frac{\left< v_i, v_j  \right>}{\sigma_i \sigma_j} = \delta_{i, j}$, so $U$ is unitary. I proceed with showing that $U \Sigma V^* v_k = M v_k$ for $k = 1, 2, ..., n$. The eigenvectors $v_1, v_2, ..., v_n$ of $M^*M$ form an orthonormal basis of $\mathbb{C}^n$, so if the equality holds for each of these vectors, it holds for the whole of $\mathbb{C}^n$ by linearity.
 
-For $1 \leq k \leq r$, we have that $V^* v_k = e_k$. So $Mv_k = U \Sigma V^* v_k = U \sigma_k e_k =\sigma_k U e_k = \sigma_k u_k = A v_k$. On the other hand, if $r < k \leq n$, we have $V^* v_k = 0$, so $U \Sigma V^* v_k = 0$. This is correct, since $v_k$ is an eigenvector of $M^* M$ with eigenvalue zero, which implies that $|| M v_k || = \sqrt{ v_k ^* M^* M v_k} = \left< v_k, 0 \right> = 0$. This means that $M v_k = 0$.
-
-$\square$
+For $1 \leq k \leq r$, we have that $V^* v_k = e_k$. So $Mv_k = U \Sigma V^* v_k = U \sigma_k e_k =\sigma_k U e_k = \sigma_k u_k = A v_k$. On the other hand, if $r < k \leq n$, we have $V^* v_k = 0$, so $U \Sigma V^* v_k = 0$. This is correct, since $v_k$ is an eigenvector of $M^* M$ with eigenvalue zero, which implies that $|| M v_k || = \sqrt{ v_k ^* M^* M v_k} = \left< v_k, 0 \right> = 0$. This means that $M v_k = 0$. $\square$
 
 
 **Lemma**: *$M^* M$ has only real, nonnegative eigenvalues.*
-**Proof**: Let $v$ be any eigenvector of $M^* M$ and $\lambda$ be the corresponding eigenvalue, so that $M^* M v = \lambda v$. We have $\lambda = \frac{|| M v ||^2}{||v||^2}$ since $|| M v ||^2 = v^* M^* M v = \lambda v^* v = \lambda || v ||^2$. Now, $\frac{|| M v ||^2}{||v||^2}$ is obviously real and nonnegative, so $\lambda$ is as well.
-$\square$
 
-**Lemma**: Let $r$ be the rank of a complex matrix $M$. Then $M^* M$ has rank $r$ as well.
+**Proof**: Let $v$ be any eigenvector of $M^* M$ and $\lambda$ be the corresponding eigenvalue, so that $M^* M v = \lambda v$. We have $\lambda = \frac{|| M v ||^2}{||v||^2}$ since $|| M v ||^2 = v^* M^* M v = \lambda v^* v = \lambda || v ||^2$. Now, $\frac{|| M v ||^2}{||v||^2}$ is obviously real and nonnegative, so $\lambda$ is as well. $\square$
+
+**Lemma**: *Let $r$ be the rank of a complex matrix $M$. Then $M^* M$ has rank $r$ as well.*
+
 **Proof**: The rank of a matrix is determined by the dimension of the null space, so it suffices to show that $Mv = 0 \iff M^* M v = 0$, since this implies that the null spaces are the same.
 
-Now, from $Mv = 0$ it directly follows that $M^* M v = M^* 0 = 0$. It is a property of the norm that $|| v || = 0 \iff v = 0$. So, conversely, we have that if $M^* M v = 0$, then $v^* M^* M v = (Mv)^* Mv = || Mv ||^2 = 0$, which implies $v = 0$.
-
-$\square$
+Now, from $Mv = 0$ it directly follows that $M^* M v = M^* 0 = 0$. It is a property of the norm that $|| v || = 0 \iff v = 0$. So, conversely, we have that if $M^* M v = 0$, then $v^* M^* M v = (Mv)^* Mv = || Mv ||^2 = 0$, which implies $v = 0$. $\square$
 
 
-I have chosen to prove the existence of the compact singular value decomposition instead of the `normal' singular value decomposition, because it feels much more natural. The existence of the normal singular value decomposition follows easily, since we can just add extra zeroes to the diagonal, and add more columns to $U$ and $V$, without changing the product $U \Sigma V^*$.
+The existence of the normal singular value decomposition and other variants now follows easily, since we can just add extra zeroes to the diagonal, and add more columns to $U$ and $V$, without changing the product $U \Sigma V^*$.
 
 The singular value decomposition has numerous applications. It can be used to compute the pseudoinverse of a matrix, to perform principal component analysis, and it can be used to approximate a matrix $M$ by a low-rank approximation $\tilde{M}$.
