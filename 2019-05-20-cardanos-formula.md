@@ -1,4 +1,4 @@
-﻿# Cardano's formula
+# Cardano's formula
 
 A quadratic equation is relatively easy to solve, and the Babylonians were aware of methods to solve them in 1600 BC. The cubic formula is significantly harder to solve and it took much longer to find the solution to the general form of the cubic equation: In the 16th century, Italian mathematicians Scipione del Ferro and Niccolo Tartaglia found methods to solve the general cubic equation. Gerolamo Cardano was the first one to publish this method, and the formula is still best known by his name.
 
@@ -19,7 +19,7 @@ $$ (x + \frac{a}{2})^2 = c +\frac{a^2}{4} $$
 
 which is quite easy to work out. Assuming that $a$ and $c$ are positive for the moment, we can gain some geometric intuition for the procedure by using this figure:
 
-![Square, divided into four sections.](/images/square.png)
+![Square, divided into four sections.](./images/square.png)
 
 The blue square has width and height $x$. The red rectangles are chosen so that their area adds up to $ax$, which means that they have one side with length $x$ and one side with length $\frac{a}{2}$. The green square has area $(\frac{a}{2})^2$ and represents the quantity we added.
 
@@ -49,16 +49,13 @@ $$ y^3 + py = q $$
 
 Now, consider the following three-dimensional analogue of the figure in the last section:
 
-![Cube, divided into five sections.](/images/cube.png)
+![Cube, divided into five sections.](./images/cube.png)
 
 Let $u$ be the length of the side of the large cube that is formed by the blue cube, the red boxes, and the green cube. Let $v = u - y$. Now, the green cube has side $v$ and the blue cube has side $y$. The three red rectangular boxes have sides with lengths $u$, $v$, and $y$, and the big cube that is formed by all the other shapes has side length $u$.
 
 Analogously to the completion of the square, we demand that the volume of the blue cube and the red boxes to add up to $y^3 + py$. Then, since all these boxes have the same volume as the volume of the big cube (with sides $u$) minus the volume of the small cube (with sides $v$), we have $u^3 - v^3 = y^3 + py = q$. Since the blue cube has a volume of $y^3$, each of the three red boxes has volume $\frac{py}{3}$. Since each red rectangular box has a volume of $uvy$, we find $uvy = \frac{p}{3}y$. It follows that $u^3 v^3 = (\frac{p}{3})^3$.
 
-Setting $r = -(\frac{p}{3})^3, s := u^3, t := -v^3$, we obtain the equations $s + t = q$ and $st = r$. In other words, we are looking for two numbers $s, t$ which have sum $q$ and product $r$. Note that this is equivalent to solving the quadratic equation
-$$ z^2 - qz + r = 0$$
-
-Since $(z - s)(z - t) = z^2 - qz + r = 0$ exactly when the sum of $s$ and $t$ is $q$ and their product is $r$. The solutions are $\frac{q}{2} + \sqrt{(\frac{q}{2})^2 - r}$ and $\frac{q}{2} - \sqrt{(\frac{q}{2})^2-r}$. Note that the expressions are symmetric in $s$ and $t$, so we can choose freely which expression we pick for $s$ and which one for $t$ (as long as we pick $s$ as one of them and $t$ as the other).
+Setting $r = -(\frac{p}{3})^3, s := u^3, t := -v^3$, we obtain the equations $s + t = q$ and $st = r$. In other words, we are looking for two numbers $s, t$ which have sum $q$ and product $r$. Note that this is equivalent to solving the quadratic equation $ z^2 - qz + r = 0$, since $(z - s)(z - t) = z^2 - qz + r$ exactly when the sum of $s$ and $t$ is $q$ and their product is $r$. The solutions are $\frac{q}{2} + \sqrt{(\frac{q}{2})^2 - r}$ and $\frac{q}{2} - \sqrt{(\frac{q}{2})^2-r}$. Note that the expressions are symmetric in $s$ and $t$, so we can choose freely which expression we pick for $s$ and which one for $t$ (as long as we pick $s$ as one of them and $t$ as the other).
 
 Using that $s = u^3$ and $t = -v^3$ , we find
 $$u = \sqrt[3]{\frac{q}{2} \pm \sqrt{(\frac{q}{2})^2+(\frac{p}{3})^3}}$$
@@ -79,21 +76,32 @@ Take the equation
 $$ x^3 + ax^2 + bx = c $$
 
 Substitute
-$$ y = x + \frac{a}{3} \\ p = b - \frac{a^2}{3} \\ q = c + a \frac{9b-2a^2}{27} $$
+$$ y = x + \frac{a}{3} $$
+
+$$ p = b - \frac{a^2}{3} $$
+
+$$ q = c + a \frac{9b-2a^2}{27} $$
 
 We now have the following polynomial equation in $y$:
 $$ y^3 + py = q $$
 
 Introduce $u, v$ that satisfy $y = u - v$ and $uv = \frac{p}{3}$. From this, we can derive
-$$ u^3 - v^3 = q \\ u^3 v^3 = (\frac{p}{3})^3 $$
+$$ u^3 - v^3 = q $$
+$$ u^3 v^3 = (\frac{p}{3})^3 $$
 
 Now substitute
-$$ s = u^3 \\ t = v^3 \\ r = (\frac{p}{3})^3 $$
+$$ s = u^3 $$
+
+$$ t = v^3 $$
+
+$$ r = (\frac{p}{3})^3 $$
 
 So that we have
-$$ s - t = q \\ st = r $$
+$$ s - t = q $$
 
-These equations have the following solution, where $s$ and $t$ are interchangible:
+$$ st = r $$
+
+These equations have the following solution, where $s$ and $t$ are interchangeable:
 $$ s, t = \frac{q}{2} \pm \sqrt{(\frac{q}{2})^2 + (\frac{p}{3})^3} $$
 
 If we substitute back and try to express $s$ and $t$ in $a, b$, and $c$, we find
@@ -103,7 +111,9 @@ where
 $$ y = \sqrt[3]{\frac{q}{2} + \sqrt{(\frac{q}{2})^2+(\frac{p}{3})^3}} + \sqrt[3]{\frac{q}{2} - \sqrt{(\frac{q}{2})^2+(\frac{p}{3})^3}} $$
 
 and
-$$ p = b - \frac{a^2}{3} \\ q = c + a \frac{9b-2a^2}{27} $$
+$$ p = b - \frac{a^2}{3} $$
+
+$$ q = c + a \frac{9b-2a^2}{27} $$
 
 You might have noticed that we find only one solution. It is actually possible to find the other two solutions with a slight change in the formula, which I'll explain in the last section. If you like a good challenge, try to find out why we don't find all solutions, and try to modify the formula to provide all complex solutions of the cubic formula (if you need a hint, take a look at the second paragraph).
 
