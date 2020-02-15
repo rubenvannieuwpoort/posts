@@ -70,7 +70,7 @@ $\square$
 
 With these results we are finally ready to prove the existence of an orthogonal basis of eigenvectors.
 
-**Theorem**: *An Hermitian matrix $A \in \mathbb{C}^{n \times n}$ has $n$ orthogonal eigenvectors.*
+**Theorem**: *A Hermitian matrix $A \in \mathbb{C}^{n \times n}$ has $n$ orthogonal eigenvectors.*
 
 **Proof**: We use induction on the number of eigenvalues of $A \in \mathbb{C}^{n \times n}$. The characteristic equation $\det(A - \lambda I) = 0$ is a complex polynomial equation of order $n$, and has a solution in $\lambda$. That implies that for this $\lambda$, $A - \lambda$ is singular, so there exists a $v$ such that $(A - \lambda I)v = 0$. This implies that $Av = \lambda v$, so we have a set of one eigenvector $v$, which is orthogonal. This proves the base case.
 
@@ -94,7 +94,7 @@ Of course, it is now easy to make this basis orthonormal by scaling the vectors 
 
 **Definition**: *A **unitary matrix** $U$ is a matrix for which* $U^{-1} = U^*$.
 
-**Theorem (Spectral theorem for Hermititan matrices)**: *A Hermitian matrix $A \in \mathbb{C}^{n \times n}$ can be written as*
+**Theorem (Spectral theorem for Hermitian matrices)**: *A Hermitian matrix $A \in \mathbb{C}^{n \times n}$ can be written as*
 $$ A = U \Lambda U^* $$
 *where $U$ is a unitary matrix, and $\Lambda$ is a diagonal matrix with nonnegative elements.*
 
@@ -107,4 +107,4 @@ $$ U \Lambda U^* v_k = U \Lambda e_k = U \lambda_k e_k = \lambda_k v_k = A v_k$$
 
 Since $v_1, v_2, ..., v_n$ is a basis of $\mathbb{C}^n$,  every vector $x \in \mathbb{C}^n$ can be written as a linear combination of the vectors $v_1, v_2, ..., v_n$. So we have $U \Lambda U^* x = Ax$ for every $x \in \mathbb{C}^n$. It follows that $A = U \Lambda U^*$. $\square$
 
-With this, we finally proved the spectral theorem for Hermitian matrices. While the theorem itself is certainly interesting enough to prove, the proof has other benefits as well. First, there is a spectral theorem for unitary matrices as well, and the proof is analogous to this proof. Secondly, the spectral theorem for Hermititan matrices can be used to easily prove the existence of the singular value decomposition.
+With this, we finally proved the spectral theorem for Hermitian matrices. While the theorem itself is certainly interesting enough to prove, the proof has other benefits as well. First, there is a spectral theorem for unitary matrices as well, and the proof is analogous to this proof. Secondly, the spectral theorem for Hermitian matrices can be used to easily prove the existence of the singular value decomposition.
