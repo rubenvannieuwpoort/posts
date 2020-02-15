@@ -80,14 +80,14 @@ $$U A U^* w = \lambda w$$
 Multiplying both sides by $U^*$ on the left gives $U^* U A v = \lambda U^* w$. Now define $v := U^*w$ and substitute to get
 $$ U^* U A v = \lambda v $$
 
-Now, since $v = U^* w$ is a linear combination of the columns of $U^*$, it is orthogonal to all the eigenvectors $v_1, v_2, ..., v_{n - m}$. So, by the first result of the preceding lemma, $A v$ is also orthogonal to all these eigenvalues. This means that $A v$ is a linear combination of $u_1, u_2, ..., u_m$ as well. By the second result of the preceding lemma, it follows that $U^* U Av = Av$. So we are left with
+Now, since $v = U^* w$ is a linear combination of the columns of $U^*$, it is orthogonal to all the eigenvectors $v_1, v_2, ..., v_{n - m}$. So, by the first lemma, $A v$ is also orthogonal to all these eigenvalues. This means that $A v$ is a linear combination of $u_1, u_2, ..., u_m$ as well. By the second lemma, it follows that $U^* U Av = Av$. So we are left with
 $$ Av = \lambda v $$
 
 So $v$ is an eigenvector of $A$. Moreover, since $v = U^* w$, $v$ is a linear combination of $u_1, u_2, ..., u_m$, so it is orthogonal to the eigenvectors $v_1, v_2, ..., v_{n - m}$. So this completes the induction step. $\square$
 
 Of course, it is now easy to make this basis orthonormal by scaling the vectors in the basis.
 
-**Corollary**: *An Hermitian matrix $A$ has a basis of orthonormal eigenvectors.*
+**Corollary**: *A Hermitian matrix $A$ has a basis of orthonormal eigenvectors.*
 
 **Proof**: By the preceding theorem, there exists a basis of $n$ orthogonal eigenvectors of $A$. Denote this basis with $x_1, x_2, .., x_n$, and define $y_k = \frac{x_k}{||x_k||}$. Now, $\left< y_i, y_j \right> = \frac{\left< x_i, x_j \right>}{|| x_i || \ || x_j ||}$, which is $0$ when $i \not= j$ and $1$ when $i = j$. So this basis is orthonormal.
 
