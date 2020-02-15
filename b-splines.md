@@ -1,6 +1,6 @@
 ﻿# B-splines
 
-This is an edited section from my thesis "[Solving Poisson's equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
+This is an edited section from my thesis "[Solving Poisson’s equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
 
 ## Introduction to splines
 
@@ -31,7 +31,7 @@ It should be noted that, according to these definitions, an open knot vector of 
 
 ## B-splines
 
-The term 'B-splines' is an abbreviation for 'basis splines'. B-splines were introduced as basis functions for the spline space. However, the CAD community has adopted the term to refer to splines which are represented in terms of these basis functions. This has caught on, and it has become common to call the basis functions 'B-spline basis functions'. This is the terminology that will be used in this document as well.
+The term ‘B-splines‘ is an abbreviation for ‘basis splines’. B-splines were introduced as basis functions for the spline space. However, the CAD community has adopted the term to refer to splines which are represented in terms of these basis functions. This has caught on, and it has become common to call the basis functions ‘B-spline basis functions’. This is the terminology that will be used in this document as well.
 
 The recursive definition that is commonly used to introduce B-splines was presented in [2] by de Boor.
 
@@ -97,7 +97,7 @@ $$x_k = \frac{\xi_{k + 1} + \xi_{k + 2} ... + \xi_{k + p}}{p}$$
 **Theorem**: *For B-spline basis functions $N_{0, p}, N_{1, p}, ..., N_{n - 1, p}$ associated to an open knot vector $\boldsymbol{\Xi} = (\xi_0, \xi_1, ..., \xi_{n + p})$ of degree $p$ we have*
 $$N_{k, p}(x_k) \not= 0 \quad \text{for k = 0, 1, ..., n - 1}$$
 
-**Proof**: Suppose that $\xi_k = x_k$. Then we have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$. So, the knot $\xi_k$ has multiplicity $p + 1$. If $k \not= 0, n - 1$, we have that the multiplicity of $\xi_{k + 1}$ is at most $p$. So, we can't have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$ or $\xi_{k + 1} = \xi_{k + 2} = ... = \xi_{k + p + 1}$ and both inequalities are strict, so we have $x_k \in (\xi_k, \xi_{k + p + 1})$. By property 4, it follows that $N_k(x_k) \not = 0$.
+**Proof**: Suppose that $\xi_k = x_k$. Then we have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$. So, the knot $\xi_k$ has multiplicity $p + 1$. If $k \not= 0, n - 1$, we have that the multiplicity of $\xi_{k + 1}$ is at most $p$. So, we can’t have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$ or $\xi_{k + 1} = \xi_{k + 2} = ... = \xi_{k + p + 1}$ and both inequalities are strict, so we have $x_k \in (\xi_k, \xi_{k + p + 1})$. By property 4, it follows that $N_k(x_k) \not = 0$.
 
 Suppose now that $k = 0$. Then $\xi_k$ is the first knot, and has multiplicity $p + 1$, so it follows that $\xi_k = \xi_{k + 1} = ... = \xi_{k + p} = 0 < \xi_{p + 1}$. So it follows that $x_k = 0$, and we have $N_0(0) = 1$ by property 4. $\square$
 

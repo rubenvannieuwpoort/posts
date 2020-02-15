@@ -1,10 +1,10 @@
 ﻿# The finite element method
 
-This is an edited section from my thesis "[Solving Poisson's equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
+This is an edited section from my thesis "[Solving Poisson’s equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
 
 ## Introduction
 
-The finite element method is a method to solve boundary value problems. Boundary value problems pose the problem of finding a function $u : \Omega \rightarrow \mathbb{R}$ that satisfies a given differential equation on $\Omega$ and given boundary conditions on the boundary $\partial \Omega$ of the domain. We will use Poisson's problem on a two-dimensional domain with Dirichlet boundary conditions:
+The finite element method is a method to solve boundary value problems. Boundary value problems pose the problem of finding a function $u : \Omega \rightarrow \mathbb{R}$ that satisfies a given differential equation on $\Omega$ and given boundary conditions on the boundary $\partial \Omega$ of the domain. We will use Poisson’s problem on a two-dimensional domain with Dirichlet boundary conditions:
 
  For a given $f \in L^2(\Omega)$, $u_{\partial \Omega} : \partial \Omega \rightarrow \mathbb{R}$, and $\Omega$, find a function $u : \Omega \rightarrow \mathbb{R}$ such that
 

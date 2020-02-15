@@ -1,6 +1,6 @@
 ﻿# The Euler-Lagrange equation
 
-In this article, I'll prove the *Euler-Lagrange equation* and give some examples of applications. I'll use some other theorems without proof: Fermat's theorem, the fundamental lemma of the calculus of variations, the multivariate chain rule, and integrations by parts.
+In this article, I’ll prove the *Euler-Lagrange equation* and give some examples of applications. I’ll use some other theorems without proof: Fermat’s theorem, the fundamental lemma of the calculus of variations, the multivariate chain rule, and integrations by parts.
 
 **Theorem**: *Consider the functional*
 $$ I(f) = \int_a^b L(f, f', x)\ \text{d}x $$
@@ -8,7 +8,7 @@ $$ I(f) = \int_a^b L(f, f', x)\ \text{d}x $$
 *If $f$ is a differentiable function for which this functional has a local extremum, then it must satisfy the Euler-Lagrange equation:*
 $$ \frac{\partial L}{\partial f} = \frac{\text{d}}{\text{d}x} \frac{\partial L}{\partial f'} $$
 
-**Proof**: Set $h(\alpha) = f + \alpha \eta$, where $\eta$ is any smooth function with $\eta(a) = \eta(b) = 0$. By Fermat's theorem, we have $\frac{\text{d} }{\text{d} \alpha} I(h(\alpha)) |_{\alpha = 0} = 0$ if $f$ is a local extremum of $I$. Working out $\frac{\text{d} }{\text{d} \alpha} I(h(\alpha))$ gives
+**Proof**: Set $h(\alpha) = f + \alpha \eta$, where $\eta$ is any smooth function with $\eta(a) = \eta(b) = 0$. By Fermat’s theorem, we have $\frac{\text{d} }{\text{d} \alpha} I(h(\alpha)) |_{\alpha = 0} = 0$ if $f$ is a local extremum of $I$. Working out $\frac{\text{d} }{\text{d} \alpha} I(h(\alpha))$ gives
 $$ \frac{\text{d}}{\text{d} \alpha} I(h(\alpha)) = \frac{\text{d}}{\text{d} \alpha} \int_a^b L(f, f', x)\ \text{d}x = \int_a^b \frac{\text{d}}{\text{d} \alpha} L(h, h', x)\ \text{d}x$$
 
 Using the multivariate chain rule, we see this last expression equals
@@ -38,7 +38,7 @@ $$ \frac{\partial L}{\partial f} - \frac{\text{d}}{\text{d}x}\frac{\partial L}{\
 The Euler-Lagrange equation follows after adding $\frac{\text{d}}{\text{d}x}\frac{\partial L}{\partial f'}$ to both sides.
 $\square$
 
-If the integrand $L(f, f', x)$ does not depend on $f$ or on $x$, the Euler-Lagrange equation can be simplified. Let's first consider the case where the integrand does not depend on $f$:
+If the integrand $L(f, f', x)$ does not depend on $f$ or on $x$, the Euler-Lagrange equation can be simplified. Let’s first consider the case where the integrand does not depend on $f$:
 
 **Corollary**: *Consider the functional*
 $$ I(f) = \int_a^b L(f', x)\ \text{d}x $$
@@ -113,7 +113,7 @@ $$ y(x) = ax + b $$
 
 A [*brachistochrone curve*](https://en.wikipedia.org/wiki/Brachistochrone_curve) through two points $A$ and $B$ on a plane is, by definition, the curve that minimizes the time that it takes from a ball to roll from $A$ to $B$ from a standstill. Of course, this assumes that the height of $B$ is less than the height of $A$.
 
-Tackling this problem requires some physics. The potential energy, which is the energy that the ball gets from its height is $mgh$, where $m$ is the mass of the ball, $g$ is some gravitational constant, and $h$ is the height of the ball. The kinetic energy, that the ball gets from its speed, is $\frac{1}{2} mv^2$. Since we pretend there's no friction and ignore other types of energy, the sum of these two energies is constant by the law of conservation of energy. If we assume that $m$ is constant as well, we find that
+Tackling this problem requires some physics. The potential energy, which is the energy that the ball gets from its height is $mgh$, where $m$ is the mass of the ball, $g$ is some gravitational constant, and $h$ is the height of the ball. The kinetic energy, that the ball gets from its speed, is $\frac{1}{2} mv^2$. Since we pretend there’s no friction and ignore other types of energy, the sum of these two energies is constant by the law of conservation of energy. If we assume that $m$ is constant as well, we find that
 $$ \frac{1}{2} v^2 + gh$$
 
 is constant. Re-arranging, we find $v = \sqrt{2g} \sqrt{c - h}$. Since $g$ is a constant, the speed depends only on the height $h$ of the ball, which is an interesting result in itself. It is particularly convenient to assume that the height of point $A$ is zero, so that $y = d - h$. Note that the $y$ axis points downwards in this case. In this case, we obtain:

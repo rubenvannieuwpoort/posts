@@ -30,4 +30,4 @@ $$ x_{1, 2} = a \pm \sqrt{a^2 + b} $$
 
 and is far more elegant, in my opinion.
 
-In conclusion, I think it's preferable to *not* teach the quadratic formula in high school, and instead teach how to complete the square. Not only does this relieve you of the burden of remembering a formula, it is also much more instructive and opens doors to more elaborate algebraic manipulation.
+In conclusion, I think it’s preferable to *not* teach the quadratic formula in high school, and instead teach how to complete the square. Not only does this relieve you of the burden of remembering a formula, it is also much more instructive and opens doors to more elaborate algebraic manipulation.

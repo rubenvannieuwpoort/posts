@@ -2,16 +2,16 @@
 
 I solved some simple [Putnam](https://en.wikipedia.org/wiki/William_Lowell_Putnam_Mathematical_Competition) questions yesterday. One of them was the following question:
 
-> *1989 A1 How many primes among the positive integer, written as usual in base 10, are alternating 1's and 0's, beginning and ending with 1?*
+> *1989 A1 How many primes among the positive integer, written as usual in base 10, are alternating 1’s and 0’s, beginning and ending with 1?*
 
-So, we need to count how many prime numbers there are among $1, 101, 10101, 1010101, ...$ Normally, it is a good idea to work through some of the smallest numbers, but these numbers grow in size so quickly that it's hard to factorize enough of them to see a pattern. The number $1$ is not a prime by definition, but it is easy to check that $101$ is a prime number. On the other hand, $10101$ is divisible by $3$. The numbers $1, 101, 10101, 1010101, ...$ can be written as $100^0 + 100^1 + ... + 100^n$. Numbers that can be written like this are called *repunits*.
+So, we need to count how many prime numbers there are among $1, 101, 10101, 1010101, ...$ Normally, it is a good idea to work through some of the smallest numbers, but these numbers grow in size so quickly that it’s hard to factorize enough of them to see a pattern. The number $1$ is not a prime by definition, but it is easy to check that $101$ is a prime number. On the other hand, $10101$ is divisible by $3$. The numbers $1, 101, 10101, 1010101, ...$ can be written as $100^0 + 100^1 + ... + 100^n$. Numbers that can be written like this are called *repunits*.
 
-A *repunit*, short for 'repeated unit', is a number that, when written in a certain base, contains only the digit 1, repeated a number of times. So, 1, 11, 111, 1111, ..., are repunits in base 10. The numbers 1, 101, 10101 are repunits in base 100. I will mostly use base-10 numbers to illustrate concepts, but definitions and theorems handle the general case.
+A *repunit*, short for ‘repeated unit’, is a number that, when written in a certain base, contains only the digit 1, repeated a number of times. So, 1, 11, 111, 1111, ..., are repunits in base 10. The numbers 1, 101, 10101 are repunits in base 100. I will mostly use base-10 numbers to illustrate concepts, but definitions and theorems handle the general case.
 
 **Definition**: *A **rep-unit in base $b$** is a number that can be written as*
 $$1 + b + b^2 + ... + b^n$$
 
-In base 10, we can write a number that consists of $n$ 9's as $10^n - 1$. So, a repunit that consists of $n$ ones, can be written as $\frac{10^n - 1}{9}$. The following theorem generalizes this results other bases.
+In base 10, we can write a number that consists of $n$ 9’s as $10^n - 1$. So, a repunit that consists of $n$ ones, can be written as $\frac{10^n - 1}{9}$. The following theorem generalizes this results other bases.
 
 **Theorem**: *A repunit in base $b$ can be written as*
 $$ 1 + b + b^2 + ... + b^n = \frac{b^{n + 1} - 1}{b - 1} $$
@@ -54,7 +54,7 @@ $$\frac{b^n - 1}{b - 1}$$
 
 *is composite when $n > 1$.*
 
-**Proof**: Suppose $n > 1$. Let one of $u, v$ equal $a^n + 1$ and the other equal $a^n - 1$. The repunit can be written as $\frac{uv}{b - 1}$. Suppose that $p$ is a prime number that divides this number. Then $p$ must also divide $uv$ and by Euclid's lemma, it must divide at least one of $u, v$. Suppose, without loss of generality, that it divides $v$, and set $v = kp$. Then $\frac{uv}{b - 1} = \frac{ukp}{b- 1}$. Since $b - 1 < u, v$ it follows that $\frac{u}{b - 1} > 1$ and we have
+**Proof**: Suppose $n > 1$. Let one of $u, v$ equal $a^n + 1$ and the other equal $a^n - 1$. The repunit can be written as $\frac{uv}{b - 1}$. Suppose that $p$ is a prime number that divides this number. Then $p$ must also divide $uv$ and by Euclid’s lemma, it must divide at least one of $u, v$. Suppose, without loss of generality, that it divides $v$, and set $v = kp$. Then $\frac{uv}{b - 1} = \frac{ukp}{b- 1}$. Since $b - 1 < u, v$ it follows that $\frac{u}{b - 1} > 1$ and we have
 $$ \frac{uv}{b - 1} = \frac{ukp}{b - 1} > kp \geq p $$
 
 Since $\frac{uv}{b - 1} > p$ it follows that $\frac{uv}{b - 1} =\not p$. Since we did not specify $p$, it follows that $\frac{uv}{b - 1}$ is not a prime number, so it must be composite. $\square$

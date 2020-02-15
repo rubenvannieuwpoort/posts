@@ -7,9 +7,9 @@ $$c_nr, c_nr^2 + c_{n - 1}r, c_nr^3 + c_{n - 1}r^2 + c_{n - 2}r, ..., c_nr^n + c
 >
 >are integers.
 
-If you're familiar with the *rational root theorem* you will probably see a connection. Indeed, the proof that the question asks for is along the same lines.
+If you’re familiar with the *rational root theorem* you will probably see a connection. Indeed, the proof that the question asks for is along the same lines.
 
-I have to admit I didn't remember the proof of the rational root theorem. It's one of those proofs that's not very hard once you know the trick, but if you don't know the trick, you can spend quite some time without finding the proof. It took me a while to find it again, so I will document it here for myself.
+I have to admit I didn’t remember the proof of the rational root theorem. It’s one of those proofs that’s not very hard once you know the trick, but if you don’t know the trick, you can spend quite some time without finding the proof. It took me a while to find it again, so I will document it here for myself.
 
 **Definition:** *A fraction $\frac{p}{q}$ is called **reduced** if $p \in \mathbb{Z}$, $q \in \mathbb{N}$, and $\gcd(p, q) = 1$.*
 
@@ -39,7 +39,7 @@ The proof that the Putnam question asks for can be derived in a similar way. In 
 
 **Proof:** Let $\frac{p}{q}$ be the reduced form of $\frac{a}{b}$, so that we have $\frac{p}{q} = \frac{a}{b} = \frac{c}{d}$. Since $\frac{p}{q}$ is the reduced form of $\frac{a}{b}$, there exists an $m \in \mathbb{N}$ such that $a = mp$ and $b = mq$. Likewise, there exists an $n \in \mathbb{N}$ such that $c = np$ and $d = nq$. Now we have $\gcd(b, d) = \gcd(mq, nq) = 1$. Since $q | \gcd(mq, nq)$, it follows that $q = 1$. So we have $\frac{a}{b} = \frac{c}{d} = \frac{p}{q} = p$. $\square$
 
-Now, we're ready to provide the proof that the question asks for. In fact, we can prove that even more numbers are integer.
+Now, we’re ready to provide the proof that the question asks for. In fact, we can prove that even more numbers are integer.
 
 **Theorem:** *Suppose that $f$ is a polynomial with integer coefficients $c_0, c_1, ..., c_n \in \mathbb{Z}$*:
 $$f(x) = c_0 + c_1 x + ... c_n x^n $$

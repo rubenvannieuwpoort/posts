@@ -1,11 +1,11 @@
-﻿# Newton's method
+﻿# Newton’s method
 
-Newton's method, sometimes called the Newton-Rhapson method, is a surprisingly simple and effective method for finding solutions to an equation of the form:
+Newton’s method, sometimes called the Newton-Rhapson method, is a surprisingly simple and effective method for finding solutions to an equation of the form:
 $$f(x) = 0$$
 
 where $f$ is a differentiable function
 
-Newton's method is an iterative method, which means that we pick some starting point $x_0$, and we follow some procedure to find $x_1$, which is closer to the real root $x_r$ that satisfies $f(x_r) = 0$. Then, we apply this method again and again, until we find some $x_n \approx x_r$ that approximates the real root $x_r$ with satisfactory accuracy.
+Newton’s method is an iterative method, which means that we pick some starting point $x_0$, and we follow some procedure to find $x_1$, which is closer to the real root $x_r$ that satisfies $f(x_r) = 0$. Then, we apply this method again and again, until we find some $x_n \approx x_r$ that approximates the real root $x_r$ with satisfactory accuracy.
 
 I will illustrate the method on a function real-valued function $f : \mathbb{R} \rightarrow \mathbb{R}$. First, we pick a starting point $x_0$. We then compute the linearized approximation to $f$ at this point (this is just the first-order Taylor expansion at $x_0$):
 $$ f_{\text{approx}}(x_0 + \Delta x) = f(x_0) + \Delta x \cdot f'(x_0) $$
@@ -15,9 +15,9 @@ $$ f(x_0) + \Delta x \cdot f'(x_0) = 0$$
 and we find $\Delta x = -\frac{f(x_0)}{f'(x_0)}$. So $f_{\text{approx}}(x) = 0$ implies $x = x_0 + \Delta x = x - \frac{f(x_0}{f'(x_0)}$. So, we have a new, supposedly better, approximation of the real root $x_r$. Applying this iteratively gives:
 $$x_{k + 1} = x_k - \frac{f(x_k)}{f'(x_k)}$$
 
-which is the basic scheme behind Newton's method.
+which is the basic scheme behind Newton’s method.
 
-We haven't proved anything about the convergence of this method, and indeed, in general, the method might diverge. Note that it's also possible to use an approximation $f_{\text{approx}}$ of higher order, e.g.
+We haven’t proved anything about the convergence of this method, and indeed, in general, the method might diverge. Note that it’s also possible to use an approximation $f_{\text{approx}}$ of higher order, e.g.
 $$f_{\text{approx}}(x) = f(x_0) + f'(x_0) (x - x_0) + \frac{f''(x_0)}{2} (x - x_0)^2$$
 
 However, using this method requires solving a more complicated solution. Instead of a simple linear equation we end up with a quadratic one.
@@ -46,7 +46,7 @@ $$= x + \frac{O(\epsilon^2)}{f'(x) + O(\epsilon)}$$
 
 $$= x + O(\epsilon^2)$$
 
-So, if $\epsilon$ is sufficiently small, each iteration of Newton's method reduces the error to the square of the error of the previous iteration. We say that Newton's method has *quadratic convergence*.
+So, if $\epsilon$ is sufficiently small, each iteration of Newton’s method reduces the error to the square of the error of the previous iteration. We say that Newton’s method has *quadratic convergence*.
 
 In practice, this is also observed:
 
@@ -62,7 +62,7 @@ The number of leading zeros in the error roughly doubles each iteration, leading
 
 ## Picking initial values
 
-One problem with Newton's method is that it's sensitive to the initial value. Sometimes it's possible to make an educated guess, but often not. If this is a problem, one might consider using a *homotopy method*. This description is based on the description given in the book "Numerical Methods in Scientific Computing", by J. van Kan, A. Segal, and F. Vermolen. In this method, one picks an equation $g(x) = 0$ with a known solution $x = x_g$, and considers the problem
+One problem with Newton’s method is that it’s sensitive to the initial value. Sometimes it’s possible to make an educated guess, but often not. If this is a problem, one might consider using a *homotopy method*. This description is based on the description given in the book "Numerical Methods in Scientific Computing", by J. van Kan, A. Segal, and F. Vermolen. In this method, one picks an equation $g(x) = 0$ with a known solution $x = x_g$, and considers the problem
 $$ (1 - \lambda) g(x) + \lambda f(x) = 0$$
 
-And now one increases $\lambda$ in small steps. Every time, Newton's method is used to find the solution of $(1 - \lambda) g(x) + \lambda f(x) = 0$. The solution found this way is then used as an initial estimate for the next step.
+And now one increases $\lambda$ in small steps. Every time, Newton’s method is used to find the solution of $(1 - \lambda) g(x) + \lambda f(x) = 0$. The solution found this way is then used as an initial estimate for the next step.

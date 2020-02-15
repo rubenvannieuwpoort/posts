@@ -18,7 +18,7 @@ If the magnitude of the iterand is not bigger than the escape radius after some 
   <figcaption>A plot of the Mandelbrot set from Wikipedia, along with the real and imaginary axes.</figcaption>
 </figure>
 
-This plot doesn't really do justice to the beauty of the Mandelbrot set. First, it is monochrome. More interesting pictures can be obtained by using a color that is based on the iteration number $n$ in which the magnitude of the iterand first exceeded the escape radius.
+This plot doesn’t really do justice to the beauty of the Mandelbrot set. First, it is monochrome. More interesting pictures can be obtained by using a color that is based on the iteration number $n$ in which the magnitude of the iterand first exceeded the escape radius.
 
 <figure>
   <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Escape_Time_Algorithm_bands.png" alt="Plot of the Mandelbrot set using the escape time algorithm.">
@@ -67,7 +67,7 @@ This pseudocode plots a monochrome plot of the Mandelbrot set.
 
 ## Julia sets
 
-The Julia set of the map $z \mapsto z^2 + c$ is related to the Mandelbrot set. The formal definition of the Julia set is a bit tricky (by this I mean that I don't understand it at the time of writing...). For the Mandelbrot set, it can be obtained as the set of complex numbers $z_0$ for which the sequence 
+The Julia set of the map $z \mapsto z^2 + c$ is related to the Mandelbrot set. The formal definition of the Julia set is a bit tricky (by this I mean that I don’t understand it at the time of writing...). For the Mandelbrot set, it can be obtained as the set of complex numbers $z_0$ for which the sequence 
 $$z_{n + 1} = z_n^2 + c$$
 is bounded. Since the sequence does not only depend on $z_0$, but also on $c$, we can obtain Julia sets for various points. The most interesting points lie on the border of the Mandelbrot set.
 
@@ -90,6 +90,6 @@ The wikipedia pages for the [Mandelbrot set](https://wikipedia.org/wiki/Mandelbr
 
 [Paul Bourkes personal site](http://www.paulbourke.net) has a section of his site dedicated to fractals. Especially relevant are his articles about the [Mandelbrot set](http://paulbourke.net/fractals/mandelbrot/) and the [Julia set](http://paulbourke.net/fractals/juliaset/).
 
-[Inigo Quilez' site](https://iquilezles.org) has written a lot of useful articles about fractals.
+[Inigo Quilez’ site](https://iquilezles.org) has written a lot of useful articles about fractals.
 
 [The Buddhabrot](https://wikipedia.org/wiki/Buddhabrot) is strongly related to the Mandelbrot fractal. The plot is obtained by plotting every iterand $z_n$. [This article by Paul Bourke](http://paulbourke.net/fractals/buddhabrot/) is a nice introduction, just like this [article by Melinda Green](http://superliminal.com/fractals/bbrot/bbrot.htm).

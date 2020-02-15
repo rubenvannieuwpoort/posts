@@ -1,4 +1,4 @@
-﻿# Euler's formula for connected planar graphs
+﻿# Euler’s formula for connected planar graphs
 
 An undirected [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) is *connected* when there exists a path of edges between every two nodes. A graph is *planar* when it can be embedded in a plane without edges crossing each other.
 

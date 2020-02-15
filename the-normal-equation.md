@@ -9,7 +9,7 @@ where $A \in \mathbb{R}^{n \times m}$ is an $n \times m$ matrix, $\textbf{x} = (
 
 Solving such a linear system is a well-known and studied problem, and many different algorithms exist for solving these kind of linear systems. A particularly famous result is that this kind of system has exactly one solution when the matrix $M$ is square (i.e. $m = n$), and the determinant of the matrix $M$ is nonzero.
 
-I want to focus on the case where there are more equations than unknowns. In terms of the matrix formula above, this means that $m > n$. In this case, we can't always ensure that there exists an $x \in \mathbb{R}^n$ such that $A \textbf{x} = \textbf{y}$.
+I want to focus on the case where there are more equations than unknowns. In terms of the matrix formula above, this means that $m > n$. In this case, we can’t always ensure that there exists an $x \in \mathbb{R}^n$ such that $A \textbf{x} = \textbf{y}$.
 
 However, we can still find an $x \in \mathbb{R}^n$ so that $Ax$ approximates $y$. In this case, we have $Ax \approx y$, or, equivalently $Ax - y \approx 0$. Often, we want to minimize the distance with respect to some norm. Here, we take the 2-norm $||\cdot||_2$, which is defined as
 $$ || \textbf{x} ||_2 := \sum_{k = 1}^n x_k^2 $$

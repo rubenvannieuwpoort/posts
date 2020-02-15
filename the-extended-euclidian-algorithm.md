@@ -68,7 +68,7 @@ When modular arithmetic modulo some number $n$, we may want to find a multiplica
 $$ a a^{-1}  \equiv 1 \pmod{n}$$
 
 Now, such an element only exists if $\gcd(a, n) = 1$, which is why it is often convenient to take $n$ prime (we can take any $a = 1, 2, ..., n - 1$). Now, note that if $pa + rn = 1$, then we have
-$ap \equiv 1 \pmod{n}$. So $a^{-1} \equiv p \pmod{n}$ is the element we're looking for.
+$ap \equiv 1 \pmod{n}$. So $a^{-1} \equiv p \pmod{n}$ is the element we’re looking for.
 
 Now we can define a function that computes the multiplicative inverse modulo $n$ as follows:
 

@@ -88,7 +88,7 @@ Now, `build_max_heap` and `extract_max` rely on a procedure `max_heapify` that m
 		return largest;
 	}
 
-Notice that `max_heapify` relies on the children of the root being max-heaps, so we can't use this function to build a max-heap directly. This is easily fixed by working bottom-up: call `max-heapify` on leafs, then on the nodes one layer above that, and so on... Since the index of the left and right children of a node are always higher than the index of the node, we can ensure that we work bottom-up by starting at the largest index. Now, since the leafs are already max-heaps (consisting of a single node), we can actually skip them, by starting with the parent of the last element:
+Notice that `max_heapify` relies on the children of the root being max-heaps, so we can’t use this function to build a max-heap directly. This is easily fixed by working bottom-up: call `max-heapify` on leafs, then on the nodes one layer above that, and so on... Since the index of the left and right children of a node are always higher than the index of the node, we can ensure that we work bottom-up by starting at the largest index. Now, since the leafs are already max-heaps (consisting of a single node), we can actually skip them, by starting with the parent of the last element:
 
 	void build_max_heap(double *array, int n) {
 		// if n <= 1, the max-heap consists of a single node and is already sorted
@@ -105,7 +105,7 @@ Now, we finally get to the meat: the `max_heapify` function. As mentioned before
 	// assumes that left and right nodes of this element are roots of max-heaps
 	void max_heapify(int i, double *array, int n) {
 		// index of largest element of array[i], array[left(i)], array[right(i)]
-		// for now we assume it's the root of the subtree, array[i])
+		// for now we assume it’s the root of the subtree, array[i])
 		int idx_largest = i;
 
 		// set idx_largest to the index of the largest element

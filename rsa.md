@@ -6,10 +6,10 @@ I will now introduce the main principles behind RSA. You will need a good unders
 
 Asymmetric cryptography demands that the encryption function $E_k$ is one-way: It should be feasible to compute, but infeasible to compute the inverse function (since this function is equivalent to the decryption function $D_{k'}$). For RSA, this one-way function is *modular exponentiation*: If we pick $n$ and $N$ under the right conditions, it is easy to compute $n^k$. On the other hand, the inverse problem of finding $n$ if only $n^k$ is given, is known as the *discrete log problem* and it is widely believed that no efficient algorithm exists to solve this. Now, if we can find exponents $r, s$ such that $n^{rs} \equiv n \pmod{N}$, we can use $r$ as the public key, and $s$ as the private key. In this case, it is infeasible to compute $n$ from $n^r$. However, is $s$ is known, one can simply compute $(n^r)^s \equiv n \pmod{N}$ and obtain $n$ this way. The trick is to construct $r$ and $s$ such that these properties hold. RSA uses the propery that it is easy to compute the product of two large primes, but hard to factorize the result into primes to construct such $r$ and $s$.
 
-First, I will give a quick introduction to the number theory that is used. We will use arithmetic modulo some big number $N$. The set of numbers that are coprime to $N$ forms a group under multiplication modulo $N$. The size of this group will be given by *Euler's totient function* $\phi(N)$. For this function, we have
+First, I will give a quick introduction to the number theory that is used. We will use arithmetic modulo some big number $N$. The set of numbers that are coprime to $N$ forms a group under multiplication modulo $N$. The size of this group will be given by *Euler’s totient function* $\phi(N)$. For this function, we have
 $$\phi(N) = N \cdot \prod_{p | N} (1 - \frac{1}{p})$$
 
-Further, we have Euler's theorem, which states:
+Further, we have Euler’s theorem, which states:
 $$ n^{\phi(N)} \equiv 1 \pmod{N}$$
 From this, we can derive the following lemma:
 

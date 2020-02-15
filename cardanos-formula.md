@@ -1,10 +1,10 @@
-# Cardano's formula
+# Cardano’s formula
 
 A quadratic equation is relatively easy to solve, and the Babylonians were aware of methods to solve them in 1600 BC. The cubic formula is significantly harder to solve and it took much longer to find the solution to the general form of the cubic equation: In the 16th century, Italian mathematicians Scipione del Ferro and Niccolo Tartaglia found methods to solve the general cubic equation. Gerolamo Cardano was the first one to publish this method, and the formula is still best known by his name.
 
-Somewhat surprisingly, it is possible to derive Cardano's formula by using a method that is a three-dimensional analogue of completing the square. I present the derivation here, which is based on [Mieke Jansen's master thesis]. To fully understand this article, some understanding of [roots of unity](https://en.wikipedia.org/wiki/Root_of_unity) is necessary. However, the lion's share will be understandable even for those without understanding of roots of unity.
+Somewhat surprisingly, it is possible to derive Cardano’s formula by using a method that is a three-dimensional analogue of completing the square. I present the derivation here, which is based on [Mieke Jansen’s master thesis]. To fully understand this article, some understanding of [roots of unity](https://en.wikipedia.org/wiki/Root_of_unity) is necessary. However, the lion’s share will be understandable even for those without understanding of roots of unity.
 
-Before considering the cubic formula, we'll have a look at the method that is called 'completing the square'.
+Before considering the cubic formula, we’ll have a look at the method that is called ‘completing the square’.
 
 ## Completing the square
 
@@ -115,7 +115,7 @@ $$ p = b - \frac{a^2}{3} $$
 
 $$ q = c + a \frac{9b-2a^2}{27} $$
 
-You might have noticed that we find only one solution. It is actually possible to find the other two solutions with a slight change in the formula, which I'll explain in the last section. If you like a good challenge, try to find out why we don't find all solutions, and try to modify the formula to provide all complex solutions of the cubic formula (if you need a hint, take a look at the second paragraph).
+You might have noticed that we find only one solution. It is actually possible to find the other two solutions with a slight change in the formula, which I’ll explain in the last section. If you like a good challenge, try to find out why we don’t find all solutions, and try to modify the formula to provide all complex solutions of the cubic formula (if you need a hint, take a look at the second paragraph).
 
 
 ## Simplifying the result
@@ -146,4 +146,4 @@ gives all three solutions of the equation. Moreover, if $D \geq 0$, the solution
 **Proof**: Substitute the expression in $x^3 + ax^2 + bx = c$, simplify, and observe that the result is 0. If $D \geq 0$ and $k = 0$, the expression involves only real numbers, so the result will be real as well. $\square$
 
 
-[Mieke Jansen's master thesis]: http://www.ratio.ru.nl/website/content/bijlagen/azl/abcd.pdf
+[Mieke Jansen’s master thesis]: http://www.ratio.ru.nl/website/content/bijlagen/azl/abcd.pdf
