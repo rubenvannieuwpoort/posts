@@ -1,4 +1,4 @@
-﻿# The finite element method
+# The finite element method
 
 This is an edited section from my thesis "[Solving Poisson’s equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
 
@@ -71,4 +71,3 @@ The Dirichlet boundary conditions can be implemented by a *Dirichlet lift*. Each
 Suppose that the mass matrix $\mathbf{M}$ is to be assembled. One could separately evaluate the integrals $\int_\Omega \psi_i \psi_j\ \text{d}\Omega$. However, the basis functions are usually defined on sections of the domain called *elements*. The domain can be partitioned into $M$ elements $e_0, e_1, ..., e_{M - 1}$ so that we have
 $$\int_\Omega \psi_i \psi_j\ \text{d}\Omega = \sum_{k = 0}^{M - 1} \int_{e_k} \psi_i \psi_j\ \text{d}\Omega$$
 The usual approach is to loop over the elements and evaluate $\int_{e_k} \psi_i \psi_j\ \text{d}\Omega$ for the basis functions $\psi_i, \psi_j$ which are nonzero on that element. Typically, the basis functions will have local support, and there will be a small number of nonzero basis functions on each element. For an element on which there are $n$ nonzero basis functions $\psi_{k_0}, \psi_{k_1}, ..., \psi_{k_{n - 1}}$, an *element matrix* $\mathbf{E} \in \mathbb{R}^{n \times n}$ with entries $\mathbf{E}_{i, j} = \int \psi_{k_i} \psi_{k_j}\ \text{d}\Omega$ is assembled. After the element matrix is assembled, each entry $\mathbf{E}_{i, j}$ is added to $\mathbf{M}_{k_i, k_j}$.
-{% endkatexmm %}
