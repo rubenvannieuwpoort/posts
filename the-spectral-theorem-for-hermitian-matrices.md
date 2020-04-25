@@ -52,7 +52,7 @@ We will need some lemmas to prove the main result later on. The first is a simpl
 
 **Lemma**: *If $x$ is orthogonal to an eigenvector $v$ of a Hermitian matrix $A$, then $Ax$ is orthogonal to $v$ as well.*
 
-**Proof**: Suppose that $\lambda$ is the eigenvalue associated to $v$. Then $\left< Ax, v \right> = \left< x, Av \right> = \left< x, \lambda v \right> = \overline{\lambda} \left< x, v \right> = 0$. So $\left< Ax, v \right> = 0$, which means that $Ax$ and $v$ are orthogonal. \square$
+**Proof**: Suppose that $\lambda$ is the eigenvalue associated to $v$. Then $\left< Ax, v \right> = \left< x, Av \right> = \left< x, \lambda v \right> = \overline{\lambda} \left< x, v \right> = 0$. So $\left< Ax, v \right> = 0$, which means that $Ax$ and $v$ are orthogonal. $\square$
 
 The second lemma is about the behavior of matrices with orthogonal rows.
 
