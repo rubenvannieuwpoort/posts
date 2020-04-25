@@ -94,9 +94,7 @@ The Euler-Lagrange equation is a helpful tool, but it usually requires some work
 
 ### The shortest path between two points is a straight line
 
-This intuitively obvious statement is not trivial to prove. I'll give a  Euler-Lagrange equation provides one way to do this.
-
-I'll take as a given that the length of a curve $y(x)$ from $x=a$ to $x=b$ is given by
+This intuitively obvious statement is not trivial to prove. I'll give a proof using the Euler-Lagrange equation. I'll take as a given that the length of a curve $y(x)$ from $x=a$ to $x=b$ is given by
 $$ \int_a^b \sqrt{1 + \left( \frac{\text{d} y}{\text{d} x} \right)^2}\ \text{d} x $$
 
 An intuitive idea for why this holds can be obtained by considering that the length of a linear line segment is $\sqrt{\Delta x^2 + \Delta y^2}$, where $\Delta x$ and $\Delta y$ are the differences in the x-coordinate and y-coordinate. Letting $\Delta x \rightarrow 0$, we get $\sqrt{\text{d} x^2 + \text{d} y^2}$, and integrating yields the expression
@@ -121,7 +119,7 @@ A [*brachistochrone curve*](https://en.wikipedia.org/wiki/Brachistochrone_curve)
 Tackling this problem requires some physics. The potential energy, which is the energy that the particle gets from its height is $mgh$, where $m$ is the mass of the particle, $g$ is some gravitational constant, and $h$ is the height of the particle. The kinetic energy, that the particle gets from its speed, is $\frac{1}{2} mv^2$. Since we pretend there’s no friction and ignore other types of energy, the sum of these two energies is constant by the law of conservation of energy. If we assume that the mass of the particle $m$ is constant as well, we find
 $$ \frac{1}{2} v^2 + gh = c$$
 
-for some constant $c$
+for some constant $c$.
 
 Re-arranging, we find $v = \sqrt{2g} \sqrt{d - h}$ with $d = \frac{b}{g}$. Since $g$ is a constant, the speed depends only on the height $h$ of the ball, which is an interesting result in itself. It is particularly convenient to assume that the height  $A$ is zero, so that $y = d - h$. Note that the $y$ axis points downwards in this case. In this case, we obtain:
 $$v = \sqrt{2gy}$$
