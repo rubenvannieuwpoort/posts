@@ -39,7 +39,7 @@ The proof that the Putnam question asks for can be derived in a similar way. In 
 
 **Proof:** Let $\frac{p}{q}$ be the reduced form of $\frac{a}{b}$, so that we have $\frac{p}{q} = \frac{a}{b} = \frac{c}{d}$. Since $\frac{p}{q}$ is the reduced form of $\frac{a}{b}$, there exists an $m \in \mathbb{N}$ such that $a = mp$ and $b = mq$. Likewise, there exists an $n \in \mathbb{N}$ such that $c = np$ and $d = nq$. Now we have $\gcd(b, d) = \gcd(mq, nq) = 1$. Since $q | \gcd(mq, nq)$, it follows that $q = 1$. So we have $\frac{a}{b} = \frac{c}{d} = \frac{p}{q} = p$. $\square$
 
-Now, we’re ready to provide the proof that the question asks for. In fact, we can prove that even more numbers are integer.
+Now, we’re ready to provide the proof that the question asks for.
 
 **Theorem:** *Suppose that $f$ is a polynomial with integer coefficients $c_0, c_1, ..., c_n \in \mathbb{Z}$*:
 $$f(x) = c_0 + c_1 x + ... c_n x^n $$
