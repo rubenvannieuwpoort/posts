@@ -1,26 +1,15 @@
+
 # Division by constant unsigned integers
+
+*Note: This article is a work in progress. The basic ideas are there, but I will try to improve the text and include more and better code in a next iteration.*
 
 Most modern processors have an integer divide instruction which is relatively slow compared to the other arithmetic operations. When the divisor is known at compile-time or the same divisor is used for many divisions, it is possible to transform the single division to a series of instructions which execute faster. Most compilers will optimize divisions in this way. The [libdivide](https://libdivide.com/) library implements this technique for divisors which are constant at runtime but not known at compile-time. In this article, I give an overview of the existing techniques.
 
-The number that is being divided is called the *dividend*. The dividend is divided by $d$, the *divisor*. The rounded down result $\lfloor \frac{n}{d} \rfloor$ is called the *quotient*.
+First, let me define some terminology. The number that is being divided is called the *dividend*. The dividend is divided by $d$, the *divisor*. The rounded down result $\lfloor \frac{n}{d} \rfloor$ is called the *quotient*.
 
-For some special divisors, the quotient can be found very efficiently. A division by one just returns the dividend and division by another power of two can be implemented by a bit shift. When the divisor is larger than half of the maximum value of the dividend, the quotient is one when $n \geq d$ and zero otherwise. This can be efficiently implemented. This technique can be extended to slightly smaller divisors. For example, divisors larger than $\frac{n}{3}$ the quotient can only assume the values $0$, $1$, or $2$, and this division can be implemented as:
-```
-let d be such that (2^32 - 1) / 3 < d < (2^32 - 1) / 2
+For some special divisors, the quotient can be found very efficiently. A division by one just returns the dividend and division by another power of two can be implemented by a bit shift. When the divisor is larger than half of the maximum value of the dividend, the quotient is one when $n \geq d$ and zero otherwise. These special cases can be efficiently implemented. I will mostly ignore them and focus on more generally applicable multiplication-based methods.
 
-uint32_t divide(uint32_t n) {
-	uint32_t quotient = 0;
-	if (n >= d) quotient++;
-	if (n >= 2 * d) quotient++;
-	return quotient;
-}
-```
-
-This approach has quickly diminishing results, though.
-
-Compilers should take advantage of these special cases when possible, because they usually allow for faster code to be emitted. I will ignore these cases in the rest of the article.
-
-A more generally applicable technique uses the idea of multiplying by a constant that approximates the reciprocal of the divisor in fixed point math. This means that, when we want to divide by a divisor $d$, we multiply the dividend by some constant $m$ with
+Multiplication-based techniques uses the idea of multiplying by a constant that approximates the reciprocal of the divisor in fixed point math. This means that, when we want to divide by a divisor $d$, we multiply the dividend by some constant $m$ with
 $$ m \approx \frac{2^k}{d} $$
 
 and shift the result $k$ bits to the right. Here, $k$ is a measure of how precise the fixed-point approximation is to $\frac{1}{d}$. Setting $k$ higher will yield a more precise approximation, but also increase the number of bits that we need to store $m$.
@@ -55,28 +44,34 @@ $$ \lfloor \frac{n}{d} \rfloor \leq \lfloor \frac{n}{d} + \epsilon \rfloor < \lc
 where the equality follows from the fact that $\epsilon < 1$. Since all of these expressions in the inequality are integers, it follows that $\lfloor \frac{n}{d} + \epsilon \rfloor = \lfloor \frac{n}{d} \rfloor$.
 $\square$
 
-Now, we can write $m = \lceil \frac{2^k}{d} \rceil = \frac{2^k + e}{d}$ with $e = \text{mod}_d(-2^k)$ and substitute this in $\lfloor \frac{n \cdot m}{2^k} \rfloor$, write the resulting expression in the form $\lfloor \frac{n}{d} + \epsilon \rfloor$ with $\epsilon$ a function of $n$, $d$, $e$, and simply check under which condition we have $0 < \epsilon < \frac{1}{d}$. This gives us the following theorem:
+Now, we can write $m = \lceil \frac{2^k}{d} \rceil = \frac{2^k + e}{d}$ with $e = \text{mod}_d(-2^k)$ and substitute this in $\lfloor \frac{n \cdot m}{2^k} \rfloor$, write the resulting expression in the form $\lfloor \frac{n}{d} + \epsilon \rfloor$ with $\epsilon$ a function of $n$, $d$, $e$, and simply check under which condition we have $0 < \epsilon < \frac{1}{d}$. This gives us the following lemma:
 
+**Lemma 2**: *Let $d \in \mathbb{N}_+$ be a positive integer and $k$ be an integer with $k \geq N$. Define $m = \lceil \frac{2^k}{d} \rceil$. If $\text{mod}_d(-2^k) \leq 2^{k - N}$, then $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
-**Theorem 2**: *Let $d \in \mathbb{U}_N$ and $k \in \mathbb{N}_+$ be positive integers with $N \leq k \leq N + \lceil \log_2(d) \rceil$, and let $m = \lceil \frac{2^k}{d} \rceil$. If $\text{mod}_d(-2^k) \leq 2^{k - N}$, then $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
-
-**Proof**: Write $m = \lceil \frac{2^k}{d} \rceil = \frac{2^k + e}{d}$ with $e = \text{mod}_d(-2^k) \in \{ 0, 1, ..., d - 1 \}$. Now we have
+**Proof**: Suppose we have $\text{mod}_d(-2^k) \leq 2^{k - N}$. Write $m = \lceil \frac{2^k}{d} \rceil = \frac{2^k + e}{d}$ with $e = \text{mod}_d(-2^k)$. Now we have
 $$ \lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{\frac{2^k + e}{d} \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} + \frac{ne}{d2^k} \rfloor = \lfloor \frac{n}{d} + \epsilon \rfloor $$
 
-with $\epsilon = \frac{e \cdot n}{2^k d}$. We have $e \leq 2^{k - N}$ and $n < 2^N$. All the values in the inequalities are positive, so we are allowed to multiply the inequalities to get
+with $\epsilon = \frac{e \cdot n}{2^k d}$. We have $0 \leq n < 2^N$, and, by assumption, $0 \leq e \leq 2^{k - N}$. Combining these inequalities gives
 $$ 0 \leq e \cdot n < 2^k \iff 0 \leq \frac{e \cdot n}{2^k d} < \frac{1}{d} $$
 
-Since $\epsilon = \frac{e \cdot n}{2^k d}$ the right hand side just states that $0 \leq \epsilon < \frac{1}{d}$. So the lemma applies and we have $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} + \epsilon \rfloor = \lfloor \frac{n}{d} \rfloor$. $\square$
+Since $\epsilon = \frac{e \cdot n}{2^k d}$ the right hand side just states that $0 \leq \epsilon < \frac{1}{d}$. So the lemma applies and we have $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} + \epsilon \rfloor = \lfloor \frac{n}{d} \rfloor$.
+$\square$
 
-Using the bound $\text{mod}_d(-2^k) < d$ we can derive an useful corollary:
+With the two lemmas we can finally prove the following theorem:
 
-**Corollary 1**: *Let $d \in \mathbb{U}_N$, $k = N + \lceil \log_2(d) \rceil$, and $m = \lceil \frac{2^k}{d} \rceil$. Then $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Theorem 1**: *Let $d, N \in \mathbb{N}_+$ be positive integers and $k_\text{min} \in \mathbb{N}$ be the smallest $k \geq N$ such that $\text{mod}_d(-2^k) \leq 2^{N - k}$. Then $k_\text{min} \leq N + \lceil \log_2(d) \rceil$. Furthermore, when $k \geq k_\text{min}$ and $m = \lceil \frac{2^k}{d} \rceil$ we have $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for any $n \in \mathbb{U}_N$.*
 
-**Proof**: We have $\text{mod}_d(-2^k) < d \leq 2^{\lceil \log_2(d) \rceil} = 2^{k - N}$. So we have $\text{mod}_d(-2^k) \leq 2^{k - N}$ and by theorem 1 it follows that $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$. $\square$
+**Proof**: We have $\text{mod}_d(-2^k) < d \leq 2^{\lceil \log_2(d) \rceil} = 2^{k - N}$. So we have $\text{mod}_d(-2^k) \leq 2^{k - N}$ and it follows that $k_\text{min} \leq N + \lceil \log_2(d) \rceil$. Now suppose that $k \geq k_\text{min}$ and define $p = k - k_\text{min}$. We now have
+$$ \text{mod}_d(-2^k) = \text{mod}_d(-2^{k_\text{min} + p}) \leq 2^p \cdot \text{mod}_d(-2^{k_\text{min}}) \leq 2^p \cdot 2^{k_\text{min} - N} = 2^k  $$
+
+So we have $\text{mod}_d(-2^k) \leq 2^{N - k}$. Define $m = \lceil \frac{2^k}{d} \rceil$. By lemma 2 it follows that $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for any $n \in \mathbb{U}_N$.
+$\square$
+
+From theorem 1 it follows that when we look for the lowest $k \geq N$ such that $\text{mod}_d(-2^k) \leq 2^{k - N}$, we only need to check the values $N, N + 1, ..., N + \lceil \log_2(d) \rceil - 1$. If none of these values succeed, $k = N + \lceil \log_2(d) \rceil$ is the smallest $k$ that satisfies $\text{mod}_d(-2^k) \leq 2^{k - N}$.
 
 Now, we would like to know how many bits we need to hold $m$. We have $1 \leq \frac{2^{\lceil \log_2(d) \rceil}}{d} < 2$, so we would expect that $\lfloor \frac{2^{p + \lceil \log_2(d) \rceil - 1}}{d} \rfloor$ and $\lceil \frac{2^{p + \lceil \log_2(d) \rceil - 1}}{d} \rceil$ both need $p$ bits to represent. The following theorem, which is surprisingly involved to prove, confirms this. Feel free to skip the proof.
 
-**Theorem 3**: *Let $d \in \mathbb{U}_p$ with $d \neq 0$ and let $p \in \mathbb{N}_+$. Then*
+**Theorem 2**: *Let $d \in \mathbb{U}_p$ with $d \neq 0$ and let $p \in \mathbb{N}_+$. Then*
 $$ 2^{p - 1} \leq \lfloor \frac{2^{p + \lceil \log_2(d) \rceil - 1}}{d} \rfloor \leq \lceil \frac{2^{p + \lceil \log_2(d) \rceil - 1}}{d} \rceil < 2^p $$
 
 **Proof**: The result can easily be checked for $d = 1$. For $p = 1$ the only $d \in \mathbb{U}_p$ is $d = 1$, so we can assume that $d, p > 1$. Note that the result follows from taking the floor and ceiling of
@@ -99,89 +94,92 @@ $$ 2^q + 1 < 2^q + 2^{p - 1} \leq 2^{p - 1} + 2^{p - 1} = 2^p $$
 
 $\square$
 
-Unfortunately we can now see that when we set $k = N + \lceil \log_2(d) \rceil$ and $m = \lceil \frac{2^k}{d} \rceil$ we have $2^N \leq m \leq 2^{N + 1} - 1$. This unfortunately means that $m$ is exactly one bit too large to fit in an $N$-bit register. This is not insurmountable. In [1], a technique for multiplying by an $(N + 1)$-bit constant on a processor with $N$-bit registers is presented. This is illustrated in algorithm A.
+Unfortunately we can now see that when we set $k = N + \lceil \log_2(d) \rceil$ and $m = \lceil \frac{2^k}{d} \rceil$ we have $2^N \leq m \leq 2^{N + 1} - 1$. This means that $m$ is exactly one bit too large to fit in an $N$-bit register. This is unfortunate but not insurmountable. In [1], a technique for multiplying by an $(N + 1)$-bit constant on a processor with $N$-bit registers is presented. This is illustrated in algorithm A.
+
+**Algorithm A**: *Let $d \in \mathbb{U}_N$ be an $N$-bit unsigned integer divisor, let $k = N + \lceil \log_2(d) \rceil$, let $m = \lceil \frac{2^k}{d} \rceil$, and let $m' = m - 2^N$. Then the following algorithm computes $\lfloor \frac{n}{d} \rfloor$ for $n \in \mathbb{U}_N$:*
 
 ```
-# Algorithm A
-# -----------
-# Divide an N-bit unsigned integer by another N-bit unsigned integer by means
-# of multiplication by an (N + 1)-bit unsigned constant followed a bit shift.
-# The implementation uses more operations in order to avoid overflow.
-
-Let d be any N-bit unsigned divisor
-Let k = N + ceil(log2(d)) and m' be the lower N bits of ceil(2^k / d)
-Let shift1 = min(k - N, 1) and shift2 = max(k - N - 1, 0)
-
-function fast_divide(n):
-	hiword = muluh(n, m')
-	return (hiword + (n - hiword) >> shift1) >> shift2
+uint fast_divide(uint n) {
+	uint hiword = muluh(n, m');
+	uint intermediate = (n - hiword) >> min(k - N, 1);
+	return (hiword + intermediate) >> max(k - N - 1, 0)
+}
 ```
 
-**Note**: *Algorithm A can be used for all divisors $d$ and has a runtime cost of one multiplication, two additions/subtractions, and two bit shifts.*
+**Note**: *`min(k - N, 1)` and `max(k - N - 1, 0)` are both constants which can be computed at compile time when the divisor is fixed. For $d = 1$ we can set $m' = 0$ and $k = N$.*
 
-This is a promising first method. If you just don't care about having the absolute fastest algorithm for division, I would advise you to implement this algorithm. Algorithm A is a relatively simple method which works for all integers. It can also be extended to the case of division of signed integers without a lot of effort.
+This is a promising first method. If you just don't care about having the absolute fastest algorithm for division, I would advise you to implement this algorithm. It is relatively simple method and works for all integers. It can also be extended to the case of division of signed integers without a lot of effort.
 
-It is possible to improve algorithm A: For some divisors, we might be able to find a smaller $k$, so that $m$ fits in a single register. For architectures on which multiplication and/or bit shifts by higher constants are slower, it may be useful to use theorem 1 to find the smallest $k$ for which $\text{mod}_d(-2^k) < 2^{k - N}$. The following C code can be used to find such $k$. It is assumed that $N = 32$.
+However, it is possible to improve: For some divisors, we might be able to find a smaller $k$, so that $k < N + \lceil \log_2(d) \rceil$ and $m$ fits in a single register. For architectures on which multiplication and/or bit shifts by higher constants are slower, it may be useful to find the smallest $k$ for which $\text{mod}_d(-2^k) < 2^{k - N}$.
+
+Following [3], we will call divisors for which $m$ fits in a single $N$-bit register *cooperative*:
+
+**Definition**: *Let $N \in \mathbb{N}, d \in \mathbb{U}_N$. If there exists a $k \in \mathbb{N}$ such that $N \leq k < N + \lceil \log_2(d) \rceil$ with*
+$$ \text{mod}_d(-2^k) \leq 2^{k - N} $$
+
+*then $d$ is called a **cooperative divisor**. Otherwise, $d$ is an **uncooperative divisor**.*
+
+Assuming that an `uint` is an $N$-bit unsigned integer, the following C code can be used to find $k$ given a divisor $d$. It is assumed that $N = 32$, but the code should be easy to extend.
 
 ```
-int find_k(uint32_t d, bool *fits_in_single_register) {
-	int k = ceillog = ceil_log2(d);
-	// -2^32 % d = (d - 2^32) % d = (uint32_t)(-d) % d.
-	uint32_t mod = (uint32_t)(-d) % d;
-	*fits_in_single_register = true;
-	for (int k = 32; k < 32 + ceillog; k++) {
-		if (mod <= (1 << (k - 32)) return k;
+uint find_k(uint d, bool *is_cooperative) {
+	uint ceillog = ceil_log2(d);
+	uint mod_d = ((uint)(-d)) % d; // mod_d = 2^N (mod d)
+	*is_cooperative = true;
+	
+	for (uint k = 32; k < 32 + ceillog; k++) {
+		
+		// return k if the condition is satisfied
+		if (mod_d <= (1 << (k - 32)) {
+			return k;
+		}
+		
 		// overflow-safe way of doubling modulo d
-		if (mod < d - mod) mod += mod; else mod += mod - d;
+		if (mod_d < d - mod_d) mod_d += mod;
+		else mod_d += mod_d - d;
 	}
-	*fits_in_single_register = false;
+	*is_cooperative = false;
 	return 32 + ceillog;
 }
 ```
 
-If we found a $k$ such that $N \leq k < N + \lceil \log_2(d) \rceil$ with $\text{mod}_d(-2^k) \leq 2^{k - N}$, we can use a single $N$-bit register to hold $m$ and we don't have to use tricks to multiply by an $(N + 1)$-bit constant. So in this case the `fast_divide` function becomes simpler.
+If we found a $k$ such that $N \leq k < N + \lceil \log_2(d) \rceil$ with $\text{mod}_d(-2^k) \leq 2^{k - N}$, we can use a single $N$-bit register to hold $m$ and we don't have to use tricks to multiply by an $(N + 1)$-bit constant. In this case it is simpler to compute $\lfloor \frac{n}{d} \rfloor$:
+
+**Algorithm B**: *Let $d \in \mathbb{U}_n$ be an $N$-bit unsigned integer divisor, let $k \in \mathbb{N}$ be such that $N \leq k < N + \lceil \log_2(d) \rceil$ with $\text{mod}_d(-2^k) \leq 2^{k - N}$, and let $m = \lceil \frac{2^k}{d} \rceil$. Then the following procedure calculates $\lfloor \frac{n}{d} \rfloor$ for $n \in \mathbb{U}_N$:*
 
 ```
-# Algorithm B
-# -----------
-# Divide an N-bit unsigned integer by another N-bit unsigned integer by means
-# of multiplication by an N-bit unsigned constant, followed a bit shift.
-
-Let d be a N-bit unsigned divisor and let N <= k < N + ceil(log2(d))
-with -2^k % d <= 2^(N - k) (this is not possible for every d)
-Let m = ceil(2^k / d)
-
-function fast_divide(n):
-	hiword = muluh(n, m)
-	return hiword >> (k - N)
+uint function divide_cooperative(uint n) {
+	uint hiword = muluh(n, m);
+	return hiword >> (k - N);
+}
 ```
 
-**Note**: *Algorithm B can only be used for some divisors $d$ and has a runtime cost of one multiplication and one bit shift.*
+**Note**: *For some divisors $d \in \mathbb{U}_N$ we might have $k = N$ and we don't have to do the shift. In particular, this happens when $d$ is a divisor of $2^N + 1$, since in this case we have $\text{mod}_d(-2^k) = 1 \leq 2^{k - N} = 1$.*
 
-For some divisors we have $k = N$, and we can leave out the shift. This happens for divisors of $2^N + 1$ (since then we have $\text{mod}_d(-2^N) = 1 \leq 2^{k - N}$).
+Algorithm B is very efficient, but it can only be used when we find a $k \in \mathbb{N}$ such that $N \leq k < N + \lceil \log_2(d) \rceil$ and $\text{mod}_d(-2^k) \leq 2^{k - N}$. For even divisors for which this is not the case, we can still save the situation by first dividing the dividend $n$ by two with a bit shift. We only need $N - 1$ bits to hold the resulting dividend. Using the bound from theorem 1, we see that we can now decrease $k$ by one from $N + \lceil \log_2(d) \rceil$ to $N + \lceil \log_2(d) \rceil - 1$. So $m$ will fit in a single $N$-bit register.
 
-Algorithm B is very efficient, but it can also be used when we find a $k \in \mathbb{N}$ such that $N \leq k < N + \lceil \log_2(d) \rceil$ and $\text{mod}_d(-2^k) \leq 2^{k - N}$. For even divisors for which this is not the case, we can still save the situation by first dividing the dividend $n$ by two with a bit shift. We only need $N - 1$ bits to hold the resulting dividend. Using the bound from theorem 1, we see that we can now decrease $k$ by one from $N + \lceil \log_2(d) \rceil$ to $N + \lceil \log_2(d) \rceil - 1$. So $m$ will fit in a single $N$-bit register. We get the following algorithm:
+If $d$ is an even uncooperative divisor, we can apply a trick: Write $d = 2^p \cdot q$ with $q$ odd. Then we can obtain the quotient $\lfloor \frac{n}{d} \rfloor$ as $\lfloor \frac{n'}{q} \rfloor$ with $n' = \lfloor \frac{n}{2^p} \rfloor$. Now $n'$ can be computed by a right shift by $p$ positions, so that $n' \in \mathbb{U}_{N - p}$. Now we can apply theorem 1 to find $m, k$ such that $\lfloor \frac{n' \cdot m}{2^k} \rfloor = \lfloor \frac{n'}{q} \rfloor$ for $n' \in \mathbb{U}_{N - p}$. Now the range of the dividend is smaller and we can certainly find an $m \in \mathbb{U}_N$.
+
+**Corollary 1**: *Let $d, N, p, q \in \mathbb{N}_+$ be positive integers with $d = 2^p \cdot q$, where $q$ is odd. Let $k_\text{min} \in \mathbb{N}$ be the smallest $k \geq N$* such that $\text{mod}_q(-2^k) \leq 2^{N + p - k}$. Then $k_\text{min} \leq N + \lceil \log_2(q) \rceil$. Furthermore, when $k \geq k_\text{min}$, $m = \lceil \frac{2^k}{q} \rceil$, and $n' = \lfloor \frac{n}{2^p} \rfloor$ we have $\lfloor \frac{m \cdot n'}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for any $n \in \mathbb{U}_N$.
+
+**Proof**: Since $n \in \mathbb{U}_N$ and $n' = \lfloor \frac{n}{2^p} \rfloor$, we have $n' \in \mathbb{U}_{N - p}$. The result now follows from using $N - p$ instead of $N$ in theorem 1.
+$\square$
+
+When we can find $k < N$ we want to set $k = N$ since this saves us a shift. In this case the division is as efficient as for most cooperative divisors. This gives us the following algorithm:
+
+**Algorithm C**: *Let $d \in \mathbb{U}_N$ be an $N$-bit unsigned integer divisor with $d = 2^p \cdot q$ with $p, q \in \mathbb{N}$ and $q$ odd, let $k$ be the smallest $k \in \{ N, N + 1, ..., N + \lceil \log_2(q) \rceil - p \}$ for which $\text{mod}_q(-2^k) \leq 2^{N + p - k}$, and let $m = \lceil \frac{2^k}{q} \rceil$. Then the following algorithm computes $\lfloor \frac{n}{d} \rfloor$ for $n \in \mathbb{U}_N$:*
 
 ```
-# Algorithm C
-# -----------
-# Divide an N-bit unsigned integer by another N-bit unsigned integer by means
-# of multiplication by an N-bit unsigned constant, followed a bit shift.
-
-Let d be an even N-bit unsigned divisor
-Let k = N + ceil(log2(d)) - 1 and m = ceil(2^k / d)
-
-function fast_divide(n):
-	n = n >> 1
-	hiword = muluh(n, m)
-	return hiword >> (k - N)
+uint divide_even(n) {
+	uint n' = n >> p;
+	uint hiword = muluh(n, m);
+	return hiword >> (k - N);
+}
 ```
-
-**Note**: *Algorithm C has a runtime cost of one multiplication and two shifts.*
 
 For odd divisors for which $m$ does not fit in a single word, one option is to resort to algorithm A, which uses a multiplication by an $(N + 1)$-bit constant. Alternatively, we can try the other strategy mentioned before: increase $n$ instead of $m$.
 
-**Theorem 4**: *Let $d \in \mathbb{U}_N$ be a positive number that is not a power of two, let $k \in \mathbb{N}$ such that $N \leq k < N + \lceil \log_2(d) \rceil$, and let $m = \lfloor \frac{2^k}{d} \rfloor$. Then $m \in \mathbb{U}_N$ and if $\text{mod}_d(2^k) \leq 2^{k - N}$, then $\lfloor \frac{m \cdot (n + 1)}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Theorem 4**: *Let $d \in \mathbb{U}_N$ be a positive number that is not a power of two, let $k \in \mathbb{N}$ such that $N \leq k < N + \lceil \log_2(d) \rceil$, and let $m = \lfloor \frac{2^k}{d} \rfloor$. Then $m \in \mathbb{U}_N$. If $\text{mod}_d(2^k) \leq 2^{k - N}$, then $\lfloor \frac{m \cdot (n + 1)}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
 **Proof**: Write $m = \lceil \frac{2^k}{d} \rceil = \frac{2^k - e}{d}$ with $e = \text{mod}_d(2^k)$. Now we have
 $$ \lceil \frac{m \cdot (n + 1)}{2^k} \rceil = \lceil \frac{\frac{2^k - e}{d} \cdot (n + 1)}{2^k} \rceil = \lfloor (1 - \frac{2}{2^k}) \cdot \frac{n + 1}{d} \rfloor$$
@@ -194,73 +192,228 @@ $$ 0 < e \cdot (n + 1) \leq 2^k $$
 If we multiply by $\frac{-1}{d2^k}$, which flips the inequalities, and add $\frac{1}{d}$ everywhere, we get
 $$ 0 \leq \frac{1}{d} - \frac{e}{2^k} \cdot \frac{n + 1}{d} < \frac{1}{d} $$
 
-The expression in the middle is exactly $\epsilon$, which means we have $0 \leq \epsilon < \frac{1}{d}$. So the lemma applies and we have $\lfloor \frac{n \cdot (n + 1)}{d} \rfloor = \lfloor \frac{n}{d} + \epsilon \rfloor = \lfloor \frac{n}{d} \rfloor$. $\square$
+The expression in the middle is exactly $\epsilon$, which means we have $0 \leq \epsilon < \frac{1}{d}$. So the lemma applies and we have $\lfloor \frac{n \cdot (n + 1)}{d} \rfloor = \lfloor \frac{n}{d} + \epsilon \rfloor = \lfloor \frac{n}{d} \rfloor$.
+$\square$
 
-There are different ways to evaluate the product $m \cdot (n + 1)$. The most efficient method depends on the target architecture. I will elaborate on the possible methods later.
+Based on this, we can come up with the following algorithm:
+
+**Algorithm D**: *Let $d \in \mathbb{U}_N$ be an uncooperative $N$-bit unsigned integer divisor, let $k \in \mathbb{N}$ be the smallest integer such that $N \leq k < N + \lceil \log_2(d) \rceil$ and $\text{mod}_d(2^k) \leq 2^{k - N}$, and let $m = \lfloor \frac{2^k}{d} \rfloor$. Then the following algorithm computes $\lfloor \frac{n}{d} \rfloor$ for $n \in \mathbb{U}_N$:*
 
 ```
-# Algorithm D
-# -----------
-# Divide an N-bit unsigned integer by another N-bit unsigned integer by means
-# of multiplication by an N-bit unsigned constant, followed a bit shift.
-
-Let d be a N-bit unsigned divisor for which no k exists such that
-N <= k < N + ceil(log2(d)) and -2^k % d <= 2^(N - k)
-
-Let k be such that N <= k < N + ceil(log2(d)) and 2^k % d <= 2^(N - k)
-Let m = floor(2^k / d)
-
-function fast_divide(n):
-	compute the high word of m * (n + 1) while avoiding overflow
-	return hiword >> (k - N)
+uint divide_uncooperative(n) {
+	uint hi_word = hiword(n * m + m);
+	return hi_word >> (k - N);
+}
 ```
 
-The following theorem now says that for any divisor for which the condition for algorithm B does not hold, the condition for algorithm D holds. In other words, for a given divisor, we can always either use algorithm B or algorithm D.
+The most efficient way to compute `hiword(n * m + m)` depends on the target architecture. If the target supports instructions to calculate the $2N$-bit product $n \cdot m$ and add the $N$-bit operand $m$ to it, these can be used. When the target supports an integer fused multiply-add that produces all $2N$ bits, this can be used. For example, in [2] Intel Celeron's `XMA.HU` instruction, is used for this purpose.
 
-**Theorem 5**: *Let $d \in\mathbb{U}_N$ be a positive integer such that there exists no $k \in \mathbb{N}$ with $N \leq k < N + \lceil \log_2(d) \rceil$ such that $\text{mod}_d(-2^k) \leq 2^{k - N}$. Then there exists a $k \in \mathbb{N}$ with $N \leq k < N + \lceil \log_2(d) \rceil$ such that $\text{mod}_d(2^k) \leq 2^{k - N}$.*
+In [3], it is proposed to calculate $n \cdot m + m$ as $(n + 1) \cdot m$. The problem is that the expression `n + 1` can overflow. As a solution, it is proposed to use a *saturating increase*, which increases `n` only if it is smaller than the maximum value that an $N$-bit unsigned integer can hold. Most targets have equivalents of the `add` instruction which sets the carry flag in case of an overflow, and the `sbb` (subtract with borrow) instruction. A saturating increment on the value in register `r0` can be implemented as:
+```
+add r0, r0, 1
+sbb r0, r0, 0
+```
 
-**Proof**: Assume that $d$ does not satisfy the condition. Set $k = N + \lceil \log_2(d) \rceil - 1$ and $e_B = \text{mod}_d(-2^k), e_D = \text{mod}_d(2^k)$. We now have $e_B + e_D = d$ since $e_B + e_D \equiv 0 \mod d$ and $e_B, e_D \in \{ 0, 1, ..., d - 1 \}$. By assumption we have $e_B > 2^{k - N} = 2^{\lceil \log_2(d) \rceil - 1}$ so that $e_D \leq d - 2^{\lceil \log_2(d) \rceil - 1}$. Using that $\frac{d}{2} \leq 2^{\lceil \log_2(d) \rceil - 1}$ we see
+The following theorem states that when $d$ is an uncooperative divisor we have $\lfloor \frac{2^N - 1}{d} \rfloor = \lfloor \frac{2^N - 2}{d} \rfloor$. So if we apply algorithm D only to uncooperative divisors, the saturating increase produces the right result even when $n = 2^N - 1$.
+
+**Theorem 5**: *Suppose $d \in \mathbb{U}_N$ is an uncooperative divisor. Then*
+$$ \lfloor \frac{2^N - 1}{d} \rfloor = \lfloor \frac{2^N - 2}{d} \rfloor $$
+
+**Proof**: Suppose that $\lfloor \frac{2^N - 1}{d} \rfloor \neq \lfloor \frac{2^N - 2}{d} \rfloor$. Then $2^N \equiv 1 \mod d$. Take $k = \lfloor \log_2(d) \rfloor$ and $e_B = \text{mod}_d(-2^k), e_D = \text{mod}_d(2^k)$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
+$$ e_D = \text{mod}_d(2^k) = \text{mod}_d(2^N \cdot 2^{\lfloor \log_2(d) \rfloor}) = \text{mod}_d(2^{\lfloor \log_2(d) \rfloor}) = 2^{\lfloor \log_2(d) \rfloor}$$
+
+Here we used that $2^{\lfloor \log_2(d) \rfloor} < d$. We have $e_B + e_D = d$ since $e_B, e_D \equiv 0 \mod d$ and $e_B, e_D' \in \{ 0, 1, ..., d - 1 \}$. So
+$$ e_B = d - e_D \leq 2^{\lceil \log_2(d) \rceil} - 2^{\lfloor \log_2(d) \rfloor}  = 2^{\lfloor \log_2(d) \rfloor} = 2^{k - N} $$
+
+So it follows that $d$ is a cooperative divisor. This is a contradiction, since we assumed that $d$ is uncooperative. So we must have $\lfloor \frac{2^N - 1}{d} \rfloor = \lfloor \frac{2^N - 2}{d} \rfloor$.
+$\square$
+
+Note that algorithm D assumes the existence of a $k \in \mathbb{N}$ such that $N \leq k < N + \lceil \log_2(d) \rceil$ and $\text{mod}_d(2^k) \leq 2^{k - N}$. The following theorem states that such a $k$ indeed exists when $d \in \mathbb{U}_N$ is an uncooperative divisor.
+
+**Theorem 6**: *Let $d \in\mathbb{U}_N$ be an uncooperative divisor. Then there exists a $k \in \mathbb{N}$ with $N \leq k < N + \lceil \log_2(d) \rceil$ such that $\text{mod}_d(2^k) \leq 2^{k - N}$.*
+
+**Proof**: Assume that $d$ is an uncooperative divisor. Set $k = N + \lceil \log_2(d) \rceil - 1$ and $e_B = \text{mod}_d(-2^k), e_D = \text{mod}_d(2^k)$. We now have $e_B + e_D = d$ since $e_B + e_D \equiv 0 \mod d$ and $e_B, e_D \in \{ 0, 1, ..., d - 1 \}$. Since we assumed that $d$ is an uncooperative divisor we have $e_B > 2^{k - N} = 2^{\lceil \log_2(d) \rceil - 1}$ so that $e_D \leq d - 2^{\lceil \log_2(d) \rceil - 1}$. Using that $\frac{d}{2} \leq 2^{\lceil \log_2(d) \rceil - 1}$ we see
 $$ e_D \leq d - 2^{\lceil \log_2(d) \rceil - 1} \leq \frac{d}{2} \leq 2^{\lceil \log_2(d) \rceil - 1} = 2^{k - N}$$
 
-So we have $e_D = \text{mod}_d(2^k) \leq 2^{k - N}$. $\square$
+So we have $e_D = \text{mod}_d(2^k) \leq 2^{k - N}$.
+$\square$
 
-As discussed before, the most efficient method of evaluating $n \cdot (n + 1)$ depends on the target. If we simply increment $n$, we might cause an overflow. One method is to compute $m \cdot (n + 1)$ as $m \cdot n + m$. For this, it is necessary to compute the full $2N$-bit product $m \cdot n$, and to add the $N$-bit value $n$ to it.  If the target architecture has an integer fused multiply-add instruction, it might be used for this computation. For example, in [2], the Intel Celeron instruction `XMA.HU` is used for this purpose. Another solution, introduced in [4], is to use a 'saturating increment', which increases $n$ only if $n < 2^N - 1$, so that overflow doesn't occur. This is reported to be slightly more efficient than calculating $m \cdot (n + 1)$. A saturating add will yield the right result as long as we only use algorithm D only for divisors for which the condition for algorithm B does not hold.
+So, if we use algorithm B for cooperative divisors and algorithm D for uncooperative divisors, we can always fit $m$ in an $N$-bit word.
 
-This can be shown as follows: If $n = 2^N - 1$, the saturating increase will do nothing, since $n = 2^N - 1$ is the maximum value that can be contained in $N$ bits. In this case, we effectively compute $\lfloor \frac{2^N - 2}{d} \rfloor$. However, if $d$ is not a factor of $2^N - 1$, we have $\lfloor \frac{2^N - 1}{d} \rfloor = \lfloor \frac{2^N - 2}{d} \rfloor$, so we still get the right answer.
 
-If $d$ is a factor of $2^N - 1$, take $k = \lceil \log_2(d) \rceil - 1$ and $e_B = \text{mod}_d(-2^k), e_D = \text{mod}_d(-2^k)$. Then
-$$ e_D = \text{mod}_d(2^k) = \text{mod}_d(2^N \cdot 2^{\lceil \log_2(d) \rceil - 1}) = \text{mod}_d(2^{\lceil \log_2(d) \rceil - 1}) = 2^{\lceil \log_2(d) \rceil - 1}$$
+## Compiler optimizations
 
-Here we used that $2^N \equiv 1 \mod d$ since $d$ is a factor of $2^N - 1$, and $2^{\lceil \log_2(d) \rceil - 1} < d$. We have $e_B + e_D = d$ since $e_B, e_D \equiv 0 \mod d$ and $e_B, e_D' \in \{ 0, 1, ..., d - 1 \}$. So
-$$ e_B = d - e_D \leq 2^{\lceil \log_2(d) \rceil} - 2^{\lceil \log_2(d) \rceil - 1}  = 2^{\lceil \log_2(d) \rceil - 1} = 2^{k - N} $$
+Here, I give a sketch of how the code generation for a compiler backend could look, together with generated code for a hypothetical 32-bit target instruction set with the following instructions:
 
-This means that the condition for algorithm B is satisfied, and algorithm B should be used. So as long as algorithm B is used when possible, a saturating increase can be used for algorithm D.
+| Instruction     | Description |
+|-----------------|:-------------:|
+| `shr a, b, c`   | Shift register `b` by `c` bits, store the result in register `a`.|
+| `gte a, b, c`   | Set register `a` to 1 if `b` is greater or equal to `c` and to 0 otherwise.|
+| `umulhi a, b, c`| Store the N high bits of the unsigned product `b * c` in `a`.|
+|`add a, b, c`    | Store the sum of `b` and `c` in `a`, and set the carry/borrow bit if the sum `b + c` doesn't fit in 32 bits.|
+|`sbb a, b, c`   | Store `b - c - <carry bit>` in `a`.|
+|`ret`            | Return from function (implementation details are irrelevant). |
 
-## Overview
+The register `c` can be replaced by a 32-bit constant. I will assume that the target uses registers `r0`, `r1`, `r2`, and so on. As far as calling conventions go, the first argument will be passed in `r0`, just like the return value.
 
-Quite a lot of different algorithms have been presented. The following map can be used as a rough guide to the most efficient algorithm for a given divisor. When the answer to a question is "no", the left arrow should be followed from that circle. Otherwise, the right arrow should be followed. The algorithms are roughly ordered from slow on the left side, to fast on the right side. For brevity I have ignored the simple optimizations mentioned at the start of this article.
+I assume that the compiler backend has an `expression` type, which can contain nested calls to instructions like `shr`, `umulhi`, etc. An unsigned integer `v` can be passed as a compile-time constant expression by writing `const(v)`.
 
-The "condition for algorithm B" which is mentioned in the flowchart, is that there exists a $k \in \mathbb{N}$ with $N \leq k < N + \lceil \log_2(d) \rceil$ such that $\text{mod}_d(-2^k) < 2^{k - N}$.
-
-![Diagram comparing the different algorithms](images/flowchart_unsigned_division.png)
-
-If you don't care about having the absolute best algorithm, I recommend that you ignore the whole flowchart and implement algorithm A, with special cases for division by one or by powers of two. This algorithm is slightly slower than the other ones, but has a simpler implementation and works for all divisors. Moreover, it can also be extended to deal with signed integers.
-
-For constants that are known at runtime but not at compile time, I suggest a method that picks one of algorithm B and D, and uses the following structure:
+I use the following function as an example:
 
 ```
-struct fast_division_data {
-	uint32_t m, add, shift;
+const uint32_t d = ...;
+
+uint32_t divide(uint32_t n) {
+	return n / d;
 }
 ```
 
-Algorithm B fills `m` and `shift` and sets `add` to zero. Algorithm D sets `m` and shift, and sets `add` to `m`. This is basically the method described in [2]. The division can now be evaluated with the following function:
+For the optimization of multiplication by a constant, we have the following flowchart. The right arrow should be followed if the question above the node is true, else the left arrow should be followed.
+![Flowchart for optimization of a multiplication by a constant unsigned integer](https://i.imgur.com/BugqAFB.png)
+
+Roughly speaking, the algorithms are ordered from least efficient on the left, to most efficient on the right.
+
+In pseudocode, we can implement the compiler backend for the division by a constant unsigned integer as follows:
 ```
-uint32_t fast_divide(uint32_t n, fast_division_data data) {
-	uint32_t hi_word = ()(((uint64_t)m * (uint64_t)n + add) >> 32);
-	return hi_word >> shift;
+expression div_by_const_uint(const uint d, expression n) {
+	if is_power_of_2(d) {
+		if (d == 1) return n;
+		else return shr(n, log2(d));
+	}
+	else {
+		if (d > max_value / 2) return gte(n, max_value / 2 + 1);
+		else return mul_based_div_by_const_uint(d, n);
+	}
 }
 ```
+
+When $d = 1$, the divide function will look as follows:
+```
+divide:
+	ret
+```
+
+That's right, an empty function. The return value will be the same as the input value, since both the first argument and the return value are passed in `r0`.
+
+When $d = 2^p$ for some $p > 0$ we'll get a bit shift. Say $d = 16$. Then the `divide` function will get compiled to:
+
+```
+divide:
+	shr r0, r0, 4
+	ret
+```
+
+For a divisor more than $2^{32}$ we'll get a comparison instruction. For example, taking $d = 2147483649$:
+
+```
+divide:
+	gte r0, r0, 2147483649
+	ret
+```
+
+This were the easy special cases. For the multiplication-based techniques, we have the following flowchart:
+![Flowchart for multiplication-based optimization of a multiplication by a constant unsigned integer](https://i.imgur.com/lQOKqIe.png)
+
+Algorithms on the right are usually slightly more efficient.
+
+This translates into the following pseudocode:
+```
+expression mul_based_div_by_const_uint(const uint d, expression n) {
+	uint k, m;
+	if (is_cooperative(d, &k, &m, N)) {
+		return shr(umulhi(n, const(m)), const(k - N);
+	}
+	else {
+		if (d % 2 == 0) {
+			uint p = 0, q = d;
+			while (q > 0 && q % 2 == 0) {
+				q = q / 2;
+				p = p + 1;
+			}
+			calculate_even(p, q, &k, &m, N);
+			expression n_prime = shr(n, const(p));
+			return shr(umulhi(n_prime, const(m)), const(k - N));
+		}
+		else {
+			calculate_uncooperative(d, &k, &m);
+			expression n_sat_inc = sbb(add(n, 1), 0);
+			return shr(umulhi(n_sat_inc, const(m)), const(k - N));
+		}
+	}
+}
+```
+
+First, for a cooperative divisor like $d = 3$, we have
+```
+divide:
+	umulhi r0, r0, 2863311531
+	shr r0, r0, 33
+	ret
+```
+
+For divisors of $2^{32} + 1$ (the only divisors of $2^{32}$ are $641$ and $6700417$), the right shift can be omitted. For example, for $d = 641$ we have:
+```
+divide:
+	umulhi r0, r0, 6700417
+	ret
+```
+
+For even non-cooperative divisors, such as $d = 14$, we have
+```
+divide:
+	shr r0, r0, 1
+	umulhi r0, r0, 2454267027
+	shr r0, r0, 34
+	ret
+```
+
+For a divisor with more factors two, it might be possible to omit the last shift. For example, when we set $d = 28$:
+```
+divide:
+	shr r0, r0, 1
+	umulhi r0, r0, 613566757
+	ret
+```
+
+Finally, for uncooperative divisors such as $d = 7$, we get:
+```
+divide:
+	add r0, r0, 1
+	sbb r0, r0, 0
+	umulhi r0, r0, 1227133513
+	shr r0, r0, 33
+	ret
+```
+
+
+## Runtime optimizations
+
+Suppose we want to perform faster division by a runtime constant. In this case we have to compute the magic value at runtime, and call a function `fast_divide` to perform the division. For the sake of efficiency, we want this function to be branchless (it should not contain any if statements).
+
+Following [2], we note that both algorithm B and algorithm D follow the common pattern of computing $ax + b$ and right shifting it by $k$ bits. So the following struct holds enough information:
+
+```
+struct div_info {
+	uint a, b, k;
+};
+```
+
+The `fast_divide` function now looks like
+```
+uint fast_divide(uint n, div_info di) {
+	uint hi_word = (uint)(((big_uint)di.a * n + di.b) >> N);
+	return (uint)(hi_word >> (di.k - N));
+}
+```
+
+For cooperative divisors, we use algorithm B and set $a = m, b = 0$. For uncooperative divisors, we use algorithm D and set $a = m, b = m$. For $d = 1$ we need a special case that sets $a = 2^N - 1, b = 1, k = 32$.
+
+This is certainly not the only way to implement the runtime optimization, but I think it's the most elegant.
+
+
+## On testing
+
+If you implement these techniques, I recommend that you work out some examples for 4-bit numbers. After that, you can implement the methods for 8- and 16-bit numbers. It should be possible to test these exhaustively. That is, you should be able to test if your code gets the quotient $\lfloor \frac{n}{d} \rfloor$ right for every $n, d \in \mathbb{U}_N$ with $d \neq 0$. For 32-bit numbers, it should still be possible to check, for all $d \neq 0$, the value of the quotient $\lfloor \frac{n}{d} \rfloor$ where $n$ is a multiple of $d$ or the integer before that. You should also test $n = 0$ and $n = 2^{32} - 1$. For 64-bit quotients, it is impossible to check all possibilities within a reasonable time. However, you can just pick a random value for $d$, and check the quotient for $n = 0$ and $n = 2^{64} - 1$ along with some random values for $n$. If your code works for all 32-bit integers and you have no failing cases after a long time of random testing, you have good reason to believe that there are no blatant errors in your code.
 
 
 ## Further reading
