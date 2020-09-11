@@ -1,22 +1,23 @@
 
+
 # Division by constant unsigned integers
 
-*Note: This article is a work in progress. The basic ideas are there, but I will try to improve the text and include more and better code in a next iteration.*
+The code accompanying this article can be found on [github](https://github.com/rubenvannieuwpoort/div_by_const_uint).
 
 Most modern processors have an integer divide instruction which is relatively slow compared to the other arithmetic operations. When the divisor is known at compile-time or the same divisor is used for many divisions, it is possible to transform the single division to a series of instructions which execute faster. Most compilers will optimize divisions in this way. The [libdivide](https://libdivide.com/) library implements this technique for divisors which are constant at runtime but not known at compile-time. In this article, I give an overview of the existing techniques.
 
 First, let me define some terminology. The number that is being divided is called the *dividend*. The dividend is divided by $d$, the *divisor*. The rounded down result $\lfloor \frac{n}{d} \rfloor$ is called the *quotient*.
 
-For some special divisors, the quotient can be found very efficiently. A division by one just returns the dividend and division by another power of two can be implemented by a bit shift. When the divisor is larger than half of the maximum value of the dividend, the quotient is one when $n \geq d$ and zero otherwise. These special cases can be efficiently implemented. I will mostly ignore them and focus on more generally applicable multiplication-based methods.
+For some special divisors, the quotient can be found very efficiently. A division by one just returns the dividend and division by another power of two can be implemented by a bit shift. When the divisor is larger than half of the maximum value of the dividend, the quotient is one when $n \geq d$ and zero otherwise. These special cases can be efficiently implemented. I will mostly ignore these special cases.
 
-Multiplication-based techniques uses the idea of multiplying by a constant that approximates the reciprocal of the divisor in fixed point math. This means that, when we want to divide by a divisor $d$, we multiply the dividend by some constant $m$ with
+A more generally applicable technique uses the idea of multiplying by a constant that approximates the reciprocal of the divisor in fixed point math. This means that, when we want to divide by a divisor $d$, we multiply the dividend by some constant $m$ with
 $$ m \approx \frac{2^k}{d} $$
 
 and shift the result $k$ bits to the right. Here, $k$ is a measure of how precise the fixed-point approximation is to $\frac{1}{d}$. Setting $k$ higher will yield a more precise approximation, but also increase the number of bits that we need to store $m$.
 
 Ideally, we would be able to obtain the right answer by simply ignoring everything behind the decimal point, since this can be implemented by a right shift, which is a very efficient operation. Before going any further, let's define the problem more formally. In this article, I'll only cover unsigned integers.
 
-I assume that we are working on a processor with $N$-bit registers. I'll also assume that the processor has a `muluh` instruction, which operates on two $N$-bit unsigned integers and computes the upper $N$ bits of the product. The examples I give will be in pseudocode, in which I will use the `muluh` instruction as if it were a function. Further, I assume that the reader is familiar with the right shift operator `>>`. I will use it as a primitive in the pseudocode without further explanation.
+I assume that we are working on a processor with $N$-bit registers. I'll also assume that the processor has a `umulhi` instruction, which operates on two $N$-bit unsigned integers and computes the upper $N$ bits of the product. The examples I give will be in pseudocode, in which I will use the `umulhi` instruction as if it were a function. Further, I assume that the reader is familiar with the right shift operator `>>`. I will use it as a primitive in the pseudocode without further explanation.
 
 **Definition**: *Let $\mathbb{U}_N$ denote the set of unsigned integers which can be represented in $N$ bits with the binary encoding. That is:*
 $$ \mathbb{U}_N = \{ 0, 1, ..., 2^N - 2, 2^N - 1 \} $$
@@ -59,12 +60,12 @@ $\square$
 
 With the two lemmas we can finally prove the following theorem:
 
-**Theorem 1**: *Let $d, N \in \mathbb{N}_+$ be positive integers and $k_\text{min} \in \mathbb{N}$ be the smallest $k \geq N$ such that $\text{mod}_d(-2^k) \leq 2^{N - k}$. Then $k_\text{min} \leq N + \lceil \log_2(d) \rceil$. Furthermore, when $k \geq k_\text{min}$ and $m = \lceil \frac{2^k}{d} \rceil$ we have $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for any $n \in \mathbb{U}_N$.*
+**Theorem 1**: *Let $d, N \in \mathbb{N}_+$ be positive integers and $k_\text{min} \in \mathbb{N}$ be the smallest $k \geq N$ such that $\text{mod}_d(-2^k) \leq 2^{k - N}$. Then $k_\text{min} \leq N + \lceil \log_2(d) \rceil$. Furthermore, when $k \geq k_\text{min}$ and $m = \lceil \frac{2^k}{d} \rceil$ we have $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for any $n \in \mathbb{U}_N$.*
 
 **Proof**: We have $\text{mod}_d(-2^k) < d \leq 2^{\lceil \log_2(d) \rceil} = 2^{k - N}$. So we have $\text{mod}_d(-2^k) \leq 2^{k - N}$ and it follows that $k_\text{min} \leq N + \lceil \log_2(d) \rceil$. Now suppose that $k \geq k_\text{min}$ and define $p = k - k_\text{min}$. We now have
 $$ \text{mod}_d(-2^k) = \text{mod}_d(-2^{k_\text{min} + p}) \leq 2^p \cdot \text{mod}_d(-2^{k_\text{min}}) \leq 2^p \cdot 2^{k_\text{min} - N} = 2^k  $$
 
-So we have $\text{mod}_d(-2^k) \leq 2^{N - k}$. Define $m = \lceil \frac{2^k}{d} \rceil$. By lemma 2 it follows that $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for any $n \in \mathbb{U}_N$.
+So we have $\text{mod}_d(-2^k) \leq 2^{k - N}$. Define $m = \lceil \frac{2^k}{d} \rceil$. By lemma 2 it follows that $\lfloor \frac{m \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for any $n \in \mathbb{U}_N$.
 $\square$
 
 From theorem 1 it follows that when we look for the lowest $k \geq N$ such that $\text{mod}_d(-2^k) \leq 2^{k - N}$, we only need to check the values $N, N + 1, ..., N + \lceil \log_2(d) \rceil - 1$. If none of these values succeed, $k = N + \lceil \log_2(d) \rceil$ is the smallest $k$ that satisfies $\text{mod}_d(-2^k) \leq 2^{k - N}$.
@@ -100,7 +101,7 @@ Unfortunately we can now see that when we set $k = N + \lceil \log_2(d) \rceil$ 
 
 ```
 uint fast_divide(uint n) {
-	uint hiword = muluh(n, m');
+	uint hiword = umulhi(n, m');
 	uint intermediate = (n - hiword) >> min(k - N, 1);
 	return (hiword + intermediate) >> max(k - N - 1, 0)
 }
@@ -119,27 +120,18 @@ $$ \text{mod}_d(-2^k) \leq 2^{k - N} $$
 
 *then $d$ is called a **cooperative divisor**. Otherwise, $d$ is an **uncooperative divisor**.*
 
-Assuming that an `uint` is an $N$-bit unsigned integer, the following C code can be used to find $k$ given a divisor $d$. It is assumed that $N = 32$, but the code should be easy to extend.
+Assuming that an `uint` is an $N$-bit unsigned integer, the following C code can be used to find $k$ given a divisor $d$. It tests $k = N, N + 1, ...$ until it finds a $k$ that satisfies the condition.
 
 ```
-uint find_k(uint d, bool *is_cooperative) {
-	uint ceillog = ceil_log2(d);
-	uint mod_d = ((uint)(-d)) % d; // mod_d = 2^N (mod d)
-	*is_cooperative = true;
-	
-	for (uint k = 32; k < 32 + ceillog; k++) {
-		
-		// return k if the condition is satisfied
-		if (mod_d <= (1 << (k - 32)) {
-			return k;
-		}
-		
-		// overflow-safe way of doubling modulo d
-		if (mod_d < d - mod_d) mod_d += mod;
-		else mod_d += mod_d - d;
+// Double 'init' modulo d until it is less than 2^(k - M), return k
+int loop_k(uint d, uint init, uint M) {
+	int k = N;
+	for (uint mod = init, pow = 1 << (k - M); mod > pow; pow <<= 1, k++) {
+		// overflow-safe way of doubling 'mod' modulo d
+		if (mod < d - mod) mod += mod;
+		else mod -= d - mod;
 	}
-	*is_cooperative = false;
-	return 32 + ceillog;
+	return k;
 }
 ```
 
@@ -247,12 +239,12 @@ Here, I give a sketch of how the code generation for a compiler backend could lo
 
 | Instruction     | Description |
 |-----------------|:-------------:|
-| `shr a, b, c`   | Shift register `b` by `c` bits, store the result in register `a`.|
-| `gte a, b, c`   | Set register `a` to 1 if `b` is greater or equal to `c` and to 0 otherwise.|
-| `umulhi a, b, c`| Store the N high bits of the unsigned product `b * c` in `a`.|
-|`add a, b, c`    | Store the sum of `b` and `c` in `a`, and set the carry/borrow bit if the sum `b + c` doesn't fit in 32 bits.|
-|`sbb a, b, c`   | Store `b - c - <carry bit>` in `a`.|
-|`ret`            | Return from function (implementation details are irrelevant). |
+| `shr a, b, c`   | Shift register `b` by `c` bits, store result in `a`|
+| `gte a, b, c`   | Set `a` to 1 if `b >= c` and to 0 otherwise|
+| `umulhi a, b, c`| Store N high bits of unsigned product `b * c` in `a`|
+|`add a, b, c`    | Store `b + c` in `a`, set carry on overflow|
+|`sbb a, b, c`    | Store `b - c - carry` in `a`|
+|`ret`            | Return from function|
 
 The register `c` can be replaced by a 32-bit constant. I will assume that the target uses registers `r0`, `r1`, `r2`, and so on. As far as calling conventions go, the first argument will be passed in `r0`, just like the return value.
 
@@ -269,19 +261,19 @@ uint32_t divide(uint32_t n) {
 ```
 
 For the optimization of multiplication by a constant, we have the following flowchart. The right arrow should be followed if the question above the node is true, else the left arrow should be followed.
-![Flowchart for optimization of a multiplication by a constant unsigned integer](https://i.imgur.com/BugqAFB.png)
+![Flowchart for optimization of a multiplication by a constant unsigned integer](images/flowchart_cases.png)
 
 Roughly speaking, the algorithms are ordered from least efficient on the left, to most efficient on the right.
 
 In pseudocode, we can implement the compiler backend for the division by a constant unsigned integer as follows:
 ```
-expression div_by_const_uint(const uint d, expression n) {
-	if is_power_of_2(d) {
+expression_t div_by_const_uint(const uint d, expression_t n) {
+	if (is_power_of_two(d)) {
 		if (d == 1) return n;
-		else return shr(n, log2(d));
+		else return shr(n, constant(floor_log2(d)));
 	}
 	else {
-		if (d > max_value / 2) return gte(n, max_value / 2 + 1);
+		if (d > MAX / 2) return gte(n, constant(d));
 		else return mul_based_div_by_const_uint(d, n);
 	}
 }
@@ -312,33 +304,45 @@ divide:
 ```
 
 This were the easy special cases. For the multiplication-based techniques, we have the following flowchart:
-![Flowchart for multiplication-based optimization of a multiplication by a constant unsigned integer](https://i.imgur.com/lQOKqIe.png)
+![Flowchart for multiplication-based optimization of a multiplication by a constant unsigned integer](images/flowchart_mult.png)
 
 Algorithms on the right are usually slightly more efficient.
 
 This translates into the following pseudocode:
 ```
-expression mul_based_div_by_const_uint(const uint d, expression n) {
-	uint k, m;
-	if (is_cooperative(d, &k, &m, N)) {
-		return shr(umulhi(n, const(m)), const(k - N);
+expression_t mul_based_div_by_const_uint(uint d, expression_t n) {
+	uint mod = (uint)(~d + 1) % d; // 2^N mod d
+	uint minus_mod = mod ? d - mod : 0;
+	uint k = loop_k(d, minus_mod, N);
+	uint bits = k + 1 - ceil_log2(d);
+	if (bits <= N) {
+		// Algorithm B: cooperative divisors
+		uint m = calc_m(d, k) + 1;
+		expression_t hiword = umulhi(n, constant(m));
+		if (k == N) return hiword;
+		else return shr(hiword, constant(k - N));
+	}
+	if (d % 2 == 0) {
+		// Algorithm C: even uncooperative divisors
+ 		uint p = powers_of_two(d);
+		uint q = d >> p;
+		mod = (uint)(~q + 1) % q; // 2^N mod d
+		uint minus_mod = mod ? q - mod : 0;
+		k = loop_k(q, minus_mod, N - p);
+		uint m = calc_m(q, k) + 1;
+		expression_t n_odd = shr(n, constant(p));
+		expression_t hiword = umulhi(n_odd, constant(m));
+		if (k == N) return hiword;
+		else return shr(hiword, constant(k - N));
 	}
 	else {
-		if (d % 2 == 0) {
-			uint p = 0, q = d;
-			while (q > 0 && q % 2 == 0) {
-				q = q / 2;
-				p = p + 1;
-			}
-			calculate_even(p, q, &k, &m, N);
-			expression n_prime = shr(n, const(p));
-			return shr(umulhi(n_prime, const(m)), const(k - N));
-		}
-		else {
-			calculate_uncooperative(d, &k, &m);
-			expression n_sat_inc = sbb(add(n, 1), 0);
-			return shr(umulhi(n_sat_inc, const(m)), const(k - N));
-		}
+		// Algorithm D: odd uncooperative divisors
+		k = loop_k(d, mod, N);
+		uint m = calc_m(d, k);
+		expression_t n_inc = sbb(add(n, constant(1)), constant(0));
+		expression_t hiword = umulhi(n_inc, constant(m));
+		if (k == N) return hiword;
+		else return shr(hiword, constant(k - N));
 	}
 }
 ```
@@ -347,7 +351,7 @@ First, for a cooperative divisor like $d = 3$, we have
 ```
 divide:
 	umulhi r0, r0, 2863311531
-	shr r0, r0, 33
+	shr r0, r0, 1
 	ret
 ```
 
@@ -363,14 +367,14 @@ For even non-cooperative divisors, such as $d = 14$, we have
 divide:
 	shr r0, r0, 1
 	umulhi r0, r0, 2454267027
-	shr r0, r0, 34
+	shr r0, r0, 2
 	ret
 ```
 
 For a divisor with more factors two, it might be possible to omit the last shift. For example, when we set $d = 28$:
 ```
 divide:
-	shr r0, r0, 1
+	shr r0, r0, 2
 	umulhi r0, r0, 613566757
 	ret
 ```
@@ -381,7 +385,7 @@ divide:
 	add r0, r0, 1
 	sbb r0, r0, 0
 	umulhi r0, r0, 1227133513
-	shr r0, r0, 33
+	shr r0, r0, 1
 	ret
 ```
 
