@@ -1,18 +1,19 @@
-
 # Division by constant unsigned integers
 
 Most modern processors have an integer divide instruction which, for technical reasons, is very slow compared to other integer arithmetic operations. When the divisor is constant, it is possible to transform the division instruction to other instructions which execute faster. Most optimizing compilers perform this optimization, as can be seen on [Matt Godbolt’s compiler explorer](https://godbolt.org/z/xrYsbs).
 
-There are some straightforward tricks to divide by special divisors: A division by one can be ignored, a division by a power of two can be replaced by a bit shift, and a division by a number that is larger than half of the maximum value of the datatype of the dividend can be replaced by a comparison. By using fixed-point arithmetic, we can speed up division by all constant divisors. However, this is not as simple, and for this reason I will focus only on positive or 'unsigned' divisors.
+There are some tricks to divide by special divisors: A division by one can be ignored, a division by a power of two can be replaced by a bit shift, and a division by a number that is larger than half of the maximum value of the datatype of the dividend can be replaced by a comparison. By using fixed-point arithmetic, we can speed up division by all constant divisors. However, this is not as simple, and for this reason I will focus only on positive or 'unsigned' divisors.
 
-If many divisions by a floating-point constant $d$ need to be done, we can precompute $c = \frac{1}{d}$ and multiply by $c$ instead of dividing by $d$. With integer arithmetic, we can do something similar. If we just set $c = \frac{1}{d}$ we will get either zero or one, depending on $d$ and how we round. The solution is to use [fixed point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic). The basic idea is to pick a large constant $L$ that is easy to divide by. In decimal you can take some power of ten, in binary you would take a power of two. If we would have $c = \frac{L}{d}$ we would have $\frac{n \cdot c}{L} = \frac{n \cdot \frac{L}{d}}{L} = \frac{n}{d}$. However, $\frac{L}{d}$ is usually not an integer, and we need to round. Still, if $c \approx \frac{L}{d}$ we still expect that $\frac{n \cdot c}{L} \approx \frac{n}{d}$.
+When it is necessary to repeatedly divide floating point numbers by the same constant $c$, it is often preferred to precompute $\frac{1}{c}$ and multiply by this instead. This is usually a lot more efficient. We can do something analogous for integers by using [fixed point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic). The basic idea is to pick a large constant $L$ that is easy to divide by. In decimal you can take some power of ten, in binary you would take a power of two. If we would have $c = \frac{L}{d}$ we would have $\frac{n \cdot c}{L} = \frac{n \cdot \frac{L}{d}}{L} = \frac{n}{d}$. However, $\frac{L}{d}$ is usually not an integer, and we need to round. Still, if $c \approx \frac{L}{d}$ we still expect that $\frac{n \cdot c}{L} \approx \frac{n}{d}$.
 
-If this confuses you, consider the following example. In base ten, we expect that the result of multiplying a number $n$ by 0.3333 approximates $\frac{n}{3}$. Since $0.3333 = \frac{3333}{100000}$ we would expect that $\lfloor \frac{n \cdot 3333}{10000} \rfloor \approx \lfloor \frac{n}{3} \rfloor$ In binary, division by powers of two can be done efficiently. So, working with $N$-bit numbers, we take some value $k$ and compute $\lfloor \frac{n}{d} \rfloor$ as $\lfloor \frac{n \cdot m}{2^k} \rfloor$, where $m \approx \frac{2^k}{d}$.
+In the 
 
 
 ## Mathematical background
 
-Throughout this article, $N$ denotes the number of bits in a bit. Furthermore, I will use the notation $\mathbb{U}_N$ for the set of unsigned integers that can be represented with $N$ bits. That is,
+### Preliminaries
+
+In this article, I will assume that we optimize for an $N$-bit machine. By this, I mean that I will assume that the normal integer datatype has $N$ bits. I will also assume that the machine can efficiently compute the full $2N$-bit product of two $N$-bit unsigned integers. I will use the notation $\mathbb{U}_N$ for the set of unsigned integers that can be represented with $N$ bits. That is,
 $$ \mathbb{U}_N = \{ 0, 1, ..., 2^N - 1 \} $$
 
 I will use the notation $\text{mod}_d(n)$ to denote the integer in the range $\{ 0, 1, ..., d - 1 \}$ that is equivalent to $n$ modulo $d$. That is, $\text{mod}_d(n)$ is the unique integer such that
@@ -22,7 +23,7 @@ $$ \text{mod}_d(n) = n + m \cdot d $$
 
 for some $m \in \mathbb{Z}$.
 
-The following lemma will be useful.
+The following lemma will be very useful:
 
 **Lemma 1**: *Suppose that $n, d \in \mathbb{N}$ with $d > 0$. If $\frac{n}{d} \leq x < \frac{n + 1}{d}$ then $\lfloor x \rfloor = \lfloor \frac{n}{d} \rfloor$.*
 
@@ -32,9 +33,22 @@ $$ \frac{n}{d} \rfloor x < \lfloor \frac{n}{d} \rfloor + 1 $$
 It follows that $x \in [ \lfloor \frac{n}{d} \rfloor, \lfloor \frac{n}{d} \rfloor + 1)$, so that $\lfloor x \rfloor = \lfloor \frac{n}{d} \rfloor$.
 $\square$
 
-The following theorem gives a condition to check if $m$ can be used to optimise division by a constant divisor $d$. The theorem is stated in [1], although the proof is adapted to be shorter and easier to understand.
 
-**Theorem 2**: *Let $d, m, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If*
+### ???
+
+With the preliminaries out of the way, let's continue to the meat of the article. In the introduction, we have already established that we want to compute some $m \approx \frac{2^k}{d}$ for some large enough $k$ so that $\frac{m \cdot n}{2^k} \approx \frac{n}{d}$. We want the evaluation of $\frac{m \cdot n}{2^k}$ to be efficient, therefore we demand that we round down $\frac{m \cdot n}{2^k}$, since in this case we can use a bit shift.
+
+Since for any $d > 1$ we can pick $k \leq N$ and still have $m \in \mathbb{U}_N$, we will set $k = N + l$ for some nonnegative integer $l$. Now, the remaining question is how to pick $l$ and $m$ so that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$.  Let's focus on $m$ first. Reasonable choices are to round either up or down: $m = \lfloor \frac{2^{N + l}}{d} \rfloor$ or $m = \lceil \frac{2^{N + l}}{d} \rceil$.
+
+If we set $m = \lfloor \frac{2^{N + l}}{d} \rfloor$, we will have $m < \frac{2^{N + l}}{d}$ so that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor < \lfloor \frac{n}{d} \rfloor$. So this clearly won't work. However, we will see that simply using $n + 1$ instead of $n$ is a viable alternative. So we now have the following two methods:
+  1. Round-up method: Take $m = \lceil \frac{2^{N + l}}{d} \rceil$ and approximate $\lfloor \frac{n}{d} \rfloor$ by $\lfloor \frac{m \cdot n}{2^{N + l}} \lfloor$
+  2. Round-down method: Take $m = \lfloor \frac{2^{N + l}}{d} \rfloor$ and approximate $\lfloor \frac{n}{d} \rfloor$ by $\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} \lfloor$
+
+We now demand that these methods are *correct*. That is, we should have $\lfloor \frac{m \cdot n}{2^{N + l}} \lfloor = \lfloor \frac{n}{d} \rfloor$ in case of the round-up method, and $\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} \lfloor = \lfloor \frac{n}{d} \rfloor$ in case of the round-down method. Furthermore, we want the methods to be *efficient*. For that, we demand that $m \in \mathbb{U}_N$.
+
+Now, I will present some theorems about the conditions under which the methods are correct.
+
+**Theorem 2 (Round-up method)**: *Let $d, m, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If*
 $$ 2^{N + l} \leq m \cdot d \leq 2^{N + l} + 2^l $$
 
 *then*
@@ -48,6 +62,8 @@ $$ \forall n \in \mathbb{U}_N : \frac{n}{d} \leq \frac{m \cdot n}{2^{N + l}} \le
 
 By lemma 1, it follows that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 $\square$
+
+The following corollary makes clear why I call theorem 2 the "round-up method".
 
 **Corollary 3**: *If $\text{mod}_d(-2^{N + l}) \leq 2^l$ and $m = \lceil \frac{2^{N + l}}{d} \rceil$, then $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
@@ -82,38 +98,34 @@ $\square$
 
 **Example**: TODO
 
-Theorem 4 is short and easy to prove, but not very insightful. The following exercises guide you through the approach taken in [3], which is more instructive.
 
-**Exercise**: TODO
 
-**Exercise**: TODO
 
-We can use the following lemma to figure out how many bits are needed to store the magic number $m$.
+Now that we have established under which conditions the methods are correct, let's turn to the question of efficiency. First, let's make our notion formal:
 
-**Lemma 6**: *Let $d, k \in \mathbb{N}_+$ with $d \leq 2^k$. Then the binary representations of $\lfloor \frac{2^k}{d} \rfloor$ and $\lceil \frac{2^k}{d} \rceil$ have $b = k + 1 - \lceil \log_2(d) \rceil$ bits. That is,*
-$$2^{b - 1} \leq \lfloor \frac{2^k}{d} \leq \lceil \frac{2^k}{d} \rceil \leq 2^b - 1 $$
+**Definition:** *We call a positive divisor $d \in \mathbb{U}_d$ **efficient** for the $N$-bit round-up method (or round down method) if there exists an $l \in \mathbb{N}$ and an $m \in \mathbb{U}_N$ such that for all $n \in \mathbb{U}_N$.* we have $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ ($\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for the round-down method).
 
-**Proof**: TODO
+The following theorem states that the round-up method is *almost* efficient for every divisor.
 
-Ideally, $m$ fits in a single word. We can ensure that an $m$ that satisfies the condition in theorem 2 exists when there are at least $d$ numbers in the range $\{ 2^N, 2^N + 1, ..., 2^l \}$. To ensure this, we can set $l = \lceil \log_2(d - 1) \rceil$.
+theorem: need at most N + 1 bits for m when using round-up method
 
-Assuming that $d$ is not of the form $2^p + 1$, we have $\lceil \log_2(d - 1) \rceil = \lceil \log_2(d) \rceil$. So in the worst case $\lceil \log_2(d) \rceil$ is the first value for $l$ for which there is an $m$ that satisfies the condition in theorem 2. In this case we need $b = N + 1$ bits, which is a single bit too many to fit in an $N$-bit word.
+theorem: every d is either efficient for the round-up or round-down method
 
-The following definition defines a name for divisors for which we can use theorem 2 with a magic number that fits in $N$ bits.
 
-**Definition**: *If $d \in \mathbb{N}$ is a divisor such that there exist $l, m \in \mathbb{N}$ such that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N​$, then $d$ is called a **cooperative divisor**.*
 
-So, for cooperative divisors it is straightforward to apply theorem 2. For non-cooperative divisors, we can use a technique introduced in [1] to multiply an $N$-bit unsigned number by an $(N + 1)$-bit unsigned number. As we will later see, it is more efficient to use theorem 4 for uncooperative divisors. I will document the trick here anyway. To obtain $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor$, where $n$ is an $N$-bit word and $2^{N - 1} \leq m \leq 2^N - 1$, the following function can be used:
-```
-uint divide(uint n) {
-	uint hiword = (m' * n) >> N;
-	return (hiword + ((n - hiword) >> s1)) >> s2;
-}
-```
 
-where $m' = m - 2^N$, $s_1 = \min(l, 1)$, and $s_2 = \max(l - 1, 0)$.
 
-If we combine theorem 2 and theorem 4, it will become clear that we never need to deal with $(N + 1)$-bit constants. Setting  l = \lceil\log_2(d) \rceil - 1l=⌈log2​(d)⌉−1  we see from lemma 6 that the number of bits will be $b = N + l + 1 - \lceil \log_2(d) \rceil = N$. The range $\{ 2^{N + l} - 2^l, 2^{N + l} - 2^l + 1, ..., 2^{N + l} + 2^l \}$ contains $2^{l + 1} + 1 = 2^{\lceil \log_2(d) \rceil} + 1$ integers. Since  $2^{\lceil \log_2(d) \rceil} + 1 > d$, there must be at least one multiple of $d$ in this range. If this multiple is in the range $\{ 2^{N + l} - 2^l, 2^{N + l} - 2^l + 1, ..., 2^{N + l} - 1 \}$ we can apply theorem 4. Otherwise,  the multiple must be in the range $\{ 2^{N + l}, 2^{N + l} + 1, ..., 2^{N + l} + 2^l \}$ and we can apply theorem 2. In any case we find an $m$ which fits in a single $N$-bit word.
+
+
+
+
+
+
+
+
+
+
+
 
 The following condition can be used to decide if a divisor is cooperative or not.
 
