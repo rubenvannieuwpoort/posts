@@ -1,3 +1,5 @@
+
+  
 # Division by constant unsigned integers
 
 Most modern processors have an integer divide instruction which, for technical reasons, is very slow compared to other integer arithmetic operations. When the divisor is constant, it is possible to transform the division instruction to other instructions which execute faster. Most optimizing compilers perform this optimization, as can be seen on [Matt Godbolt’s compiler explorer](https://godbolt.org/z/xrYsbs).
@@ -103,11 +105,24 @@ $\square$
 
 Now that we have established under which conditions the methods are correct, let's turn to the question of efficiency. First, let's make our notion formal:
 
-**Definition:** *We call a positive divisor $d \in \mathbb{U}_d$ **efficient** for the $N$-bit round-up method (or round down method) if there exists an $l \in \mathbb{N}$ and an $m \in \mathbb{U}_N$ such that for all $n \in \mathbb{U}_N$.* we have $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ ($\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for the round-down method).
+**Definition:** *We call a positive divisor $d \in \mathbb{U}_d$ **efficient** for the $N$-bit round-up method (or round down method) if there exists an $l \in \mathbb{N}$ and an $m \in \mathbb{U}_N$ such that for all $n \in \mathbb{U}_N$, we have $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ ($\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for the round-down method).*
 
-The following theorem states that the round-up method is *almost* efficient for every divisor.
+We will use the following lemma about the number of bits that we need for the magic number $m$.
 
-theorem: need at most N + 1 bits for m when using round-up method
+**Lemma:** *Let $d, k \in \mathbb{N}_+$ and define $m_\text{lo} = \lfloor \frac{2^k}{d} \rfloor$, $m_\text{hi} = \lceil \frac{2^k}{d} \rceil$. If $k > \lceil \log_2(d) \rceil$ then 
+$m_\text{lo}, m_\text{hi} \in \mathbb{U}_N$.*
+
+**Proof:** TODO
+$\square$
+
+The following theorem states that for any $N$-bit positive divisor, there is an $(N + 1)$-bit magic number that works for the round-up method. In other words, for any given divisor, the round-up method is *almost* efficient.
+
+**Theorem:** *For any positive divisor $d \in \mathbb{U}_N$, there exist $l \in \mathbb{N_+}$, $m \in \mathbb{U}_{N + 1}$ such that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+
+**Proof**: Set $l = \lceil \log_2(d) \rceil$. The range $\{ 2^N, 2^N + 1, ..., 2^N + 2^l \}$ consists of $2^l + 1$ consecutive numbers. We have $2^l + 1 = 2^{} + 1 > d$, so there must be a multiple of $d$ in this range. Using theorem 2, we see that there exists an $m$ such that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. It remains to show that $m \in \mathbb{U}_{N + 1}$. TODO
+$\square$
+
+The following theorem says that for any given positive divisor, either the round-up method or the round-down method is efficient.
 
 theorem: every d is either efficient for the round-up or round-down method
 
@@ -125,9 +140,7 @@ theorem: every d is either efficient for the round-up or round-down method
 
 
 
-
-
-The following condition can be used to decide if a divisor is cooperative or not.
+We can use theorem 2 and 4 and corollary 3 and 5 to see if a given divisor is efficient for the round-up method. The following condition can be used to implement a more efficient test.
 
 **Lemma 7**: *Let $d$ be a cooperative divisor and let $l = \lceil \log_2(d) \rceil - 1$. If $\text{mod}_{2^N}(\lceil \frac{2^{N + l}}{d} \rceil \cdot d) \leq 2^l$ then $d$ is a cooperative divisor.*
 
