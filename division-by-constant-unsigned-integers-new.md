@@ -1,5 +1,3 @@
-
-  
 # Division by constant unsigned integers
 
 Most modern processors have an integer divide instruction which, for technical reasons, is very slow compared to other integer arithmetic operations. When the divisor is constant, it is possible to transform the division instruction to other instructions which execute faster. Most optimizing compilers perform this optimization, as can be seen on [Matt Godbolt’s compiler explorer](https://godbolt.org/z/xrYsbs).
@@ -8,7 +6,7 @@ There are some tricks to divide by special divisors: A division by one can be ig
 
 When it is necessary to repeatedly divide floating point numbers by the same constant $c$, it is often preferred to precompute $\frac{1}{c}$ and multiply by this instead. This is usually a lot more efficient. We can do something analogous for integers by using [fixed point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic). The basic idea is to pick a large constant $L$ that is easy to divide by. In decimal you can take some power of ten, in binary you would take a power of two. If we would have $c = \frac{L}{d}$ we would have $\frac{n \cdot c}{L} = \frac{n \cdot \frac{L}{d}}{L} = \frac{n}{d}$. However, $\frac{L}{d}$ is usually not an integer, and we need to round. Still, if $c \approx \frac{L}{d}$ we still expect that $\frac{n \cdot c}{L} \approx \frac{n}{d}$.
 
-In the 
+In the following section, I'll discuss the mathematical background. In the sections after that, I'll discuss how division by constant unsigned integers can be optimized at compile-time and at runtime.
 
 
 ## Mathematical background
@@ -78,7 +76,7 @@ $\square$
 
 The following theorem is a natural counterpart of theorem 2. I haven’t found this exact theorem anywhere else, though analogues have been proven in [2] and [4].
 
-**Theorem 4**: *Let $d, m, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If$
+**Theorem 4**: *Let $d, m, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If*
 $$ 2^{N + l} - 2^l \leq m \cdot d < 2^{N + l}$$
 
 *then*
@@ -109,8 +107,10 @@ Now that we have established under which conditions the methods are correct, let
 
 We will use the following lemma about the number of bits that we need for the magic number $m$.
 
-**Lemma:** *Let $d, k \in \mathbb{N}_+$ and define $m_\text{lo} = \lfloor \frac{2^k}{d} \rfloor$, $m_\text{hi} = \lceil \frac{2^k}{d} \rceil$. If $k > \lceil \log_2(d) \rceil$ then 
-$m_\text{lo}, m_\text{hi} \in \mathbb{U}_N$.*
+**Lemma:** *Let $d \in \mathbb{U}_N$ and define $x = \frac{2^{N + 1 - \lceil \log_2(d) \rceil}}{d}$. Now*
+$$2^{N - 1} \leq \lfloor x \rfloor \leq \lceil x \rceil \leq 2^N - 1$$
+
+That is, the binary representations of $\lfloor x \rfloor$ and $\lceil x \rceil$ have exactly $N$ bits.
 
 **Proof:** TODO
 $\square$
