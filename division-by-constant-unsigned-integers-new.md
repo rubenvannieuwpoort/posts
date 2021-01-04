@@ -25,13 +25,8 @@ $$ \text{mod}_d(n) = n + m \cdot d $$
 
 for some $m \in \mathbb{Z}$.
 
+
 ### Unsigned division
-
-In the introduction, we have established that when
-$$ m \approx \frac{2^k}{d} $$
-
-then
-$$ \frac{n \cdot m}{2^k} $$
 
 For a given divisor $d$, we now want to have an expression that evaluates to $\lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. We have two demands for this expression:
   1. It should be *correct*, that is, the expression is equal to $\lfloor \frac{n}{d} \rfloor$
@@ -44,19 +39,23 @@ Guided by these demands, we can start our analysis. The following lemma will be 
 **Proof**: We have $\frac{n + 1}{d} = \lfloor \frac{n}{d} \rfloor + \frac{k}{d}$ for some nonnegative integer $k \leq d$. So $\frac{n + 1}{d} = \lfloor \frac{n}{d} \rfloor + \frac{k}{d} \leq \lfloor \frac{n}{d} \rfloor + 1$. It follows that $x \in [ \lfloor \frac{n}{d} \rfloor, \lfloor \frac{n}{d} \rfloor + 1)$, so that $\lfloor x \rfloor = \lfloor \frac{n}{d} \rfloor$.
 $\square$
 
-At this point, we have only decided that we want an expression that evaluates to $\lfloor \frac{n}{d} \rfloor$. We take $\lfloor \frac{m \cdot n}{2^k} \rfloor$ with $m \approx \frac{2^k}{d}$ as our starting point, since we know that $\frac{m \cdot n}{2^k} \approx \frac{n}{d}$. We now need to answer the following questions:
-  1. How do we pick $m$?
-  2. How do we pick $k$?
+At this point, we have only decided that we want an expression that evaluates to $\lfloor \frac{n}{d} \rfloor$. In the introduction, we have established that when
+$$ m \approx \frac{2^k}{d} $$
 
-The obvious choice for $m$ are the integers that minimize the error to $\frac{2^k}{d}$, which are $m_\text{down} = \lfloor \frac{2^k}{d} \rfloor$ and $m_\text{up} = \lceil \frac{2^k}{d} \rceil$. Note that when $d$ is not a power of two, we have $\lfloor \frac{d \cdot m_\text{down}}{2^k} \rfloor = 0$. To overcome this, we can simply increase $n$. Based on this, we can come up with the following methods:
+then
+$$ \frac{n \cdot m}{2^k} \approx \frac{n}{d} $$
+
+So, it is natural to take $\lfloor \frac{m \cdot n}{2^k} \rfloor$ with $m \approx \frac{2^k}{d}$ as our starting point, since we know that $\frac{m \cdot n}{2^k} \approx \frac{n}{d}$. We now need to answer the following questions. We now need to decide how exactly to pick $m$ and $k$.
+
+The obvious choice for $m$ are the integers that minimize the error to $\frac{2^k}{d}$, which are $m_\text{down} = \lfloor \frac{2^k}{d} \rfloor$ and $m_\text{up} = \lceil \frac{2^k}{d} \rceil$. Note that when $d$ is not a power of two, we have $\lfloor \frac{d \cdot m_\text{down}}{2^k} \rfloor = 0$. To overcome this, we can either use $m_\text{up}$ or simply use $n + 1$ instead of $n$. This gives us the following two methods:
   - The **round-up method**, which approximates $\lfloor \frac{n}{d} \rfloor$ by $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor$ with $m_\text{up} = \lceil \frac{2^k}{d} \rceil$.
   - The **round-down method**, which approximates $\lfloor \frac{n}{d} \rfloor$ by $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^k} \rfloor$ with $m_\text{down} = \lfloor \frac{2^k}{d} \rfloor$.
 
+First, we determine the conditions under which the round-up and round-down method produce the correct result. Note that from this point on we will assume that $k$ is larger than $N$. We will assume $k = N + l$ and use $k$ and $N + l$ interchangeably.
+
 The following theorem gives us a condition under which the round-up method is correct, that is, $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 
-Note that from this point on we will assume that $k$ is larger than $N$. We will assume $k = N + l$ and use $k$ and $N + l$ interchangeably.
-
-**Theorem 2 (round-up method)**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists any $m \in \mathbb{N}$ with*
+**Theorem 2 (round-up method)**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
 $$ 2^{N + l} \leq m \cdot d \leq 2^{N + l} + 2^l $$
 
 *then*
@@ -70,7 +69,7 @@ $$ \frac{n}{d} \leq \frac{m \cdot n}{2^{N + l}} \leq \frac{n}{d} + \frac{1}{d} \
 For all $n \in \mathbb{U}_N$ we have $n < 2^N$, so that $\frac{n}{2^N} < 1$. It follows that
 $$ \forall n \in \mathbb{U}_N : \frac{n}{d} \leq \frac{m \cdot n}{2^{N + l}} \leq \frac{n}{d} + \frac{1}{d} $$
 
-By lemma 1, it follows that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Since $d \cdot m_\text{up}$ is simply the first multiple of $d$ larger than or equal to $2^{N + l}$, so if there is any multiple of $d$ between $2^{N + l}$ and $2^{N + l} + 2^l$, we have $2^{N + l} \leq d \cdot m_\text{up} \leq 2^{N + l} + 2^l$.
+By lemma 1, it follows that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Now, $d \cdot m_\text{up} = d \cdot \lceil \frac{2^{N + l}}{d} \rceil$ is simply the first multiple of $d$ larger than or equal to $2^{N + l}$, so if there is any multiple of $d$ between $2^{N + l}$ and $2^{N + l} + 2^l$, we have $2^{N + l} \leq d \cdot m_\text{up} \leq 2^{N + l} + 2^l$.
 $\square$
 
 From this theorem we can derive the following condition, which is more formal, but easier to check.
@@ -85,7 +84,7 @@ $\square$
 
 The following theorem gives us a condition under which the round-down method is correct, that is, $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 
-**Theorem 4 (round-down method)**: *Let $d, m, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If*
+**Theorem 4 (round-down method)**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
 $$ 2^{N + l} - 2^l \leq m \cdot d < 2^{N + l}$$
 
 *then*
@@ -100,56 +99,65 @@ $$ \frac{n}{d} \leq \frac{m \cdot (n + 1)}{2^{N + l}} < \frac{n + 1}{d} $$
 for all $n \in \mathbb{U}_N$. So lemma 1 applies and we have $\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} \rfloor$ for all $n \in \mathbb{U}_N$.
 $\square$
 
-Again, we can 
+Again, there is a more formal form of this result, which is easier to check.
 
 **Corollary 5**: If $0 < \text{mod}_d(2^{N + l}) < 2^l$ and $m = \lfloor \frac{2^{N + l}}{d} \rfloor$, then $\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 
 **Proof**: If $0 < \text{mod}_d(2^{N + l}) \leq 2^l$ and $m - \lfloor \frac{2^{N + l}}{d} \rfloor$, then $\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Subtracting $2^{N + l}$, we see that $-2^{N + l} < -m \cdot d \leq -2^{N + l} + 2^l$. Multiplying by $-1$, we get $2^{N + l} - 2^l \leq m \cdot d < 2^{N + l}$. In particular, this condition must hold for $m = \lfloor \frac{2^{N + l}}{d}$, since $d \cdot \lfloor \frac{2^{N + l}}{d} \rfloor$ is the biggest multiple of $d$ that is less than $2^{N + l}$. By theorem 4, it follows that $\lfloor \frac{m \cdot (n + 1)}{2^{N + l}} = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 $\square$
 
-Note that we have $0 < \text{mod}_d(2^{N + l})$ whenever $d$ is not a power of two.
+Note that we have $0 < \text{mod}_d(2^{N + l})$ whenever $d$ is not a power of two. So in practice it often suffices to only check $\text{mod}_d(2^{N + l}) < 2^l$.
 
 **Example**: TODO
 **Example**: TODO
 
-These two theorems give us a way to know when the methods produce the correct result. Now, the methods are only efficient when the magic number $m$ fits in $N$ bits. Let's define this more rigorously:
+These two theorems give us a way to know when the methods produce the correct result. Now, the methods are only efficient when $m$ fits in $N$ bits. Let's define this more rigorously:
 
-**Definition**: *We call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-up method (or round down method) if there exists a $k \in \mathbb{N}$ such that $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Likewise, we call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-down method (or round down method) if there exists a $k \in \mathbb{N}$ such that $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Definition**: *We call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-up method (or round down method) if there exists a $k \in \mathbb{N}$ such that $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Likewise, we call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-down method if there exists a $k \in \mathbb{N}$ such that $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
 The following result tells us the maximum $k$ that we can pick so that $m_\text{up}$ and $m_\text{down}$ still fit in $N$ bits.
 
-**Lemma 6**: *Let $d \in \mathbb{U}_N$ and define $x = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d}$. Now*
+**Lemma 6**: *Let $d \in \mathbb{U}_N$ and define $m' = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d}, m_\text{down} = \lfloor m' \rfloor, m_\text{up} = \lceil m' \rceil$. Now*
 $$2^{N - 1} \leq \lfloor x \rfloor \leq \lceil x \rceil \leq 2^N - 1$$
 
-That is, the binary representations of $\lfloor x \rfloor$ and $\lceil x \rceil$ have exactly $N$ bits.
+That is, the binary representations of $m_\text{down}$ and $m_\text{up}$ have exactly $N$ bits.
 
-**Proof**: We have $2^{N - 1} = \frac{2^{N - 1} \cdot d}{d} = \frac{2^{N - 1 + \log_2(d)}}{d} \leq \frac{2^{N - 1 + \lceil \log_2(d)} \rceil}{d} = x$. Since the floor function is a nondecreasing function and $\lfloor x \rfloor \leq \lceil x \rceil$ we have $2^{N - 1} \leq \lfloor x \rfloor \leq \lceil x \rceil$. It remains to show that $\lceil x \rceil \leq 2^N - 1$.
+**Proof**: We have $2^{N - 1} = \frac{2^{N - 1} \cdot d}{d} = \frac{2^{N - 1 + \log_2(d)}}{d} \leq \frac{2^{N - 1 + \lceil \log_2(d)} \rceil}{d} = m'$. Since the floor function is a nondecreasing function and $\lfloor m' \rfloor \leq \lceil m' \rceil$ we have $2^{N - 1} \leq m_\text{down} \leq m_\text{up}$. It remains to show that $m_\text{up} \leq 2^N - 1$.
 
-When $N = 1$, it follows that $d = 1$ and the bound holds. When $N > 1$, the ratio $\frac{2^{\lceil \log_2(d) \rceil}}{d}$ is maximized over $d \in \mathbb{U}_N$ by $d = 2^{N - 1} + 1$, so $\frac{2^{\lceil \log_2(d) \rceil}}{d} \leq \frac{2^N}{2^{N - 1} + 1} < \frac{2^N - 1}{2^{N - 1}}$ (this last inequality can be seen by multiplying both sides by $2^{N - 1} \cdot (2^{N - 1} + 1)$). So we have $\frac{2^{\lceil \log_2(d) \rceil}}{d} < \frac{2^N - 1}{2^{N - 1}}$; multiplying both sides by $2^{N - 1}$ gives $x = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d} < 2^N - 1$. After rounding up both sides, it follows that $\lceil x \rceil \leq 2^N - 1$.
+When $N = 1$, it follows that $d = 1$ and the bound holds. When $N > 1$, the ratio $\frac{2^{\lceil \log_2(d) \rceil}}{d}$ is maximized over $d \in \mathbb{U}_N$ by $d = 2^{N - 1} + 1$, so $\frac{2^{\lceil \log_2(d) \rceil}}{d} \leq \frac{2^N}{2^{N - 1} + 1} < \frac{2^N - 1}{2^{N - 1}}$ (this last inequality can be seen by multiplying both sides by $2^{N - 1} \cdot (2^{N - 1} + 1)$). So we have $\frac{2^{\lceil \log_2(d) \rceil}}{d} < \frac{2^N - 1}{2^{N - 1}}$; multiplying both sides by $2^{N - 1}$ gives $m' = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d} < 2^N - 1$. After rounding up both sides, it follows that $m_\text{up} \leq 2^N - 1$.
 $\square$
 
 The following theorem tells us that the round-down method is *almost* efficient; for any divisor $d$ we can store $m_\text{up}$ in at most $N + 1$ bits.
 
-**Theorem 7**: *For any positive divisor $d \in \mathbb{U}_N$, there exist $l \in \mathbb{N_+}$, $m \in \mathbb{U}_{N + 1}$ such that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Theorem 7**: *Let $N \in \mathbb{N}_+$. For any positive divisor $d \in \mathbb{U}_N$, there exist $l \in \mathbb{N_+}$, $m \in \mathbb{U}_{N + 1}$ such that $\lfloor \frac{m \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
-**Proof**: Set $l = \lceil \log_2(d) \rceil$. The range $\{ 2^N, 2^N + 1, ..., 2^N + 2^l \}$ consists of $2^l + 1$ consecutive numbers. We have $2^l + 1 = 2^{} + 1 > d$, so there must be a multiple of $d$ in this range. Using theorem 2, we see when $l = \lceil \log_2(d) \rceil$ we have $\lfloor \frac{m_\text{up} \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$ with $m_\text{up} = \lceil \frac{2^{N + \lceil \log_2(d) \rceil}}{d} \rceil$. In the proof of lemma 6 we saw that $\frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d} < 2^N - 1$. By multiplying both sides by two and rounding up, we see that for $l = \lceil \log_2(d) \rceil$ we have $m_\text{up} \leq 2^{N + 1} - 1$, so $m_\text{up} \in \mathbb{U}_{N + 1}$.
+**Proof**: Set $l = \lceil \log_2(d) \rceil$. The range $\{ 2^N, 2^N + 1, ..., 2^N + 2^l \}$ consists of $2^l + 1$ consecutive numbers. We have $2^l + 1 > d$, so there must be a multiple of $d$ in this range. Using theorem 2, we see when $l = \lceil \log_2(d) \rceil$ we have $\lfloor \frac{m_\text{up} \cdot n}{2^{N + l}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$ with $m_\text{up} = \lceil \frac{2^{N + \lceil \log_2(d) \rceil}}{d} \rceil$. In the proof of lemma 6 we saw that $\frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d} < 2^N - 1$. By multiplying both sides by two and rounding up, we see that for $l = \lceil \log_2(d) \rceil$ we have $m_\text{up} \leq 2^{N + 1} - 1$, so $m_\text{up} \in \mathbb{U}_{N + 1}$.
 $\square$
 
-The following result finally concludes our quest for an efficient method.
+The following result states that we can combine the round-up and round-down method to a method that works for any positive divisor. So this finally concludes our quest for an efficient method to calculate the quotient $\lfloor \frac{n}{d} \rfloor$.
 
 **Theorem 8**: Any positive divisor $d \in \mathbb{U}_N$ is either efficient for the $N$-bit round-up method, or efficient for the $N$-bit round-down method.
 
 **Proof**: Set $l = \lceil \log_2(d) \rceil - 1$. By lemma 6, we know that $m_\text{up}, m_\text{down} \in \mathbb{U}_N$. Now consider the range $\{ 2^N - 2^l, 2^N - 2^l + 1, ..., 2^N + l  \}$. This is a range of $2l + 1$ numbers. Since $d < 2l + 1$ there must be at least one multiple $m$ of $d$ in this range. When this multiple $m$ satisfies $2^N - 2^l \leq m < 2^{N + l}$ the condition for the round-down method is satisfied. Since $m_\text{down} \in \mathbb{U}_N$, $d$ is efficient for the $N$-bit round-down method. Otherwise, we have $2^{N + l} \leq m \leq 2^{N + l} + 2^l$ and the condition for the round-up method is satisfied. Again, since $m_\text{up} \in \mathbb{U}_N$ we have that $d$ is efficient for the $N$-bit round-up method.
 $\square$
 
-The following condition can be used to implement a more efficient test.
+The round-up method is slightly more efficient to evaluate, so this is the preferred method. To test if a given divisor is efficient for the round-up method, the condition from theorem 2 or corollary 3 can be used. The following result gives a more efficient condition to check if a given divisor is efficient for the round-up method.
 
 **Lemma 9**: *Let $d$ be a positive integer, $l = \lfloor \log_2(d) \rfloor$, and $m_\text{up} = \lceil \frac{2^{N + l}}{d} \rceil$. If $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^l$ then $d$ is efficient for the round-up method.*
 
 **Proof**: The product $m_\text{up} \cdot d = \lceil \frac{2^{N + l}}{d} \rceil \cdot d$ is the first multiple of $d$ that is equal to or larger than $2^{N + l}$. This product will be of the form $2^{N + l} + q$ for some $q < d \leq 2^l$, so we have $\text{mod}_{2^N}(m \cdot d) = q$. It follows that $2^{N + l} \leq m_\text{up} \cdot d \leq 2^{N + l} + 2^l$ if and only if $\text{mod}_{2^N}(m \cdot d) \leq 2^l$.
 $\square$
 
-Finally, the following theorem will be useful for the implementation.
+
+## Implementation
+
+### Compile-time optimization
+
+### Runtime optimization
+
+### Testing
+
+## Appendix
 
 **Lemma 10**: *If $d$ is a divisor of $2^N - 1$, then $d$ is efficient for the $N$-bit round-up method.*
 
@@ -161,13 +169,6 @@ $$ e = d - e' \leq 2^{\lceil \log_2(d) \rceil} - 2^{\lfloor \log_2(d) \rfloor} =
 
 So the condition $e = \text{mod}_d(2^{N + l}) \leq 2^l$ for corollary 5 is satisfied. Since $d$ is not a power of two, we have that $l = \lfloor \log_2(d) \rfloor = \lceil \log_2(d) \rceil - 1$. By using lemma 6, we now see that $m_\text{up} \in \mathbb{U}_N$ for $l = \lfloor \log_2(d) \rfloor$. So $d$ is efficient for the $N$-bit round-up method.
 $\square$
-
-
-## Implementation
-
-### Compile-time optimization
-
-### Runtime optimization
 
 
 ## References and further reading
