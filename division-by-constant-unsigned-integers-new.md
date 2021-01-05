@@ -143,7 +143,7 @@ $\square$
 
 The round-up method is slightly more efficient to evaluate, so this is the preferred method. To test if a given divisor is efficient for the round-up method, the condition from theorem 2 or corollary 3 can be used. The following result gives a more efficient condition to check if a given divisor is efficient for the round-up method.
 
-**Lemma 9**: *Let $d$ be a positive integer, $\ell = \lfloor \log_2(d) \rfloor$, and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^\ell$ then $d$ is efficient for the round-up method.*
+**Lemma 9**: *Let $d$ be a positive integer, $\ell = \lceil \log_2(d) \rceil - 1$, and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^\ell$ then $d$ is efficient for the round-up method.*
 
 **Proof**: The product $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is the first multiple of $d$ that is equal to or larger than $2^{N + \ell}$. This product will be of the form $2^{N + \ell} + q$ for some $q < d \leq 2^\ell$, so we have $\text{mod}_{2^N}(m \cdot d) = q$. It follows that $2^{N + \ell} \leq m_\text{up} \cdot d \leq 2^{N + \ell} + 2^\ell$ if and only if $\text{mod}_{2^N}(m \cdot d) \leq 2^\ell$.
 $\square$
@@ -151,15 +151,98 @@ $\square$
 
 ## Implementation
 
+We distinguish between compile-time optimization and runtime optimization of constant unsigned integers. When the divisor is known at compile-time, the compiler can produce optimized instructions:
+```
+	const unsigned int d = 61;
+	
+	unsigned int quotient(unsigned int n) {
+		return n / d;
+	}
+```
+
+This is something that optimizing compilers will usually do for you. In some cases, the divisor is only known at runtime:
+```
+	unsigned int divisor = get_number_from_user();
+	
+	for (int i = 0; i < size; i++) {
+		quotient[i] = dividend[i] / divisor;
+	}
+```
+
+In this case, as far as I know, most compilers will not optimize the division. We can do it ourselves, we can do something like:
+```
+	unsigned int divisor = get_number_from_user();
+	divdata_t divisor_data = precompute(divisor);
+	
+	for (int i = 0; i < size; i++) {
+		quotient[i] = fast_divide(dividend[i], divisor_data);
+	}
+```
+
+This optimization is one of the things that is done 'under water' by the [libdivide](https://libdivide.com/) library, which was started by the author of [3] and [4]. The library is conveniently included in a single header file, contains a nice C++ interface, and also implements vector implementations of integer division, which can make division even faster.
+
+For compile-time optimization, we can spend some more effort to produce better optimized code. For runtime optimization, we need to do the precomputation in runtime, which means that we want the precomputation to be efficient as well. Simply put, for compile-time optimization it will pay off to distinguish many special cases for which we can produce more efficient code. For runtime optimization the challenge is the other way around: We want to have a single, fast codepath which handles all cases with good efficiency.
+
+
 ### Compile-time optimization
+
+As mentioned before, for compile-time optimization we can distinguish a lot of cases to squeeze out every last bit of performance. Some special cases that can be implemented particularly efficient are:
+  - Division by one, which can be handled by setting the quotient equal to the dividend.
+  - Division by a power of two, which can be implement by a bit shift.
+  - Division by an integer larger than half of the maximum value of the dividend, which can be implemented by setting the quotient to zero if it is smaller than the divisor, and to one otherwise.
+
+For divisors that do not fall in one of these special cases, we use fixed-point arithmetic to efficiently implement the division. That is, we either use the round-up method or the round-down method.
+
+The optimized implementation of a division by a divisor that is efficient for the round-up method is a straightforward implementation of the evaluation of the expression TODO. Many processors have an instruction that computes the full $2N$-bit product of two $N$-bit unsigned registers. After that, the register holding the high $N$ bits can be right shifted by $\ell$ bits. Taking the high $N$ bits is equivalent to right shifting $N$ bits, so in total we have right shifted by $k = N + \ell$ bits.
+
+For a divisor that is not efficient for the round-up method the situation is not as simple. The round-down method is slightly more expensive to use than the round-up method. For even divisors that are not efficient, we can apply a trick to use the round-up method: Instead of calculating $\lfloor \frac{n}{d} \rfloor$, we calculate $\lfloor \frac{\lfloor \frac{n}{2} \rfloor}{\lfloor \frac{d}{2} \rfloor} \rfloor$. In this case, the dividend and divisor are $(N - 1)$-bit numbers. Using theorem 2 and theorem 7 with $N - 1$ instead of $N$ bits, we see that $m_\text{up} = \lceil \frac{2^{TODO}}{d} \rceil$ now fits in $N$ bits.
+
+Optimizing division by a divisor that is not efficient for the round-up method is not as straightforward. By theorem TODO, we can use the round-down method, but this has a subtle quirk. When we implement the expression TODO, (n+1) will overflow when n equals the maximum value 2^N - 1. Instead, we can implement this as m * n + m. This is an addition of two 2N integers, and it depends on the target processor how efficiently this can be implemented. On most processors this can be done by an N-bit addition followed by an N-bit addition with carry. Other processors have dedicated instructions for adding 2N-bit numbers (for example, this is the case when optimizing division of 32-bit numbers on a 64-bit architecture). Some instruction sets even support integer fused multiply-add instructions (or even high word of ...), which can be used ... TODO
+
+In [4] another approach is presented, where a saturating increment is used. This saturating increment only increments the dividend when it is less than the maximum value $2^N - 1$. So it effectively computes TODO when $n = 2^N - 1$ and TODO otherwise. The difference will only matter when $d$ is a divisor of $2^N - 1$, and according to theorem 10 (see appendix), every divisor of $2^N - 1$ is efficient for the round-up method. So if we prefer the round-up method for divisors that are efficient for the round-up method, this approach will always give the correct result. On most architectures, the saturating increment can be implemented by an N-bit increment followed by an N-bit decrement with borrow instruction.
+
+A division by one can be handled by setting the quotient equal to the dividend. A division by a power of two can be handled 
+
+Listing the cases roughly in order of efficiency, we have:
+
+  1. Division by one, which can be implemented as a move or no-op.
+  2. Division by a power of two, which can be implemented as a bit shift.
+  3. Division by an integer that is larger than half of the maximum value of the dividend, which can be implemented as a comparison.
+  4. Division by a divisor that is efficient for the round-up method.
+  5. Division by an even divisor that is not efficient for the round-up method
+  6. Division by a divisor that is efficient for the round-down method.
+
 
 ### Runtime optimization
 
+Let's take the example from before as a starting point:
+```
+	unsigned int divisor = get_number_from_user();
+	divdata_t divisor_data = precompute(divisor);
+	
+	for (int i = 0; i < size; i++) {
+		quotient[i] = fast_divide(dividend[i], divisor_data);
+	}
+```
+
+Both the round-up and the round-down method can be implemented using an expression of the form `(n * m + add) >> (N + shift)` to compute $\lfloor \frac{n}{d} \rfloor$, so it is natural to define the struct `divdata_t` with these fields:
+```
+typedef struct {
+	uint mul, add, shift;
+} divdata_t;
+```
+
 ### Testing
+
+TODO: 8-bit all, 16-bit all, 32-bit boundaries, 64-bit randomized
 
 ## Appendix
 
+TODO: tricks to compute without bigint library
+
 **Lemma 10**: *If $d$ is a divisor of $2^N - 1$, then $d$ is efficient for the $N$-bit round-up method.*
+
+TODO: Probably need to change $\lfloor \log_2(d) \rfloor$ to $\lceil \log_2(d) \rceil - 1$ here... Check this
 
 **Proof**: Take $\ell = \lfloor \log_2(d) \rfloor$ and define $e = \text{mod}_d(-2^{N + 1})$ and $e' = \text{mod}_d(2^{N + 1})$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
 $$ e' = \text{mod}_d(2^{N + \ell}) = \text{mod}_d(2^N \cdot 2^{\lfloor \log_2(d) \rfloor}) = \text{mod}_d(2^{\lfloor \log_2(d) \rfloor}) = 2^{\lfloor \log_2(d) \rfloor} $$
@@ -184,3 +267,36 @@ The classic reference for optimization of division by both signed and unsigned i
 [4]: [Labor of Divison (Episode III): Fast Unsigned Division by Constants](https://ridiculousfish.com/blog/posts/labor-of-division-episode-iii.html), fish, 2011.
 
 [5] [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/pdf/1902.01961), Daniel Lemire, Owen Kaser, Nathan Kurz, 2019.
+
+
+
+
+# Sketch
+
+compile-time optimization
+```
+if (d == 1) return no-op();
+if (is_power_of_two(d)) return optimize_div_by_power_of_two(d);
+if (d >= (1 << (N - 1)) return optimize_div_by_large_divisor(d);
+else return optimize_div_fixpoint(d);
+```
+
+runtime precomputation
+```
+if (d == 1) {
+	mul = UINT_MAX;
+	add = UINT_MAX;
+	shift = 0;
+	return divdata;
+}
+
+uint l = ceil_log2(d) - 1;
+uint m_up = (((big_uint)1) << (N + l) + d - 1) / d;
+bool round_up_method = m_up * d <= (1 << l);
+
+divdata.mul = round_up_method ? m_up : m_up - 1;
+divdata.add = round_up_method ?    0 : m_up - 1;
+divdata.shift = l;
+
+return divdata;
+```
