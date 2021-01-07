@@ -103,7 +103,7 @@ Again, there is a more formal form of this result, which is easier to check.
 
 **Corollary 5**: If $0 < \text{mod}_d(2^{N + \ell}) < 2^\ell$ and $m = \lfloor \frac{2^{N + \ell}}{d} \rfloor$, then $\lfloor \frac{m \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 
-**Proof**: If $0 < \text{mod}_d(2^{N + \ell}) \leq 2^\ell$ and $m - \lfloor \frac{2^{N + \ell}}{d} \rfloor$, then $\lfloor \frac{m \cdot (n + 1)}{2^{N + \ell}} = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Subtracting $2^{N + \ell}$, we see that $-2^{N + \ell} < -m \cdot d \leq -2^{N + \ell} + 2^\ell$. Multiplying by $-1$, we get $2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$. In particular, this condition must hold for $m = \lfloor \frac{2^{N + \ell}}{d}$, since $d \cdot \lfloor \frac{2^{N + \ell}}{d} \rfloor$ is the biggest multiple of $d$ that is less than $2^{N + \ell}$. By theorem 4, it follows that $\lfloor \frac{m \cdot (n + 1)}{2^{N + \ell}} = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
+**Proof**: If $0 < \text{mod}_d(2^{N + \ell}) \leq 2^\ell$ and $m - \lfloor \frac{2^{N + \ell}}{d} \rfloor$, then $\lfloor \frac{m \cdot (n + 1)}{2^{N + \ell}} = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Subtracting $2^{N + \ell}$, we see that $-2^{N + \ell} < -m \cdot d \leq -2^{N + \ell} + 2^\ell$. Multiplying by $-1$, we get $2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$. In particular, this condition must hold for $m = \lfloor \frac{2^{N + \ell}}{d}$, since $d \cdot \lfloor \frac{2^{N + \ell}}{d} \rfloor$ is the biggest multiple of $d$ that is less than $2^{N + \ell}$. By theorem 4, it follows that $\lfloor \frac{m \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 $\square$
 
 Note that we have $0 < \text{mod}_d(2^{N + \ell})$ whenever $d$ is not a power of two. So in practice it often suffices to only check $\text{mod}_d(2^{N + \ell}) < 2^\ell$.
@@ -148,11 +148,22 @@ The round-up method is slightly more efficient to evaluate, so this is the prefe
 **Proof**: The product $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is the first multiple of $d$ that is equal to or larger than $2^{N + \ell}$. This product will be of the form $2^{N + \ell} + q$ for some $q < d \leq 2^\ell$, so we have $\text{mod}_{2^N}(m \cdot d) = q$. It follows that $2^{N + \ell} \leq m_\text{up} \cdot d \leq 2^{N + \ell} + 2^\ell$ if and only if $\text{mod}_{2^N}(m \cdot d) \leq 2^\ell$.
 $\square$
 
-The following lemma can be used to find the smallest $k$ such that the round-up method still works.
+On some architectures it is faster to shift by fewer bits. So, for the purpose of optimization, we might be interested in finding the smallest $\ell$ such that $m_\text{up}$ satisfies the condition of theorem 2 (or the smallest). Surprisingly, there is an easy way to find the smallest $m_\text{up}$ or $m_\text{down}$ that satisfies the condition of theorem 2 or theorem 4.
 
-**Lemma:** *Let $d \in \mathbb{U}_N$ be a positive integer, N TODO TODO TODO. Suppose that we have $m_\text{up} = TODO$ and $2^{N + l} \leq d \cdot m_up \leq 2^{N + \ell} + 2^\ell$. We have $2^{N + l - 1} \leq d \cdot \lfloor \frac{m_\text{up}}{2} \rfloor \leq 2^{N + \ell - 1} + 2^{\ell - 1}$ if and only if $m_\text{up}$ is even.*
+**Lemma 10**: *Let $d \in \mathbb{U}_N$ be a positive integer that is not a power of two and let $0 < \ell \leq \lfloor \log_2(d) \rfloor$, such that $l, m$ satisfy the condition of theorem 2 (or theorem 4, respectively). If $m$ is odd, this is the smallest $m$ that satisfies this condition. If $m$ is even, $\ell' = \ell - 1, m' = \frac{m}{2}$ also satisfy the condition.*
 
-The following lemma is the analogue of the last lemma, but for the 
+**Proof**: Suppose that $m$ satisfies the condition of theorem 2. In this case, we have $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$. It is easy to see that when $m$ is even all expressions in the inequality are even, so we can divide by two and see that $2^{N + \ell - 1} \leq \frac{m}{2} \cdot d \leq 2^{N + \ell - 1} + 2^{\ell - 1}$. The case for an $m$ that satisfies the condition of theorem 4 is analogous.
+
+Suppose that there is a smaller pair $\ell', m'$ that satisfies the condition: $2^{N + \ell'} \leq m' \cdot d \leq 2^{N + \ell'} + 2^{\ell'}$. By multiplying the whole thing by $2^{\ell - \ell'}$, we see that $2^{N + \ell} \leq 2^{\ell - \ell'}m' \cdot d \leq 2^{N + \ell} + 2^\ell$. The set $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ has $2^\ell + 1$ elements. We have $2^{N + \ell'} \leq 2^{\lfloor \log_2(d) \rfloor} + 1 < d$ (the last inequality is strict because $d$ is not a power of two), so there can only be one multiple of $d$ in this set, which is $m \cdot d$. So we have $m = 2^{\ell - \ell'} \cdot m'$, so $m$ must be even.
+$\square$
+
+So, to find the smallest $m_\text{up}$ that works, we can start by computing $\ell_0 = \lfloor \log_2(d) \rfloor, m_0 = \lceil \frac{2^{N + \ell}}{d} \rceil$ and keep iterating while $m_k$ is even:
+
+$$ m_{k + 1} = \frac{m}{2} $$
+
+$$ \ell_{k + 1} = \ell_k - 1 $$
+
+Once $m_k$ is odd, we set $m_\text{up} = m_k$.
 
 
 ## Implementation
@@ -192,11 +203,130 @@ During compile-time, there is a lot of room for optimizations. Typically, progra
 For compile-time optimization, we can spend some more effort to produce better optimized code. For runtime optimization, we need to do the precomputation in runtime, which means that we want the precomputation to be efficient as well. Simply put, for compile-time optimization it will pay off to distinguish many special cases for which we can produce more efficient code. For runtime optimization the challenge is the other way around: We want to have a single, fast codepath which handles all cases with good efficiency.
 
 
+### Runtime optimization
+
+Let's take the example from before as a starting point. I will assume that we have a constant `N` which denotes the number of bits in the unsigned integer datatype `uint`. I'll also assume the existence of `big_uint`, an unsigned integer datatype with $2N$ bits. Using these datatypes, the example from before becomes:
+```
+	uint divisor = get_number_from_user();
+	divdata_t divisor_data = precompute(divisor);
+	
+	for (int i = 0; i < size; i++) {
+		quotient[i] = fast_divide(dividend[i], divisor_data);
+	}
+```
+
+Both the round-up and the round-down method can be implemented using an expression of the form `(n * m + add) >> (N + shift)` to compute $\lfloor \frac{n}{d} \rfloor$, so it is natural to define the struct `divdata_t` with these fields:
+```
+typedef struct {
+	uint mul, add, shift;
+} divdata_t;
+```
+
+The `fast_divide` function is now straightforward to write:
+```
+uint fast_divide(uint n, divdata_t dd) {
+	big_uint full_product = ((big_uint)n) * dd.mul + dd.add;
+	return (full_product >> N) >> dd.shift;
+}
+```
+
+Let's start with the implementation of the `precompute` function. First, we define a variable `divdata` to hold the result. I'll save you the trouble and note that the case $d = 1$ needs to be handled separately. If we work out this case by hand we see that when we set $\ell = \lceil \log_2(1) \rceil - 1$ we get $m = 2^{N - 1}$ and $\frac{m \cdot n}{2^{N - 1}} = n$. While this is mathematically correct, we can't use the `fast_divide` function to evaluate this expression, because it divides by $2^{N - 1}$ while the `fast_divide` function implements this as a right shift by $N$, followed by another right shift. This last right shift would have to be a right shift by negative one. Technically, you could say that this is a right shift by one, but most architectures don't work this way and even if it would, we would lose a bit that has been shifted out by the first shift.
+
+Luckily, we use a trick. If we set both `divdata.mul` and `divdata.add` to $2^N - 1$, things will work out since
+$$ n \cdot 2^N \leq n \cdot (2^N - 1) + 2^N - 1 < n \cdot 2^N $$
+
+So let's write a skeleton for the `precompute` function that only handles the case $d = 1$:
+```
+divdata_t precompute(uint d) {
+	divdata_t divdata;
+	
+	// d = 1 is a special case
+	if (d == 1) {
+		divdata.mul = max;
+		divdata.add = max;
+		divdata.shift = 0;
+		return divdata;
+	}
+	
+	// normal path
+	...
+	
+	return divdata;
+}
+```
+
+For the normal path (that is, all the cases except $d = 1$) we can use the test from TODO:
+```
+	// normal path
+	uint l = ceil_log2(d) - 1;
+	uint m_down = (((big_uint)1) << (N + l)) / d;
+	uint m_up = (is_power_of_two(d)) ? m_down : m_down + 1;
+	uint temp = m_up * d;
+	bool use_round_up_method= temp <= (1 << l);
+	
+	// set fields of divdata
+	...
+```
+
+Note that the `temp` variable is an $N$-bit unsigned integer. It is just used to compute $m_\text{up} \cdot d$ modulo $2^N$. Also note that we need a special case for when $d$ is a power of two for rounding.
+
+Setting the `mul`, `add`, and `shift` fields of `divdata` is straightforward:
+```
+	// set fields of divdata
+	if (use_round_up_method) {
+		divdata.mul = m_up;
+		divdata.add = 0;
+	}
+	else {
+		divdata.mul = m_down;
+		divdata.add = m_down;
+	}
+	
+	divdata.shift = l;
+```
+
+When you stitch the snippets together and include `bits.h` from the appendix you should get a working implementation of `precompute`. However, we can make it a bit more efficient. Note that we have a special case for $d = 1$ and also special cases for when $d$ is a power of two. The trick we used for $d = 1$ actually can be generalized to handle all powers of two. 
+
+We can set `mul = max` and `add = max` so that the high word contains the dividend. Then we only need need to shift the high word right by $\log_2(d)$ bits. Now, we can also compute $\ell = \lfloor \log_2(d) \rfloor$ instead of $\lceil \log_2(d) \rceil - 1$ (which is slightly more efficient), since there is only a difference for powers of two.
+```
+divdata_t precompute(uint d) {
+	divdata_t divdata;
+	uint l = floor_log2(d);
+	
+	if (is_power_of_two(d)) {
+		divdata.mul = max;
+		divdata.add = max;
+    }
+	else {
+		uint m_down = (((big_uint)1) << (N + l)) / d;
+		uint m_up = m_down + 1;
+		uint temp = m_up * d;
+		bool use_round_up_method = temp <= (1 << l);
+		
+		if (use_round_up_method) {
+			divdata.mul = m_up;
+			divdata.add = 0;
+		}
+		else {
+			divdata.mul = m_down;
+			divdata.add = m_down;
+		}
+    }
+
+	divdata.shift = l;
+	
+	return divdata;
+}
+```
+
+There are probably lots of optimizations possible, but this is a reasonably simple and efficient version. It is basically what is presented in TODO.
+
+
 ### Compile-time optimization
 
 Here, I will show a sample implementation of the idea. I will pretend we're working on a compiler and implementing the code generation for a division by an unsigned compile-time constant. In particular, I will implement a function `div_by_const_uint` that takes a constant divisor `const uint d` and an expression `expression_t n` that represents the dividend. It will return an expression that represents the instructions that will be executed. As an example, the expression $a \cdot (b + 5)$ can be written as `mul(a, add(b, const(5))` in this way.
 
-TODO: Present all instructions.
+TODO: Present all instructions?
 
 As mentioned before, for compile-time optimization we can distinguish a lot of cases to squeeze out every last bit of performance. Some special cases that can be implemented particularly efficient are:
   - Division by one, which can be handled by setting the quotient equal to the dividend.
@@ -205,18 +335,33 @@ As mentioned before, for compile-time optimization we can distinguish a lot of c
 
 For divisors that do not fall in one of these special cases, we use fixed-point arithmetic to efficiently implement the division. That is, we either use the round-up method or the round-down method.
 ```
-expression_t div_by_const_uint(const uint d, expression_t n) {
+expression_t div_by_const_uint(expression_t n, const uint d) {
 	if (d == 1) return n;
 	if (is_power_of_two(d)) return shr(n, constant(floor_log2(d)));
 	if (d > MAX / 2) return gte(n, constant(d));
-	return optimize_div_fixpoint(d, n);
+	return div_fixpoint(d, n);
+}
+```
+
+Now, we use TODO as a test and select $m$ accordingly:
+```
+expression_t div_fixpoint(expression_t n, const uint d) {
+		uint l = floor_log2(d);
+		uint m_down = (((big_uint)1) << (N + l)) / d;
+		uint m_up = m_down + 1;
+		uint temp = m_up * d;
+		bool use_round_up_method = temp <= (1 << l);
+		
+		uint m = use_round_up_method ? m_up : m_down;
+
+		// TODO: optimize 
+
 }
 ```
 
 The optimized implementation of a division by a divisor that is efficient for the round-up method is a straightforward implementation of the evaluation of the expression TODO. Many processors have an instruction that computes the full $2N$-bit product of two $N$-bit unsigned registers. After that, the register holding the high $N$ bits can be right shifted by $\ell$ bits. Taking the high $N$ bits is equivalent to right shifting $N$ bits, so in total we have right shifted by $k = N + \ell$ bits.
 
-One optimization that we can do, is to shift by the least amount possible. That is, we want to find the smallest $\ell$ such that $m_\text{up}$ satisfies the condition in theorem 2 (or $m_\text{down}$ satisfies the condition in theorem 4, for divisors which are not efficient for the round-up method). We can do this by 
-
+One optimization that we can do, is to shift by the least amount possible. That is, we want to find the smallest $\ell$ such that $m_\text{up}$ satisfies the condition in theorem 2 (or $m_\text{down}$ satisfies the condition in theorem 4, for divisors which are not efficient for the round-up method). We can do this by TODO
 ```
 expression_t optimize_div_fixpoint(const unsigned int d, expression_t n) {
 	l = floor_log2(d);
@@ -249,45 +394,29 @@ Listing the cases roughly in order of efficiency, we have:
   6. Division by a divisor that is efficient for the round-down method.
 
 
-### Runtime optimization
-
-Let's take the example from before as a starting point:
-```
-	unsigned int divisor = get_number_from_user();
-	divdata_t divisor_data = precompute(divisor);
-	
-	for (int i = 0; i < size; i++) {
-		quotient[i] = fast_divide(dividend[i], divisor_data);
-	}
-```
-
-Both the round-up and the round-down method can be implemented using an expression of the form `(n * m + add) >> (N + shift)` to compute $\lfloor \frac{n}{d} \rfloor$, so it is natural to define the struct `divdata_t` with these fields:
-```
-typedef struct {
-	uint mul, add, shift;
-} divdata_t;
-```
-
 ### Testing
 
-TODO: 8-bit all, 16-bit all, 32-bit boundaries, 64-bit randomized
+When writing code for $N = 8$ or $N = 16$, I recommend that you check the result is correct for every pair $n, d \in \mathbb{U}_N$ with $d > 0$. This can be as simple as:
+```
+void main(void) {
+	for (uint d = 1; true; d++) {
+		divdata_t dd = precompute(d);
+		for (uint n = 0; true; n++) {
+			assert(fast_divide(n, dd) == n / d);
+			if (n == max) break;
+		}
+		if (d == max) break;
+	}
+}
+```
+For $N = 8$, this code will run more or less instantly, for $N = 16$ it will take a couple of minutes. For $N = 32$ this program won't terminate anytime soon. However, what you can you is test, for every divisor $d \in \mathbb{U}_N$ with $d > 0$, all numbers of the form $n \cdot d, n \cdot d - 1 \in \mathbb{U}_N$:
+```
+TODO
+```
 
-## Appendix
+This will still take a long time, but it is feasible; The above code took slightly over 40 minutes to run on my machine.
 
-TODO: tricks to compute without bigint library
-
-**Lemma 10**: *If $d$ is a divisor of $2^N - 1$, then $d$ is efficient for the $N$-bit round-up method.*
-
-TODO: Probably need to change $\lfloor \log_2(d) \rfloor$ to $\lceil \log_2(d) \rceil - 1$ here... Check this
-
-**Proof**: Take $\ell = \lfloor \log_2(d) \rfloor$ and define $e = \text{mod}_d(-2^{N + 1})$ and $e' = \text{mod}_d(2^{N + 1})$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
-$$ e' = \text{mod}_d(2^{N + \ell}) = \text{mod}_d(2^N \cdot 2^{\lfloor \log_2(d) \rfloor}) = \text{mod}_d(2^{\lfloor \log_2(d) \rfloor}) = 2^{\lfloor \log_2(d) \rfloor} $$
-
-Here, we used that $2^{\lfloor \log_2(d) \rfloor} < d$. Since $d$ is a divisor of $2^N - 1$, it can't be a power of two, so we have $e, e' \in \{ 1, 2, ..., d - 1 \}$. It follows that $e + e' = d$ since $e + e' \equiv 0 \mod d$. We find that
-$$ e = d - e' \leq 2^{\lceil \log_2(d) \rceil} - 2^{\lfloor \log_2(d) \rfloor} = 2^{\lfloor \log_2(d) \rfloor} = 2^\ell $$
-
-So the condition $e = \text{mod}_d(2^{N + \ell}) \leq 2^\ell$ for corollary 5 is satisfied. Since $d$ is not a power of two, we have that $\ell = \lfloor \log_2(d) \rfloor = \lceil \log_2(d) \rceil - 1$. By using lemma 6, we now see that $m_\text{up} \in \mathbb{U}_N$ for $\ell = \lfloor \log_2(d) \rfloor$. So $d$ is efficient for the $N$-bit round-up method.
-$\square$
+For $N = 64$, exhaustive testing is completely infeasible. I recommend making a set $S$ of special values consisting of all numbers from 0 up to 256, all numbers of the form $2^k - 1$, $2^k$, $2^k + 1$, the divisors of these numbers, and the divisors of $2^{64} + 1$. Then we can test if the result is correct for each $n \in S$, $d \in S \setminus \{ 0 \}$. On top of that, you can run some randomized testing. I recommend that you pick $n$ and $d$ uniformly random in $\mathbb{U}_{64}$ and then mask out each byte with some probability. Then, you can run random tests for some time. If you find a bug in the implementations, add $n$ and $d$ for which the result is not correct to $S$ and verify that your testset triggers the bug before you fix the bug.
 
 
 ## References and further reading
@@ -305,24 +434,85 @@ The classic reference for optimization of division by both signed and unsigned i
 [5] [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/pdf/1902.01961), Daniel Lemire, Owen Kaser, Nathan Kurz, 2019.
 
 
-# Sketch
+## Appendices
 
-runtime precomputation
+### Appendix A: Mathematical results
+
+**Lemma 10**: *If $d$ is a divisor of $2^N - 1$, then $d$ is efficient for the $N$-bit round-up method.*
+
+TODO: Probably need to change $\lfloor \log_2(d) \rfloor$ to $\lceil \log_2(d) \rceil - 1$ here... Check this
+
+**Proof**: Take $\ell = \lfloor \log_2(d) \rfloor$ and define $e = \text{mod}_d(-2^{N + 1})$ and $e' = \text{mod}_d(2^{N + 1})$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
+$$ e' = \text{mod}_d(2^{N + \ell}) = \text{mod}_d(2^N \cdot 2^{\lfloor \log_2(d) \rfloor}) = \text{mod}_d(2^{\lfloor \log_2(d) \rfloor}) = 2^{\lfloor \log_2(d) \rfloor} $$
+
+Here, we used that $2^{\lfloor \log_2(d) \rfloor} < d$. Since $d$ is a divisor of $2^N - 1$, it can't be a power of two, so we have $e, e' \in \{ 1, 2, ..., d - 1 \}$. It follows that $e + e' = d$ since $e + e' \equiv 0 \mod d$. We find that
+$$ e = d - e' \leq 2^{\lceil \log_2(d) \rceil} - 2^{\lfloor \log_2(d) \rfloor} = 2^{\lfloor \log_2(d) \rfloor} = 2^\ell $$
+
+So the condition $e = \text{mod}_d(2^{N + \ell}) \leq 2^\ell$ for corollary 5 is satisfied. Since $d$ is not a power of two, we have that $\ell = \lfloor \log_2(d) \rfloor = \lceil \log_2(d) \rceil - 1$. By using lemma 6, we now see that $m_\text{up} \in \mathbb{U}_N$ for $\ell = \lfloor \log_2(d) \rfloor$. So $d$ is efficient for the $N$-bit round-up method.
+$\square$
+
+
+### Appendix B: Header files
+
+`bits.h`:
 ```
-if (d == 1) {
-	mul = UINT_MAX;
-	add = UINT_MAX;
-	shift = 0;
-	return divdata;
+#ifndef BITS_H
+#define BITS_H
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <assert.h>
+
+#ifndef N
+#undef N
+#define N 32
+#endif
+
+#if N == 8
+typedef uint8_t uint;
+typedef uint16_t big_uint;
+#endif
+
+#if N == 16
+typedef uint16_t uint;
+typedef uint32_t big_uint;
+#endif
+
+#if N == 32
+typedef uint32_t uint;
+typedef uint64_t big_uint;
+#endif
+
+const uint max = (uint)((int)-1);
+
+uint floor_log2(uint x) {
+	assert(x > 0);
+	uint count = 0;
+#if N >= 64
+	if (x & 0xffffffff00000000) { x >>= 32; count += 32; }
+#endif
+#if N >= 32
+	if (N >= 32 && x & 0x00000000ffff0000) { x >>= 16; count += 16; }
+#endif
+#if N >= 16
+	if (N >= 16 && x & 0x000000000000ff00) { x >>= 8; count += 8; }
+#endif
+	if (N >= 8 && x & 0x00000000000000f0) { x >>= 4; count += 4; }
+	if (x & 0x000000000000000c) { x >>= 2; count += 2; }
+	if (x & 0x0000000000000002) { x >>= 1; count += 1; }
+	return count;
 }
 
-uint l = ceil_log2(d) - 1;
-uint m_up = (((big_uint)1) << (N + l) + d - 1) / d;
-bool round_up_method = m_up * d <= (1 << l);
+uint ceil_log2(uint x) {
+	uint floor = floor_log2(x);
+	assert(x >= ((uint)1 << floor));
+	if (x > ((uint)1 << floor)) floor++;
+	return floor;
+}
 
-divdata.mul = round_up_method ? m_up : m_up - 1;
-divdata.add = round_up_method ?    0 : m_up - 1;
-divdata.shift = l;
+bool is_power_of_two(uint k) {
+	return k && (k & (k - 1)) == 0;
+}
 
-return divdata;
+#endif
 ```
