@@ -431,7 +431,7 @@ The classic reference for optimization of division by both signed and unsigned i
 
 [4]: [Labor of Divison (Episode III): Fast Unsigned Division by Constants](https://ridiculousfish.com/blog/posts/labor-of-division-episode-iii.html), fish, 2011.
 
-[5] [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/pdf/1902.01961), Daniel Lemire, Owen Kaser, Nathan Kurz, 2019.
+[5]: [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/pdf/1902.01961), Daniel Lemire, Owen Kaser, Nathan Kurz, 2019.
 
 
 ## Appendices
@@ -452,6 +452,7 @@ So the condition $e = \text{mod}_d(2^{N + \ell}) \leq 2^\ell$ for corollary 5 is
 $\square$
 
 
+<div class="pagebreak></div>
 ### Appendix B: Header files
 
 `bits.h`:
