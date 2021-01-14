@@ -1,4 +1,3 @@
-
 # Division by constant unsigned integers
 
 Most modern processors have an integer divide instruction which, for technical reasons, is very slow compared to other integer arithmetic operations. When the divisor is constant, it is possible to evaluate the result of the division without using the slow division instruction. Most optimizing compilers perform this optimization, as can be seen on [Matt Godbolt’s compiler explorer](https://godbolt.org/z/9G1fE7). This article tries to be a self-contained reference for optimizing division by constant unsigned divisors.
@@ -29,7 +28,7 @@ for some $m \in \mathbb{Z}$.
 
 For a given divisor $d$, we now want to have an expression that evaluates to $\lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. We have two demands for this expression:
   1. It should be *correct*, that is, the expression is equal to $\lfloor \frac{n}{d} \rfloor$
-  2. It should be *efficient to evaluate*. For our purposes, this means that we only want to multiply numbers of at most $N$ bits, so that they fit in a single register on our $N$-bit machine, and that we implement the division by $2^k$ with a bit shift.
+  2. It should be *efficient* to evaluate. For our purposes, this means that we want to multiply numbers of at most $N$ bits, so that they fit in a single register on our $N$-bit machine, and that we implement the division by $2^k$ with a bit shift.
 
 Guided by these demands, we can start our analysis. The following lemma will be useful:
 
@@ -69,14 +68,14 @@ $\square$
 
 **Corollary (correctness of the round-up method)**: *Let $d, \ell, N \in \mathbb{N}$ with $d > 0$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $m_\text{up} \cdot d \leq 2^{N + \ell} + 2^{\ell}$ we have $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$ then there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.*
 
-**Proof**: TODO
+**Proof**: Note that $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is simply the first multiple of $d$ that is greater than or equal to $2^{N + \ell}$. So the bound $2^{N + \ell} \leq m_\text{up} \cdot d$ is always satisfied. If we have $m_\text{up} \leq 2^{N + \ell} + 2^\ell$, then $m_\text{up}$ satisfies the condition of theorem 2 and we have $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If we have $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$, the first multiple that is greater than or equal to $2^{N + \ell}$ is larger than $2^{N + \ell} + 2^\ell$. This means that there is no multiple of $d$ in the range $2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell$, and that there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.
 $\square$
 
 Let's do some examples to see how we can use the round-up method in practice.
 
-**Example**: TODO
+**Example**: TODO 3
 
-**Example**: TODO
+**Example**: TODO 7
 
 This last example shows that $m_\text{up}$ does not always fit in $N$ bits. The following theorem shows that $m_\text{up}$ always fits in $N + 1$ bits.
 
@@ -112,15 +111,20 @@ $$ \frac{n}{d} \leq \frac{m \cdot (n + 1)}{2^{N + \ell}} < \frac{n + 1}{d} $$
 for all $n \in \mathbb{U}_N$. So lemma 1 applies and we have $\lfloor \frac{m \cdot (n + 1)}{2^{N + \ell}} \rfloor$ for all $n \in \mathbb{U}_N$.
 $\square$
 
-**Corollary (correctness of the round-down method)**: TODO
+**Corollary (correctness of the round-down method)**: *Let $d, \ell, N \in \mathbb{N}$ with $d > 0$ and $m_\text{down} = \lfloor \frac{2^{N + \ell}}{d} \rfloor$. If $2^{N + \ell} - 2^\ell \leq m_\text{down} \cdot d < 2^{N + \ell}$ we have $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If $m_\text{down} \cdot d < 2^{N + \ell} - 2^\ell$ then there exists no $m$ such that $2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$.*
 
-**Proof**: TODO
+**Proof**: It follows directly from theorem 4 that when $2^{N + \ell} - 2^\ell \leq m_\text{down} \cdot d < 2^{N + \ell}$ we have $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$. Note that $m_\text{down} \cdot d = \lfloor \frac{2^{N + \ell}}{d} \rfloor \cdot d$ is simply the first multiple of $d$ that is smaller than or equal to $2^{N + \ell}$. If we have $m_\text{down} < 2^{N + \ell} - 2^\ell$, then all other multiples of $m$ are also smaller than $2^{N + \ell} - 2^\ell$, so there is no integer $m$ that satisfies $2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$.
 $\square$
+
+Note that we always have $\leq m_\text{down} \cdot d < 2^{N + \ell}$ when $d$ is not a power of two.
 
 Let's do an example to see the round-down method in practice:
 
-**Example**: TODO
+**Example**: TODO 3
 
+**Example**: TODO 7
+
+TODO: Phrase this better
 When using the round-up or round-down method, we want $m$ to be an $N$-bit number in order for the multiplication to be efficient. As we have seen, such an $m$ does not always exist. Let us call divisors for which such an $m$ exists *efficient*. The following definition makes this rigorous.
 
 **Definition**: *We call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-up method (or round down method) if there exists an $\ell \in \mathbb{N}$ such that $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Likewise, we call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-down method if there exists an $\ell \in \mathbb{N}$ such that $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
@@ -151,16 +155,21 @@ The round-up method is slightly more efficient to evaluate, so this is the prefe
 **Proof**: The product $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is the first multiple of $d$ that is equal to or larger than $2^{N + \ell}$. This product will be of the form $2^{N + \ell} + q$ for some $q < d \leq 2^\ell$, so we have $\text{mod}_{2^N}(m \cdot d) = q$. It follows that $2^{N + \ell} \leq m_\text{up} \cdot d \leq 2^{N + \ell} + 2^\ell$ if and only if $\text{mod}_{2^N}(m \cdot d) \leq 2^\ell$.
 $\square$
 
+As mentioned before, the round-up method is more efficient. For even divisors that are not efficient for the roundup method, there exists a trick. Say $d = 2^p d'$. Then we can put $n' = \lfloor \frac{n}{2^p} \rfloor$ and evaluate $\lfloor \frac{n}{d} \rfloor$ as $\lfloor \frac{n'}{d'} \rfloor$. This has the benefit that $n' \in \mathbb{U}_{N - p}$ has at most $N - p$ bits.
+
+**Lemma 8**: *Let $d, N$ be positive integers, and let $d = 2^p d'$ for some positive integer $p$. Define $\ell = \lfloor \log_2(d) \rfloor$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Now $\lfloor \frac{m_\text{up}' \cdot n'}{2^{N + \ell + 1 - 2p}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$ with $n' = \lfloor \frac{n}{2^p} \rfloor$ and $m_\text{up}' = \lfloor \frac{m_\text{up}}{2^{p - 1}} \rfloor$.*
+
+**Proof**: Define $N' = N - p$ and $\ell' = \lceil \log_2(d') \rceil = \ell- p$. Now we have $m_\text{up}' = \lfloor \frac{m_\text{up}}{2^{p - 1}} \rfloor = \lfloor \frac{\lceil \frac{2^{N + \ell}}{d} \rceil}{2^{p - 1}} \rfloor = \lfloor \frac{\lceil \frac{2^{N' + \ell' + 2p}}{d' \cdot 2^p} \rceil}{2^{p - 1}} \rfloor = \lceil \frac{2^{N' + \ell' + 1}}{d} \rceil$. Using theorem 3, we see that $\lfloor \frac{m_\text{up}' \cdot n'}{2^{N' + l'}} \rfloor = \lfloor \frac{n'}{d'} \rfloor = \lfloor \frac{n}{d} \rfloor$ for every $n' \in \mathbb{U}_{N - p}$. Since $n' \in \mathbb{U}_{N - p}$ whenever $n \in \mathbb{U}_N$, this holds for every $n \in \mathbb{U}_N$.
+$\square$
+
 On some architectures it is faster to shift by fewer bits. So, for the purpose of optimization, we might be interested in finding the smallest $\ell$ such that $m_\text{up}$ satisfies the condition of theorem 2 (or the smallest). Surprisingly, there is an easy way to find the smallest $m_\text{up}$ or $m_\text{down}$ that satisfies the condition of theorem 2 or theorem 4.
 
-**Lemma 8**: *Let $d \in \mathbb{U}_N$ be a positive integer that is not a power of two and let $0 < \ell \leq \lfloor \log_2(d) \rfloor$, such that $l, m$ satisfy the condition of theorem 2 (or theorem 4, respectively). If $m$ is odd, this is the smallest $m$ that satisfies this condition. If $m$ is even, $\ell' = \ell - 1, m' = \frac{m}{2}$ also satisfy the condition.*
+**Lemma 9**: *Let $d \in \mathbb{U}_N$ be a positive integer that is not a power of two and let $0 < \ell \leq \lfloor \log_2(d) \rfloor$, such that $l, m$ satisfy the condition of theorem 2 (or theorem 4, respectively). If $m$ is odd, this is the smallest $m$ that satisfies this condition. If $m$ is even, $\ell' = \ell - 1, m' = \frac{m}{2}$ also satisfy the condition.*
 
 **Proof**: Suppose that $m$ satisfies the condition of theorem 2. In this case, we have $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$. It is easy to see that when $m$ is even all expressions in the inequality are even, so we can divide by two and see that $2^{N + \ell - 1} \leq \frac{m}{2} \cdot d \leq 2^{N + \ell - 1} + 2^{\ell - 1}$. The case for an $m$ that satisfies the condition of theorem 4 is analogous.
 
-Suppose that there is a smaller pair $\ell', m'$ that satisfies the condition: $2^{N + \ell'} \leq m' \cdot d \leq 2^{N + \ell'} + 2^{\ell'}$. By multiplying the whole thing by $2^{\ell - \ell'}$, we see that $2^{N + \ell} \leq 2^{\ell - \ell'}m' \cdot d \leq 2^{N + \ell} + 2^\ell$. The set $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ has $2^\ell + 1$ elements. We have $2^{N + \ell'} \leq 2^{\lfloor \log_2(d) \rfloor} + 1 < d$ (the last inequality is strict because $d$ is not a power of two), so there can only be one multiple of $d$ in this set, which is $m \cdot d$. So we have $m = 2^{\ell - \ell'} \cdot m'$, so $m$ must be even.
+Suppose that there is a smaller pair $\ell', m'$ that satisfies the condition: $2^{N + \ell'} \leq m' \cdot d \leq 2^{N + \ell'} + 2^{\ell'}$. By multiplying the whole thing by $2^{\ell - \ell'}$, we see that $2^{N + \ell} \leq 2^{\ell - \ell'}m' \cdot d \leq 2^{N + \ell} + 2^\ell$. The set $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ has $2^\ell + 1$ elements. We have $2^{N + \ell'} \leq 2^{\lfloor \log_2(d) \rfloor} + 1 \leq d$ (this last inequality holds since $d$ is not a power of two), so there can only be one multiple of $d$ in this set, which is $m \cdot d$. So we have $m = 2^{\ell - \ell'} \cdot m'$, so $m$ must be even.
 $\square$
-
-TODO: simplify proof of above theorem
 
 So, to find the smallest $m_\text{up}$ that works, we can start by computing $\ell_0 = \lfloor \log_2(d) \rfloor, m_0 = \lceil \frac{2^{N + \ell}}{d} \rceil$ and keep iterating while $m_k$ is even:
 
@@ -174,7 +183,21 @@ Once $m_k$ is odd, we set $m_\text{up} = m_k$.
 
 **Example**: N=32, d = 641
 
-TODO: division by even divisors which are not efficient for round-up method.
+**Example**: N=16, d = 49152
+TODO: some examples which combine different stuff
+
+For the implementation, we will need the following lemma that is due to [4]:
+
+**Lemma 10**: *If $d$ is a divisor of $2^N - 1$, then $d$ is efficient for the $N$-bit round-up method.*
+
+**Proof**: Take $\ell = \lfloor \log_2(d) \rfloor$ and define $e = \text{mod}_d(-2^{N + 1})$ and $e' = \text{mod}_d(2^{N + 1})$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
+$$ e' = \text{mod}_d(2^{N + \ell}) = \text{mod}_d(2^N \cdot 2^{\lfloor \log_2(d) \rfloor}) = \text{mod}_d(2^{\lfloor \log_2(d) \rfloor}) = 2^{\lfloor \log_2(d) \rfloor} $$
+
+Here, we used that $2^{\lfloor \log_2(d) \rfloor} < d$. Since $d$ is a divisor of $2^N - 1$, it can't be a power of two, so we have $e, e' \in \{ 1, 2, ..., d - 1 \}$. It follows that $e + e' = d$ since $e + e' \equiv 0 \mod d$. We find that
+$$ e = d - e' \leq 2^{\lceil \log_2(d) \rceil} - 2^{\lfloor \log_2(d) \rfloor} = 2^{\lfloor \log_2(d) \rfloor} = 2^\ell $$
+
+So the condition $e = \text{mod}_d(2^{N + \ell}) \leq 2^\ell$ for corollary 5 is satisfied. Since $d$ is not a power of two, we have that $\ell = \lfloor \log_2(d) \rfloor = \lceil \log_2(d) \rceil - 1$. By using lemma 6, we now see that $m_\text{up} \in \mathbb{U}_N$ for $\ell = \lfloor \log_2(d) \rfloor$. So $d$ is efficient for the $N$-bit round-up method.
+$\square$
 
 
 ## Implementation
@@ -266,7 +289,7 @@ divdata_t precompute(uint d) {
 }
 ```
 
-For the normal path (that is, all the cases except $d = 1$) we can use the test from TODO:
+For the normal path (that is, all the cases except $d = 1$) we can use the test from lemma 7:
 ```
 	// normal path
 	uint l = ceil_log2(d) - 1;
@@ -330,7 +353,7 @@ divdata_t precompute(uint d) {
 }
 ```
 
-There are probably lots of optimizations possible, but this is a reasonably simple and efficient version. It is basically what is presented in TODO.
+There are probably lots of optimizations possible, but this is a reasonably simple and efficient version. It is adapted from [2].
 
 
 ### Compile-time optimization
@@ -354,7 +377,7 @@ expression_t div_by_const_uint(expression_t n, const uint d) {
 }
 ```
 
-Now, we use TODO as a test and select $m$ accordingly:
+Now, we use lemma 7 as a test and select $m$ accordingly:
 ```
 expression_t div_fixpoint(expression_t n, const uint d) {
 		uint l = floor_log2(d);
@@ -380,7 +403,7 @@ expression_t div_fixpoint(expression_t n, const uint d) {
 }
 ```
 
-The optimized implementation of a division by a divisor that is efficient for the round-up method is a straightforward implementation of the evaluation of the expression TODO. Many processors have an instruction that computes the full $2N$-bit product of two $N$-bit unsigned registers. After that, the register holding the high $N$ bits can be right shifted by $\ell$ bits. Taking the high $N$ bits is equivalent to right shifting $N$ bits, so in total we have right shifted by $k = N + \ell$ bits.
+The optimized implementation of a division by a divisor that is efficient for the round-up method is a straightforward implementation of the evaluation of the expression $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor$. Many processors have an instruction that computes the full $2N$-bit product of two $N$-bit unsigned registers. After that, the register holding the high $N$ bits can be right shifted by $\ell$ bits. Taking the high $N$ bits is equivalent to right shifting $N$ bits, so in total we have right shifted by $k = N + \ell$ bits.
 
 One optimization that we can do, is to shift by the least amount possible. That is, we want to find the smallest $\ell$ such that $m_\text{up}$ satisfies the condition in theorem 2 (or $m_\text{down}$ satisfies the condition in theorem 4, for divisors which are not efficient for the round-up method). We can do this by TODO
 ```
@@ -397,11 +420,13 @@ expression_t optimize_div_fixpoint(const unsigned int d, expression_t n) {
 }
 ```
 
-For a divisor that is not efficient for the round-up method the situation is not as simple. The round-down method is slightly more expensive to use than the round-up method. For even divisors that are not efficient, we can apply a trick to use the round-up method: Instead of calculating $\lfloor \frac{n}{d} \rfloor$, we calculate $\lfloor \frac{\lfloor \frac{n}{2} \rfloor}{\lfloor \frac{d}{2} \rfloor} \rfloor$. In this case, the dividend and divisor are $(N - 1)$-bit numbers. Using theorem 2 and theorem 7 with $N - 1$ instead of $N$ bits, we see that $m_\text{up} = \lceil \frac{2^{TODO}}{d} \rceil$ now fits in $N$ bits.
+TODO: Unify stuff about even divisors
+For a divisor that is not efficient for the round-up method the situation is not as simple. The round-down method is slightly more expensive to use than the round-up method. For even divisors that are not efficient, we can apply a trick to use the round-up method: Instead of calculating $\lfloor \frac{n}{d} \rfloor$, we calculate $\lfloor \frac{\lfloor \frac{n}{2} \rfloor}{\lfloor \frac{d}{2} \rfloor} \rfloor$. In this case, the dividend and divisor are $(N - 1)$-bit numbers. Using theorem 2 and theorem 7 with $N - 1$ instead of $N$ bits, we see that $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$ now fits in $N$ bits.
 
-Optimizing division by a divisor that is not efficient for the round-up method is not as straightforward. By theorem TODO, we can use the round-down method, but this has a subtle quirk. When we implement the expression TODO, $(n+1)$ will overflow when $n$ equals the maximum value $2^N - 1$. Instead, we can implement this as $m \cdot n + m$. This is an addition of two $2N$-bit integers, and it depends on the target processor how efficiently this can be implemented. On most processors this can be done by an $N$-bit addition followed by an $N$-bit addition with carry. Other processors have dedicated instructions for adding $2N$-bit numbers (for example, this is the case when optimizing division of 32-bit numbers on a 64-bit architecture). Some instruction sets even support integer fused multiply-add instructions (or even high word of ...), which can be used ... TODO
+TODO: Unify stuff about even divisors
+Optimizing division by a divisor that is not efficient for the round-up method is not as straightforward. By theorem 6, we can use the round-down method, but this has a subtle quirk. When we evaluate the expression $\frac{m_\text{down} \cdot (n + 1)}{2^{N + \ell}}$ naively, $(n+1)$ will overflow when $n$ equals the maximum value $2^N - 1$. Instead, we can implement this as $m_text{down} \cdot n + m_\text{down}$. This is an addition of two $2N$-bit integers, and it depends on the target processor how efficiently this can be implemented. On most processors this can be done by an $N$-bit addition followed by an $N$-bit addition with carry. Other processors have dedicated instructions for adding $2N$-bit numbers (for example, this is the case when optimizing division of 32-bit numbers on a 64-bit architecture). Some instruction sets even support integer fused multiply-add instructions (or even an instruction which evaluates only the high word of an integer multiplication followed by an addition), which can be used to evaluate $m_\text{down} \cdot n + m_\text{down}$ efficiently.
 
-In [4] another approach is presented, where a saturating increment is used. This saturating increment only increments the dividend when it is less than the maximum value $2^N - 1$. So it effectively computes TODO when $n = 2^N - 1$ and TODO otherwise. The difference will only matter when $d$ is a divisor of $2^N - 1$, and according to theorem 10 (see appendix), every divisor of $2^N - 1$ is efficient for the round-up method. So if we prefer the round-up method for divisors that are efficient for the round-up method, this approach will always give the correct result. On most architectures, the saturating increment can be implemented by an N-bit increment followed by an N-bit decrement with borrow instruction.
+In [4] another approach is presented, where a saturating increment is used. This saturating increment only increments the dividend when it is less than the maximum value $2^N - 1$. So it effectively computes $n$ when $n = 2^N - 1$ and $n + 1$ otherwise. The difference will only matter when $d$ is a divisor of $2^N - 1$, and according to TODO, every divisor of $2^N - 1$ is efficient for the round-up method. So if we prefer the round-up method for divisors that are efficient for the round-up method, this approach will always give the correct result. On most architectures, the saturating increment can be implemented by an N-bit increment followed by an N-bit decrement with borrow instruction.
 
 A division by one can be handled by setting the quotient equal to the dividend. A division by a power of two can be handled 
 
@@ -454,18 +479,6 @@ The classic reference for optimization of division by both signed and unsigned i
 
 [5]: [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/pdf/1902.01961), Daniel Lemire, Owen Kaser, Nathan Kurz, 2019.
 
-TODO: Put this lemma somewhere it fits.
-
-**Lemma 10**: *If $d$ is a divisor of $2^N - 1$, then $d$ is efficient for the $N$-bit round-up method.*
-
-**Proof**: Take $\ell = \lfloor \log_2(d) \rfloor$ and define $e = \text{mod}_d(-2^{N + 1})$ and $e' = \text{mod}_d(2^{N + 1})$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
-$$ e' = \text{mod}_d(2^{N + \ell}) = \text{mod}_d(2^N \cdot 2^{\lfloor \log_2(d) \rfloor}) = \text{mod}_d(2^{\lfloor \log_2(d) \rfloor}) = 2^{\lfloor \log_2(d) \rfloor} $$
-
-Here, we used that $2^{\lfloor \log_2(d) \rfloor} < d$. Since $d$ is a divisor of $2^N - 1$, it can't be a power of two, so we have $e, e' \in \{ 1, 2, ..., d - 1 \}$. It follows that $e + e' = d$ since $e + e' \equiv 0 \mod d$. We find that
-$$ e = d - e' \leq 2^{\lceil \log_2(d) \rceil} - 2^{\lfloor \log_2(d) \rfloor} = 2^{\lfloor \log_2(d) \rfloor} = 2^\ell $$
-
-So the condition $e = \text{mod}_d(2^{N + \ell}) \leq 2^\ell$ for corollary 5 is satisfied. Since $d$ is not a power of two, we have that $\ell = \lfloor \log_2(d) \rfloor = \lceil \log_2(d) \rceil - 1$. By using lemma 6, we now see that $m_\text{up} \in \mathbb{U}_N$ for $\ell = \lfloor \log_2(d) \rfloor$. So $d$ is efficient for the $N$-bit round-up method.
-$\square$
 
 <div class="pagebreak"></div>
 
