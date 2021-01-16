@@ -11,7 +11,10 @@ $$\prod_{k = 1}^n x_k = \prod_{k = 1}^n gx_k = g^n \prod_{k = 1}^n x_k$$
 
 It follows that $g^n = e$. $\square$
 
-As a corollary, we can now easily prove *Fermat’s little theorem*, which is often used in number theory, by simply noting that the integers $1, 2, ..., p - 1$ follow a commutative group of order $p - 1$ under multiplication modulo $p$.
+As a corollary, we can now easily prove *Fermat’s little theorem*, which is often used in number theory:
 
 **Corollary**: Let $p$ be a prime, and $n$ be a nonzero integer. For any $n$ that does not divide
 $$ n^{p - 1} \equiv 1 \pmod{p}$$
+
+**Proof**: The integers $1, 2, ..., p - 1$ form a commutative group of order $p - 1$ under multiplication modulo $p$.
+$square$
