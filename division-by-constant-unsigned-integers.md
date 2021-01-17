@@ -494,9 +494,9 @@ for (uint d = 1; true; d++) {
 	divdata_t dd = precompute(d);
 	for (uint n = 0; true; n++) {
 		assert(fast_divide(n, dd) == n / d);
-		if (n == max) break;
+		if (n == UINT_MAX) break;
 	}
-	if (d == max) break;
+	if (d == UINT_MAX) break;
 }
 ```
 For $N = 8$, this code will run more or less instantly, for $N = 16$ it will take a couple of minutes. For $N = 32$ this program won't terminate anytime soon. However, what you can you is test, for every divisor $d \in \mathbb{U}_N$ with $d > 0$, all numbers of the form $n \cdot d, n \cdot d - 1 \in \mathbb{U}_N$:
@@ -517,7 +517,6 @@ for (uint d = 1; true; d++) {
 	}
 	
 	if (d == UINT_MAX) break;
-	counter++;
 }
 ```
 
