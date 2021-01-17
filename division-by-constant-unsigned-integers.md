@@ -37,25 +37,20 @@ Guided by these demands, we can start our analysis. The following lemma will be 
 **Proof**: We have $\frac{n + 1}{d} = \lfloor \frac{n}{d} \rfloor + \frac{k}{d}$ for some nonnegative integer $k \leq d$. So $\frac{n + 1}{d} = \lfloor \frac{n}{d} \rfloor + \frac{k}{d} \leq \lfloor \frac{n}{d} \rfloor + 1$. It follows that $x \in [ \lfloor \frac{n}{d} \rfloor, \lfloor \frac{n}{d} \rfloor + 1)$, so that $\lfloor x \rfloor = \lfloor \frac{n}{d} \rfloor$.
 $\square$
 
-At this point, we have decided that we want an expression that evaluates to $\lfloor \frac{n}{d} \rfloor$. In the introduction, we have established that when
-$$ m \approx \frac{2^k}{d} $$
+At this point, we have decided that we want an expression that evaluates to $\lfloor \frac{n}{d} \rfloor$. In the introduction, we have established that we have $\frac{n \cdot m}{2^k} \approx \frac{n}{d}$ whenever $m \approx \frac{2^k}{d}$. So, it is natural to take $\lfloor \frac{m \cdot n}{2^k} \rfloor$ with $m \approx \frac{2^k}{d}$ as our starting point, since we know that $\frac{m \cdot n}{2^k} \approx \frac{n}{d}$.
 
-then
-$$ \frac{n \cdot m}{2^k} \approx \frac{n}{d} $$
-
-So, it is natural to take $\lfloor \frac{m \cdot n}{2^k} \rfloor$ with $m \approx \frac{2^k}{d}$ as our starting point, since we know that $\frac{m \cdot n}{2^k} \approx \frac{n}{d}$. We now need to decide how exactly to pick $m$ and $k$. The obvious choice for $m$ are the integers that minimize the error to $\frac{2^k}{d}$, which are $m_\text{down} = \lfloor \frac{2^k}{d} \rfloor$ and $m_\text{up} = \lceil \frac{2^k}{d} \rceil$. Note that when $d$ is not a power of two and put $n = d$, we have $\lfloor \frac{m_\text{down} \cdot d}{2^k} \rfloor = 0$, so this is not a viable method. So, let's round up instead.
+We now need to decide how exactly to pick $m$ and $k$. The obvious choice for $m$ are the integers that minimize the error to $\frac{2^k}{d}$, which are $m_\text{down} = \lfloor \frac{2^k}{d} \rfloor$ and $m_\text{up} = \lceil \frac{2^k}{d} \rceil$. Note that when $d$ is not a power of two and put $n = d$, we have $\lfloor \frac{m_\text{down} \cdot d}{2^k} \rfloor = 0$, so this is not a viable method. So, let's round up instead.
 
 This gives us the **round-up method**, which approximates $\lfloor \frac{n}{d} \rfloor$ by $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor$ with $m_\text{up} = \lceil \frac{2^k}{d} \rceil$.
 
-First, we determine the conditions under which the round-up and round-down method produce the correct result. Note that from this point on we will assume that $k$ is larger than $N$. We will assume $k = N + \ell$ and use $k$ and $N + \ell$ interchangeably.
+First, we determine the conditions under which the round-up method produces the correct result. Note that from this point on we will assume that $k$ is larger than $N$. We will assume $k = N + \ell$ and use $k$ and $N + \ell$ interchangeably.
 
-Now, we establish under which conditions the round-up method is correct. The following theorem can be used to derive a condition under which the round-up method is correct, that is, $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
+First, we would like to know when the round-up method is correct. The following theorem states a condition under which the round-up method is correct, that is, $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 
-**Theorem 2**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
+**Theorem 2 (correctness of the round-up method)**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
 $$ 2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell $$
 
-*then*
-$$ \forall n \in \mathbb{U}_N : \lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor $$
+*then $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$*.
 
 **Proof**: Multiplying the inequality by $\frac{n}{d \cdot 2^{N + \ell}}$ we get
 $$ \frac{n}{d} \leq \frac{m \cdot n}{2^{N + \ell}} \leq \frac{n}{d} + \frac{1}{d} \cdot \frac{n}{2^N} $$
@@ -66,7 +61,9 @@ $$ \forall n \in \mathbb{U}_N : \frac{n}{d} \leq \frac{m \cdot n}{2^{N + \ell}} 
 By lemma 1, it follows that $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 $\square$
 
-**Corollary (correctness of the round-up method)**: *Let $d, \ell, N \in \mathbb{N}$ with $d > 0$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $m_\text{up} \cdot d \leq 2^{N + \ell} + 2^{\ell}$ we have $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$ then there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.*
+The following corollary gives us a more practical way to check if there is a multiple of $m$ between $2^{N + \ell}$ and $2^{N + \ell} + 2^\ell$.
+
+**Corollary**: *Let $d, \ell, N \in \mathbb{N}$ with $d > 0$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $m_\text{up} \cdot d \leq 2^{N + \ell} + 2^{\ell}$ we have $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$ then there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.*
 
 **Proof**: Note that $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is simply the first multiple of $d$ that is greater than or equal to $2^{N + \ell}$. So the bound $2^{N + \ell} \leq m_\text{up} \cdot d$ is always satisfied. If we have $m_\text{up} \leq 2^{N + \ell} + 2^\ell$, then $m_\text{up}$ satisfies the condition of theorem 2 and we have $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If we have $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$, the first multiple that is greater than or equal to $2^{N + \ell}$ is larger than $2^{N + \ell} + 2^\ell$. This means that there is no multiple of $d$ in the range $2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell$, and that there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.
 $\square$
@@ -75,9 +72,9 @@ Let's do some examples to see how we can use the round-up method in practice.
 
 **Example**: Let's take $N = 8$, $d = 3$. First, we try $\ell = 0$ and compute $m_\text{up} = \lceil \frac{2^8}{3} \rceil = 86$. We have $86 \cdot 3 = 258 > 257 = 2^8 + 2^0$. So we increase $\ell$ to one and try again. This time we get $m_\text{up} = \lceil \frac{2^9}{3} \rceil = 171$. We have $171 \cdot 3 = 513 \leq 514= 2^9 + 2^1$. So the condition of the corollary is satisfied and for any 8-bit unsigned integer $n \in \mathbb{U}_8$ we have $\lfloor \frac{171 \cdot n}{2^9} \rfloor = \lfloor \frac{n}{3} \rfloor$. Note that $m_\text{up} = 171$ fits in $N$ bits.
 
-**Example**: Let's take $N = 8$, $d = 7$. First, we try $\ell = 0$ and compute $m_\text{up} = \lceil \frac{2^8}{7} \rceil = 37$. We see that $37 \cdot 7 = 259 > 257 = 2^8 + 2^0$. So we increase $\ell$ to one and try again. This time we get $m_\text{up} = \lceil \frac{2^9}{7} \rceil = 74$. We see that $74 \cdot 7 = 518 > 514 = 2^9 + 2^1$. Again, we increase $\ell$ to two and check the bound again: $m_\text{up} = \lceil \frac{2^{10}}{7} \rceil = 147$, and $147 \cdot 7 = 1029 > 1028 = 2^10 + 2^2$. Increasing $\ell$ to four, we get $m_\text{up} = \lceil \frac{2^{11}}{7} \rceil = 293$, and $293\cdot 7 = 2051 \leq 2056 = 2^{11} + 2^3$. So the condition of the corollary is satisfied and for any 8-bit unsigned integer $n \in \mathbb{U}_8$ we can have $\lfloor \frac{293 \cdot n}{2^9} \rfloor = \lfloor \frac{n}{3} \rfloor$. Note that $m_\text{up} = 293$ does not fit in $N$ bits, which makes the multiplication $293 \cdot n$ inefficient on $N$-bit processors.
+**Example**: Let's take $N = 8$, $d = 7$. First, we try $\ell = 0$ and compute $m_\text{up} = \lceil \frac{2^8}{7} \rceil = 37$. We see that $37 \cdot 7 = 259 > 257 = 2^8 + 2^0$. So we increase $\ell$ to one and try again. This time we get $m_\text{up} = \lceil \frac{2^9}{7} \rceil = 74$. We see that $74 \cdot 7 = 518 > 514 = 2^9 + 2^1$. Again, we increase $\ell$ to two and check the bound again: $m_\text{up} = \lceil \frac{2^{10}}{7} \rceil = 147$, and $147 \cdot 7 = 1029 > 1028 = 2^10 + 2^2$. Increasing $\ell$ to four, we get $m_\text{up} = \lceil \frac{2^{11}}{7} \rceil = 293$, and $293\cdot 7 = 2051 \leq 2056 = 2^{11} + 2^3$. So the condition of the corollary is satisfied and for any 8-bit unsigned integer $n \in \mathbb{U}_8$ we can have $\lfloor \frac{293 \cdot n}{2^9} \rfloor = \lfloor \frac{n}{3} \rfloor$.
 
-This last example shows that $m_\text{up}$ does not always fit in $N$ bits. The following theorem shows that $m_\text{up}$ always fits in $N + 1$ bits.
+This last example shows that $m_\text{up}$ does not always fit in $N$ bits. In this case, $m_\text{up}$ does not fit in a single register, which makes the evaluation of $m_text{up} \cdot n$ inefficient. The following theorem shows that $m_\text{up}$ always fits in $N + 1$ bits.
 
 **Theorem 3**: *Let $N, d \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil, m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Then $m_\text{up} \in \mathbb{U}_{N + 1}$ and $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
@@ -90,13 +87,15 @@ uint high_word = (((big_uint)m') * n) >> N;
 uint result = (high_word + ((n - high_word) >> 1)) >> (l - 1);
 ```
 
-The reason for mentioning this method is mainly that it is used by some compilers. We will now focus on a variation of the round-up method that will usually be more efficient. Instead of rounding up $\frac{2^{N + \ell}}{d}$, we can round down but increase $n$.
+This trick is used by some compilers to handle divisors for which $m_\text{up}$ does not fit in $N$ bits.
+
+We will now focus on another method that is more efficient than using this trick (but less efficient than the round-up method). Instead of rounding up $\frac{2^{N + \ell}}{d}$ to get $m$, we can round down but increase $n$.
 
 This gives us the **round-down method**, which approximates $\lfloor \frac{n}{d} \rfloor$ by $\lfloor \frac{m_{down} \cdot (n + 1)}{2^{N + \ell}} \rfloor$ by $m_\text{down} = \lfloor \frac{2^{N + \ell}}{d} \rfloor$.
 
 We proceed as we did for the round-up method, by deriving a condition under which the method is correct.
 
-**Theorem 4**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
+**Theorem 4 (correctness of the round-down method)**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
 $$ 2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$$
 
 *then*
@@ -134,6 +133,8 @@ The following result states that we can combine the round-up and round-down meth
 **Proof**: Set $\ell = \lceil \log_2(d) \rceil - 1$. By lemma 6, we know that $m_\text{up}, m_\text{down} \in \mathbb{U}_N$. Now consider the range $\{ 2^N - 2^\ell, 2^N - 2^\ell + 1, ..., 2^N + \ell \}$. This is a range of $2\ell + 1$ numbers. Since $d < 2\ell + 1$ there must be at least one multiple $m$ of $d$ in this range. When this multiple $m$ satisfies $2^N - 2^\ell \leq m < 2^{N + \ell}$ the condition for the round-down method is satisfied. Since $m_\text{down} \in \mathbb{U}_N$, $d$ is efficient for the $N$-bit round-down method. Otherwise, we have $2^{N + \ell} \leq m \leq 2^{N + \ell} + 2^\ell$ and the condition for the round-up method is satisfied. Again, since $m_\text{up} \in \mathbb{U}_N$ we have that $d$ is efficient for the $N$-bit round-up method.
 $\square$
 
+This theorem also implies that we never need to check if a divisor is efficient for the $N$-bit round-down method. We can simply test if a divisor is efficient for the $N$-bit round-up method, and use the round-down method if it is not.
+
 The following result gives a more efficient condition to check if a given divisor is efficient for the round-up method.
 
 **Lemma 7**: *Let $d$ be a positive integer, $\ell = \lceil \log_2(d) \rceil - 1$, and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^\ell$ then $d$ is efficient for the round-up method.*
@@ -169,7 +170,7 @@ $\square$
 
 **Example**: Take $N = 8$, $d = 11$. We set $\ell = \lfloor \log_2(d) \rfloor = 3$ so that $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil = 187$. Now $\text{mod}_{2^N}(187 \cdot 11) = 7 \leq 2^9$, so $11$ is not efficient for the $N$-bit round-up method. Since 11 is odd, we use the round-down method. Using theorem 6, we see that 11 is efficient for the $N$-bit round down method. We have $m_\text{down} = 186$ so we can use lemma 9 to see that we have $\lfloor \frac{93 \cdot n}{2^{10}} \rfloor = \lfloor \frac{n}{11} \rfloor$.
 
-**Example**: Take $N = 32$, $d = 641$. We set $\ell = \lfloor \log_2(d) \rfloor = 9$ so that $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil = 3430613504$. Now $\text{mod}_{2^N}(3430613504 \cdot 641 = 512 \leq 2^9$, so $641$ is efficient for the round-up method. Now write $3430613504 = 2^9 \cdot 6700417$. Using lemma 9 we see that we have $\lfloor \frac{m_\text{up}' \cdot n}{2^{N + \ell'}} \lfloor$ with $\ell' = \ell - 9$ and $m_\text{up}' = \frac{m_\text{up}}{2^9}$ for all $n \in \mathbb{U}_{32}$. So we see that $\lfloor \frac{6700417 \cdot n}{2^{32}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_{32}$. The division by $2^{32}$ can be implemented by taking the upper $32$ bits of the product $6700417 \cdot n$.
+**Example**: Take $N = 32$, $d = 641$. We set $\ell = \lfloor \log_2(d) \rfloor = 9$ so that $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil = 3430613504$. Now $\text{mod}_{2^N}(3430613504 \cdot 641) = 512 \leq 512 = 2^\ell$, so $641$ is efficient for the round-up method. Now write $3430613504 = 2^9 \cdot 6700417$. Using lemma 9 we see that we have $\lfloor \frac{m_\text{up}' \cdot n}{2^{N + \ell'}} \rfloor = \lfloor \frac{n}{641} \rfloor$ with $\ell' = \ell - 9$ and $m_\text{up}' = \frac{m_\text{up}}{2^9}$ for all $n \in \mathbb{U}_{32}$. So we see that $\lfloor \frac{6700417 \cdot n}{2^{32}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_{32}$. The division by $2^{32}$ can be implemented by taking the upper $32$ bits of the product $6700417 \cdot n$.
 
 **Example**: Take $N = 8$, $d = 28$. Taking $\ell = \lfloor \log_2(28) \rfloor = 4$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{28} \rceil = 147$, we see that $\text{mod}_{2^N}(m_\text{up} \cdot 28) = 20 > 16 = 2^\ell$. So 28 is not efficient for the 8-bit round-up method. Applying lemma 8 gives us that $\lfloor \frac{74 \cdot n'}{2^9} \rfloor = \lfloor \frac{n}{d} \rfloor$ with $n' = \lfloor \frac{n}{4} \rfloor$ for all $n \in \mathbb{U}_8$. We can now apply lemma 9 to see that $\lfloor \frac{37 \cdot n'}{2^8} \rfloor = \lfloor \frac{n}{d} \rfloor$ with $n' = \lfloor \frac{n}{4} \rfloor$ for all $n \in \mathbb{U}_8$. This means that we only have to look at the upper 8 bits, and we need just one shift instruction to compute $n' = \lfloor \frac{n}{4} \rfloor$. So this ends up as efficient as the round-up method, which also needs just one shift and a multiplication.
 
@@ -178,30 +179,30 @@ $\square$
 
 We distinguish between compile-time optimization and runtime optimization of constant unsigned integers. To illustrate, the divisor `d` in the following code is a compile-time constant:
 ```
-	const unsigned int d = 61;
-	
-	for (int i = 0; i < size; i++) {
-		quotient[i] = dividend[i] / d;
-	}
+const unsigned int d = 61;
+
+for (int i = 0; i < size; i++) {
+	quotient[i] = dividend[i] / d;
+}
 ```
 
 The divisor `d` in the following code is a runtime constant:
 ```
-	unsigned int d = read_divisor();
-	
-	for (int i = 0; i < size; i++) {
-		quotient[i] = dividend[i] / d;
-	}
+unsigned int d = read_divisor();
+
+for (int i = 0; i < size; i++) {
+	quotient[i] = dividend[i] / d;
+}
 ```
 
 In case of a runtime constant divisor, most compilers will not optimize the division. However, we can do it ourselves, by doing something like:
 ```
-	unsigned int d = read_divisor();
-	divdata_t divisor_data = precompute(divisor);
-	
-	for (int i = 0; i < size; i++) {
-		quotient[i] = fast_divide(dividend[i], divisor_data);
-	}
+unsigned int d = read_divisor();
+divdata_t divisor_data = precompute(divisor);
+
+for (int i = 0; i < size; i++) {
+	quotient[i] = fast_divide(dividend[i], divisor_data);
+}
 ```
 
 In this section, we will discuss both how a compiler can generated optimized code and how to efficiently implement the `precompute` and `fast_divide` functions for runtime constant divisors. The [libdivide](https://libdivide.com/) library, which was started by the author of [3] and [4], is a mature implementation that can optimize division by runtime constant integers. The library is conveniently included in a single header file, contains a nice C++ interface, and also implements vector implementations of integer division, which can make division even faster.
@@ -215,12 +216,12 @@ For compile-time optimization, we can spend some more effort to produce better o
 
 Let's take the example from before as a starting point. I will assume that we have a constant `N` which denotes the number of bits in the unsigned integer datatype `uint`. I'll also assume the existence of `big_uint`, an unsigned integer datatype with $2N$ bits. Using these datatypes, the example from before becomes:
 ```
-	uint divisor = get_number_from_user();
-	divdata_t divisor_data = precompute(divisor);
-	
-	for (int i = 0; i < size; i++) {
-		quotient[i] = fast_divide(dividend[i], divisor_data);
-	}
+uint divisor = get_number_from_user();
+divdata_t divisor_data = precompute(divisor);
+
+for (int i = 0; i < size; i++) {
+	quotient[i] = fast_divide(dividend[i], divisor_data);
+}
 ```
 
 Both the round-up and the round-down method can be implemented using an expression of the form `(n * m + add) >> (N + shift)` to compute $\lfloor \frac{n}{d} \rfloor$, so it is natural to define the struct `divdata_t` with these fields:
@@ -265,32 +266,32 @@ divdata_t precompute(uint d) {
 
 For the normal path (that is, all the cases except $d = 1$) we can use the test from lemma 7:
 ```
-	// normal path
-	uint l = ceil_log2(d) - 1;
-	uint m_down = (((big_uint)1) << (N + l)) / d;
-	uint m_up = (is_power_of_two(d)) ? m_down : m_down + 1;
-	uint temp = m_up * d;
-	bool use_round_up_method= temp <= (1 << l);
-	
-	// set fields of divdata
-	...
+// normal path
+uint l = ceil_log2(d) - 1;
+uint m_down = (((big_uint)1) << (N + l)) / d;
+uint m_up = (is_power_of_two(d)) ? m_down : m_down + 1;
+uint temp = m_up * d;
+bool use_round_up_method= temp <= (1 << l);
+
+// set fields of divdata
+...
 ```
 
 Note that the `temp` variable is an $N$-bit unsigned integer. It is just used to compute $m_\text{up} \cdot d$ modulo $2^N$. Also note that we need a special case for when $d$ is a power of two for rounding.
 
 Setting the `mul`, `add`, and `shift` fields of `divdata` is straightforward:
 ```
-	// set fields of divdata
-	if (use_round_up_method) {
-		divdata.mul = m_up;
-		divdata.add = 0;
-	}
-	else {
-		divdata.mul = m_down;
-		divdata.add = m_down;
-	}
-	
-	divdata.shift = l;
+// set fields of divdata
+if (use_round_up_method) {
+	divdata.mul = m_up;
+	divdata.add = 0;
+}
+else {
+	divdata.mul = m_down;
+	divdata.add = m_down;
+}
+
+divdata.shift = l;
 ```
 
 When you stitch the snippets together and include `bits.h` from the appendix you should get a working implementation of `precompute`. However, we can make it a bit more efficient. Note that we have a special case for $d = 1$ and also special cases for when $d$ is a power of two. The trick we used for $d = 1$ actually can be generalized to handle all powers of two. 
@@ -322,7 +323,6 @@ divdata_t precompute(uint d) {
 	}
 
 	divdata.shift = l;
-	
 	return divdata;
 }
 ```
@@ -523,7 +523,7 @@ for (uint d = 1; true; d++) {
 
 This will still take a long time, but it is feasible; The above code took slightly over 40 minutes to run on my machine.
 
-For $N = 64$, exhaustive testing is completely infeasible. I recommend making a set $S$ of special values consisting of all numbers from 0 up to 256, all numbers of the form $2^k - 1$, $2^k$, $2^k + 1$, the divisors of these numbers, and the divisors of $2^{64} + 1$. Then we can test if the result is correct for each $n \in S$, $d \in S \setminus \{ 0 \}$. On top of that, you can run some randomized testing. I recommend that you pick $n$ and $d$ uniformly random in $\mathbb{U}_{64}$ and then mask out each byte with some probability. Then, you can run random tests for some time. If you find a bug in the implementations, add $n$ and $d$ for which the result is not correct to $S$ and verify that your testset triggers the bug before you fix the bug.
+For $N = 64$, exhaustive testing is completely infeasible. I recommend making a set $S$ of special values consisting of all numbers from 0 up to 256, all numbers of the form $2^k - 1$, $2^k$, $2^k + 1$, the divisors of these numbers, and the divisors of $2^{64} + 1$. Then we can test if the result is correct for each $n \in S$, $d \in S \setminus \{ 0 \}$. On top of that, you can run some randomized testing. I recommend that you pick $n$ and $d$ uniformly random in $\mathbb{U}_{64}$ and then mask out each byte with some probability. Then, you can run random tests for some time. If you find a bug in the implementations, add $n$ and $d$ for which the result is not correct to $S$ and verify that your test set triggers the bug before you fix it.
 
 
 ## References and further reading
