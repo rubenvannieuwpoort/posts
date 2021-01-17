@@ -1,5 +1,7 @@
 # Division by constant unsigned integers
 
+The code accompanying this article can be found in a [github repository](https://github.com/rubenvannieuwpoort/division-by-constant-integers).
+
 Most modern processors have an integer divide instruction which, for technical reasons, is very slow compared to other integer arithmetic operations. When the divisor is constant, it is possible to evaluate the result of the division without using the slow division instruction. Most optimizing compilers perform this optimization, as can be seen on [Matt Godbolt’s compiler explorer](https://godbolt.org/z/9G1fE7). This article tries to be a self-contained reference for optimizing division by constant unsigned divisors.
 
 There are tricks to make division by some special divisors fast: A division by one can be ignored, a division by a power of two can be replaced by a bit shift. A more general trick exists: By using fixed-point arithmetic, we can speed up division by all constant divisors. However, this is not simple to explain, and for this reason I will focus only on positive (or 'unsigned') divisors in this article. For a number $n$ (also called the *dividend*) and a divisor $d$, I assume that we are interested in the *quotient* $\lfloor \frac{n}{d} \rfloor$.
@@ -344,7 +346,7 @@ evaluate:
 	ret
 ```
 
-Admittedly, I picked the instructions and calling conventions to be convenient for my use case. The instructions that are emitted by the compiler are typically a bit longer. Still, for most cases the instructions are similar to those that compilers emit. You can see the instructions that clang 11.0 outputs for some divisors on https://godbolt.org/z/bKq7Wa. Note that clang 11.0 still produces suboptimal instructions for the case of an odd divisor that is not efficient for the round-up method, because it uses the method mentioned after theorem 3. Benchmarks from [4] show that using the round-down method is faster.
+Admittedly, I picked the instructions and calling conventions to be convenient for my use case. The instructions that are emitted by the compiler are typically a bit longer. Still, for most cases the instructions are similar to those that compilers emit. You can see the instructions that clang 11.0 outputs for some divisors on [godbolt.org](https://godbolt.org/z/bKq7Wa). Note that clang 11.0 still produces suboptimal instructions for the case of an odd divisor that is not efficient for the round-up method, because it uses the method mentioned after theorem 3. Benchmarks from [4] show that using the round-down method is faster.
 
 As mentioned before, for compile-time optimization we can distinguish a lot of cases to squeeze out every last bit of performance. Some special cases that can be implemented particularly efficient are:
   - Division by one, which can be handled by setting the quotient equal to the dividend.
@@ -482,8 +484,6 @@ expression_t n_inc = sbb(add(n, constant(1)), constant(0));
 expression_t hiword = umulhi(n_inc, constant(m_down));
 return shr(hiword, constant(l));
 ```
-
-Piercing all the code together and including the header file [bits.h](TODO) should give you a working implementation of `div_by_const_uint` and `div_fixpoint`.
 
 
 ### Testing
