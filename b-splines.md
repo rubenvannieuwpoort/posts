@@ -6,7 +6,7 @@ This is an edited section from my thesis "[Solving Poisson’s equation with Dat
 
 Splines (or spline functions) are also called piecewise polynomial. The reason is illustrated by the following definition:
 
-**Definition**: *A **spline** or **piecewise polynomial** function of (polynomial) degree $p$ is a function $f : \mathbb{R} \rightarrow \mathbb{R}$, such that there exist $\xi_0 < \xi_1 < ... < \xi_m$ and polynomials $p_0$, $p_ 1$, ..., $p_{m - 1}$ with degree at most $p$ such that $f(x) = p_k(x)$ if $x \in [\xi_k, \xi_{k + 1}]$, and either $f(x) = p_k(x)$ or $f(x) = p_{k + 1}(x)$ when $x = \xi_{k + 1}$. The values $\xi_0$, $\xi_1$, ..., $\xi_m$ are called **breaks**.*
+**Definition**: *A **spline** or **piecewise polynomial** function of degree $p$ is a function $f : \mathbb{R} \rightarrow \mathbb{R}$, such that there exist $\xi_0 < \xi_1 < ... < \xi_m$ and polynomials $p_0$, $p_ 1$, ..., $p_{m - 1}$ with degree at most $p$ such that $f(x) = p_k(x)$ if $x \in [\xi_k, \xi_{k + 1}]$, and either $f(x) = p_k(x)$ or $f(x) = p_{k + 1}(x)$ when $x = \xi_{k + 1}$. The values $\xi_0$, $\xi_1$, ..., $\xi_m$ are called **breaks**.*
 
 In order to define spline spaces, we introduce the concept of a knot vector:
 
