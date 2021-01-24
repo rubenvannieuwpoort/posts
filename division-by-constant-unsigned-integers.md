@@ -15,7 +15,7 @@ In the following section, I'll discuss the mathematical background. In the secti
 
 ### Preliminaries
 
-I will assume that we are working on an $N$-bit machine which can efficiently compute the full $2N$-bit product of two $N$-bit unsigned integers. I will use the notation $\mathbb{U}_N$ for the set of unsigned integers that can be represented with $N$ bits:
+I will assume that we are working on an $N$-bit machine which can efficiently compute the full $2N$-bit product of two $N$-bit unsigned integers. I will denote $\mathbb{N}_0 = \{ 0, 1, 2, ... \}$ for the set of natural numbers including zero, $\mathbb{N}_+ = \{ 1, 2, 3, ... \}$ for the set of positive natural numbers, and $\mathbb{Z} = \{ ..., -1, 0, 1, ... \}$ for the set of integers. Further, I will use the notation $\mathbb{U}_N$ for the set of unsigned integers that can be represented with $N$ bits:
 $$ \mathbb{U}_N = \{ 0, 1, ..., 2^N - 1 \} $$
 
 I will use the notation $\text{mod}_d(n)$ to denote the integer in the range $\{ 0, 1, ..., d - 1 \}$ that is equivalent to $n$ modulo $d$. That is, $\text{mod}_d(n)$ is the unique integer such that
@@ -34,7 +34,7 @@ For a given divisor $d$, we now want to have an expression that evaluates to $\l
 
 Guided by these demands, we can start our analysis. The following lemma will be useful:
 
-**Lemma 1**: *Suppose that $n, d \in \mathbb{N}$ with $d > 0$. If $\frac{n}{d} \leq x < \frac{n + 1}{d}$ then $\lfloor x \rfloor = \lfloor \frac{n}{d} \rfloor$.*
+**Lemma 1**: *Suppose that $n \in \mathbb{Z}$, $d \in \mathbb{N}_+$. If $\frac{n}{d} \leq x < \frac{n + 1}{d}$ then $\lfloor x \rfloor = \lfloor \frac{n}{d} \rfloor$.*
 
 **Proof**: We have $\frac{n + 1}{d} = \lfloor \frac{n}{d} \rfloor + \frac{k}{d}$ for some nonnegative integer $k \leq d$. So $\frac{n + 1}{d} = \lfloor \frac{n}{d} \rfloor + \frac{k}{d} \leq \lfloor \frac{n}{d} \rfloor + 1$. It follows that $x \in [ \lfloor \frac{n}{d} \rfloor, \lfloor \frac{n}{d} \rfloor + 1)$, so that $\lfloor x \rfloor = \lfloor \frac{n}{d} \rfloor$.
 $\square$
@@ -49,7 +49,7 @@ First, we determine the conditions under which the round-up method produces the 
 
 First, we would like to know when the round-up method is correct. The following theorem states a condition under which the round-up method is correct, that is, $\lfloor \frac{m_\text{up} \cdot n}{2^k} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.
 
-**Theorem 2 (correctness of the round-up method)**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
+**Theorem 2 (correctness of the round-up method)**: *Let $d, N, \ell \in \mathbb{N}_0$ with $d > 0$. If there exists an $m \in \mathbb{N}_+$ with*
 $$ 2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell $$
 
 *then $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$*.
@@ -65,7 +65,7 @@ $\square$
 
 The following corollary gives us a more practical way to check if there is a multiple of $m$ between $2^{N + \ell}$ and $2^{N + \ell} + 2^\ell$.
 
-**Corollary**: *Let $d, \ell, N \in \mathbb{N}$ with $d > 0$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $m_\text{up} \cdot d \leq 2^{N + \ell} + 2^{\ell}$ we have $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$ then there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.*
+**Corollary**: *Let $d, \ell, N \in \mathbb{N}_0$ with $d > 0$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $m_\text{up} \cdot d \leq 2^{N + \ell} + 2^{\ell}$ we have $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$ then there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.*
 
 **Proof**: Note that $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is simply the first multiple of $d$ that is greater than or equal to $2^{N + \ell}$. So the bound $2^{N + \ell} \leq m_\text{up} \cdot d$ is always satisfied. If we have $m_\text{up} \leq 2^{N + \ell} + 2^\ell$, then $m_\text{up}$ satisfies the condition of theorem 2 and we have $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. If we have $m_\text{up} \cdot d > 2^{N + \ell} + 2^\ell$, the first multiple that is greater than or equal to $2^{N + \ell}$ is larger than $2^{N + \ell} + 2^\ell$. This means that there is no multiple of $d$ in the range $2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell$, and that there exists no $m$ such that $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$.
 $\square$
@@ -76,9 +76,9 @@ Let's do some examples to see how we can use the round-up method in practice.
 
 **Example**: Let's take $N = 8$, $d = 7$. First, we try $\ell = 0$ and compute $m_\text{up} = \lceil \frac{2^8}{7} \rceil = 37$. We see that $37 \cdot 7 = 259 > 257 = 2^8 + 2^0$. So we increase $\ell$ to one and try again. This time we get $m_\text{up} = \lceil \frac{2^9}{7} \rceil = 74$. We see that $74 \cdot 7 = 518 > 514 = 2^9 + 2^1$. Again, we increase $\ell$ to two and check the bound again: $m_\text{up} = \lceil \frac{2^{10}}{7} \rceil = 147$, and $147 \cdot 7 = 1029 > 1028 = 2^10 + 2^2$. Increasing $\ell$ to four, we get $m_\text{up} = \lceil \frac{2^{11}}{7} \rceil = 293$, and $293\cdot 7 = 2051 \leq 2056 = 2^{11} + 2^3$. So the condition of the corollary is satisfied and for any 8-bit unsigned integer $n \in \mathbb{U}_8$ we can have $\lfloor \frac{293 \cdot n}{2^9} \rfloor = \lfloor \frac{n}{3} \rfloor$.
 
-This last example shows that $m_\text{up}$ does not always fit in $N$ bits. In this case, $m_\text{up}$ does not fit in a single register, which makes the evaluation of $m_text{up} \cdot n$ inefficient. The following theorem shows that $m_\text{up}$ always fits in $N + 1$ bits.
+This last example shows that $m_\text{up}$ does not always fit in $N$ bits. In this case, $m_\text{up}$ does not fit in a single register, which makes the evaluation of $m_\text{up} \cdot n$ inefficient. The following theorem shows that $m_\text{up}$ always fits in $N + 1$ bits.
 
-**Theorem 3**: *Let $N, d \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil, m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Then $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$ and $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Theorem 3**: *Let $N, d \in \mathbb{N}_0$ with $d > 0$ and define $\ell = \lceil \log_2(d) \rceil, m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Then $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$ and $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
 **Proof**: The range $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ consists of $2^\ell + 1$ consecutive numbers. We have $\ell = \lceil \log_2(d) \rceil$, so $2^\ell + 1 > d$ and there must be a multiple of $d$ in this range. Since $d \cdot m_\text{up} = d \cdot \lceil \frac{2^{N + \ell}}{d} \rceil$ is simply the first multiple greater than or equal to $2^{N + \ell}$, this is a multiple of $d$ in this range. By theorem 2, it follows that $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. By using lemma 5 with $N + 1$ instead of $N$, we see that $2^N \leq m_\text{up} < 2^{N + 1}$, so $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$.
 $\square$
@@ -97,7 +97,7 @@ This gives us the **round-down method**, which approximates $\lfloor \frac{n}{d}
 
 We proceed as we did for the round-up method, by deriving a condition under which the method is correct.
 
-**Theorem 4 (correctness of the round-down method)**: *Let $d, N, l \in \mathbb{N}$ be nonnegative integers with $d > 0$. If there exists an $m \in \mathbb{N}$ with*
+**Theorem 4 (correctness of the round-down method)**: *Let $d, N, \ell \in \mathbb{N}_0$ with $d > 0$. If there exists an $m \in \mathbb{N}_+$ with*
 $$ 2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$$
 
 *then*
@@ -114,7 +114,7 @@ $\square$
 
 When using the round-up or round-down method, we want $m$ to be an $N$-bit number in order for the multiplication to be efficient. As we have seen, such an $m$ does not always exist. Let us call divisors for which such an $m$ exists *efficient*. The following definition makes this rigorous.
 
-**Definition**: *We call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-up method (or round down method) if there exists an $\ell \in \mathbb{N}$ such that $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Likewise, we call a positive divisor $d \in \mathbb{U}_d$ efficient for the $N$-bit round-down method if there exists an $\ell \in \mathbb{N}$ such that $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Definition**: *We call a positive divisor $d \in \mathbb{U}_N$ efficient for the $N$-bit round-up method (or round down method) if there exists an $\ell \in \mathbb{N}_0$ such that $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. Likewise, we call a positive divisor $d \in \mathbb{U}_N$ efficient for the $N$-bit round-down method if there exists an $\ell \in \mathbb{N}_0$ such that $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
 The following result tells us that $\ell = \lceil \log_2(d) \rceil - 1$ is the biggest value for $\ell$ that we can pick so that $m_\text{up}$ and $m_\text{down}$ still fit in $N$ bits.
 
@@ -139,9 +139,9 @@ This theorem also implies that we never need to check if a divisor is efficient 
 
 The following result gives a more efficient condition to check if a given divisor is efficient for the round-up method.
 
-**Lemma 7**: *Let $d$ be a positive integer, $\ell = \lceil \log_2(d) \rceil - 1$, and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^\ell$ then $d$ is efficient for the round-up method.*
+**Lemma 7**: *Let $N \in \mathbb{N}_+$ and $d \in \mathbb{U}_N$ and define $\ell = \lceil \log_2(d) \rceil - 1$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^\ell$ then $d$ is efficient for the round-up method.*
 
-**Proof**: The product $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is the first multiple of $d$ that is equal to or larger than $2^{N + \ell}$. This product will be of the form $2^{N + \ell} + q$ for some $q < d \leq 2^\ell$, so we have $\text{mod}_{2^N}(m \cdot d) = q$. It follows that $2^{N + \ell} \leq m_\text{up} \cdot d \leq 2^{N + \ell} + 2^\ell$ if and only if $\text{mod}_{2^N}(m \cdot d) \leq 2^\ell$.
+**Proof**: The product $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is the first multiple of $d$ that is equal to or larger than $2^{N + \ell}$. This product will be of the form $2^{N + \ell} + q$ for some $q < d \leq 2^{\ell + 1}$, so we have $\text{mod}_{2^N}(m_\text{up} \cdot d) = q$. It follows that $2^{N + \ell} \leq m_\text{up} \cdot d \leq 2^{N + \ell} + 2^\ell$ if and only if $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^\ell$.
 $\square$
 
 Armed with these results, let's do the examples from before again:
