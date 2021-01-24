@@ -78,9 +78,9 @@ Let's do some examples to see how we can use the round-up method in practice.
 
 This last example shows that $m_\text{up}$ does not always fit in $N$ bits. In this case, $m_\text{up}$ does not fit in a single register, which makes the evaluation of $m_text{up} \cdot n$ inefficient. The following theorem shows that $m_\text{up}$ always fits in $N + 1$ bits.
 
-**Theorem 3**: *Let $N, d \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil, m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Then $m_\text{up} \in \mathbb{U}_{N + 1}$ and $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Theorem 3**: *Let $N, d \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil, m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Then $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$ and $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
-**Proof**: The range $\{ 2^N, 2^N + 1, ..., 2^N + 2^\ell \}$ consists of $2^\ell + 1$ consecutive numbers. We have $\ell = \lceil \log_2(d) \rceil$, so $2^\ell + 1 > d$ and there must be a multiple of $d$ in this range. Since $d \cdot m_\text{up} = d \cdot \lceil \frac{2^{N + \ell}}{d} \rceil$ is simply the first multiple greater than or equal to $d$, this is a multiple of $d$ in this range. By theorem 2, it follows that $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. In the proof of lemma 6 we saw that $\frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d} < 2^N - 1$. By multiplying both sides by two and rounding up, we see that we have $\lceil \frac{2^{N + \lceil \log_2(d) \rceil}}{d} \rceil = m_\text{up} \leq 2^{N + 1} - 1$, so $m_\text{up} \in \mathbb{U}_{N + 1}$.
+**Proof**: The range $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ consists of $2^\ell + 1$ consecutive numbers. We have $\ell = \lceil \log_2(d) \rceil$, so $2^\ell + 1 > d$ and there must be a multiple of $d$ in this range. Since $d \cdot m_\text{up} = d \cdot \lceil \frac{2^{N + \ell}}{d} \rceil$ is simply the first multiple greater than or equal to $2^{N + \ell}$, this is a multiple of $d$ in this range. By theorem 2, it follows that $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. By using lemma 5 with $N + 1$ instead of $N$, we see that $2^N \leq m_\text{up} < 2^{N + 1}$, so $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$.
 $\square$
 
 One way to handle the case when $m$ does not fit in $N$ bits, is to use the following trick from [1] to multiply by an $(N + 1)$-bit constant: We can evaluate $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor$ by defining $m' = m - 2^N$ and using the following code:
@@ -118,12 +118,12 @@ When using the round-up or round-down method, we want $m$ to be an $N$-bit numbe
 
 The following result tells us that $\ell = \lceil \log_2(d) \rceil - 1$ is the biggest value for $\ell$ that we can pick so that $m_\text{up}$ and $m_\text{down}$ still fit in $N$ bits.
 
-**Lemma 5**: *Let $d \in \mathbb{U}_N$ and define $m' = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d}, m_\text{down} = \lfloor m' \rfloor, m_\text{up} = \lceil m' \rceil$. Now*
-$$2^{N - 1} \leq \lfloor x \rfloor \leq \lceil x \rceil \leq 2^N - 1$$
+**Lemma 5**: *Let $N \in \mathbb{N}_+$, $d \in \mathbb{U}_N$ and define $m' = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d}, m_\text{down} = \lfloor m' \rfloor, m_\text{up} = \lceil m' \rceil$. Now $m_\text{down}, m_\text{up} \in \mathbb{U}_N$ with*
+$$2^{N - 1} \leq m_\text{down} \leq m_\text{up} \leq 2^N - 1$$
 
 That is, the binary representations of $m_\text{down}$ and $m_\text{up}$ have exactly $N$ bits.
 
-**Proof**: We have $2^{N - 1} = \frac{2^{N - 1} \cdot d}{d} = \frac{2^{N - 1 + \log_2(d)}}{d} \leq \frac{2^{N - 1 + \lceil \log_2(d)} \rceil}{d} = m'$. Since the floor function is a nondecreasing function and $\lfloor m' \rfloor \leq \lceil m' \rceil$ we have $2^{N - 1} \leq m_\text{down} \leq m_\text{up}$. It remains to show that $m_\text{up} \leq 2^N - 1$.
+**Proof**: We have $2^{N - 1} = \frac{2^{N - 1} \cdot d}{d} = \frac{2^{N - 1 + \log_2(d)}}{d} \leq \frac{2^{N - 1 + \lceil \log_2(d) \rceil}}{d} = m'$. Since the floor function is a nondecreasing function and $\lfloor m' \rfloor \leq \lceil m' \rceil$ we have $2^{N - 1} \leq m_\text{down} \leq m_\text{up}$. It remains to show that $m_\text{up} \leq 2^N - 1$.
 
 When $N = 1$, it follows that $d = 1$ and the bound holds. When $N > 1$, the ratio $\frac{2^{\lceil \log_2(d) \rceil}}{d}$ is maximized over $d \in \mathbb{U}_N$ by $d = 2^{N - 1} + 1$, so $\frac{2^{\lceil \log_2(d) \rceil}}{d} \leq \frac{2^N}{2^{N - 1} + 1} < \frac{2^N - 1}{2^{N - 1}}$ (this last inequality can be seen by multiplying both sides by $2^{N - 1} \cdot (2^{N - 1} + 1)$). So we have $\frac{2^{\lceil \log_2(d) \rceil}}{d} < \frac{2^N - 1}{2^{N - 1}}$; multiplying both sides by $2^{N - 1}$ gives $m' = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d} < 2^N - 1$. After rounding up both sides, it follows that $m_\text{up} \leq 2^N - 1$.
 $\square$
