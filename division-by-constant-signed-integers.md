@@ -31,21 +31,19 @@ $$ 1_P = \begin{cases} 0 & \text{when $P$ is false} \\ 1 & \text{when $P$ is tru
 
 ### Signed division
 
-From the results in [TODO: LINK], it is relatively to compute the rounded-down quotient $\frac{n}{d}$ when the dividend $n \in \mathbb{S}_N$ is signed.
+From the results in [TODO: LINK], it is relatively easy to compute the rounded-down quotient $\frac{n}{d}$ when the dividend $n \in \mathbb{S}_N$ is signed.
 
 **Lemma 1**: *Let $d, N \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil$ and $m = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil$. Then $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_{N - 1}$.*
 
-**Proof**: This follows from theorem when we replace $N$ by $N - 1$.
+**Proof**: This follows from replacing $N$ by $N - 1$ in theorem 3.
 $\square$
 
-TODO: now for most negative integers $n$ we have this as well, however not when $n$ is a power of two
+Lemma 1 doesn't quite extend to negative integers. However, we have the following result.
 
-**Lemma 2**: *Let $n \in \mathbb{Z}$, $d \in \mathbb{N}_+$ with $n$ not a multiple of $d$. Then $[\frac{n}{d}] = \lfloor \frac{n}{d} \rfloor + 1_{n < 0}$.*
+**Lemma 2**: *Let $d, N \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil$ and $m = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil$. When $m \cdot n$ is not a multiple of $2^{N + \ell}$, we have $\lfloor \frac{m \cdot -n}{2^{N - 1 + \ell}} \rfloor = [ \frac{-n}{d} ] - 1$ for all $n \in \mathbb{U}_{N - 1}$.*
 
-**Proof**: When $n \geq 0$ we have $1_{n < 0} = 0$ and $[\frac{n}{d}]$, so the result holds. When $n < 0$ we have $\lfloor \frac{n}{d} \rfloor + 1_{n < 0} =\lfloor \frac{n}{d} \rfloor + 1 = \lceil \frac{n}{d} \rceil = [\frac{n}{d}]$, so the result holds as well.
-$\square$
-
-**Proof**: TODO
+**Proof**: Let $n \in \mathbb{U}_{N - 1}$ with $m \cdot n$ not a multiple of $2^{N + \ell}$. Then we have
+$$\lfloor \frac{m \cdot -n}{2^{N - 1 + \ell}} \rfloor = -\lceil \frac{m \cdot n}{2^{N - 1 + \ell}} \rceil = -\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor - 1 = -[\frac{n}{d}] - 1 = [\frac{-n}{d}] - 1$$
 $\square$
 
 **Lemma 3**: *Let $d, N \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{d} \rfloor + 1$. There is no $n \in \mathbb{S}_N$ for which $n \cdot m$ is a multiple of $2^{N - 1 + \ell}$.*
