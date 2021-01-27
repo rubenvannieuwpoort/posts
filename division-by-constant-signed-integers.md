@@ -1,3 +1,4 @@
+
 # Division by constant signed integers
 
 Division is a relatively slow operation. When the divisor is constant, the division can be optimized significantly. In [division by constant unsigned integers](https://rubenvannieuwpoort.nl/posts/division-by-constant-unsigned-integers) I explored how this can be done for unsigned integers. In this follow-up article, I cover how we can optimize division by constant signed integers. This article essentially provides the same information as [1].
@@ -33,27 +34,34 @@ $$ 1_P = \begin{cases} 0 & \text{when $P$ is false} \\ 1 & \text{when $P$ is tru
 
 From the results in [TODO: LINK], it is relatively easy to compute the rounded-down quotient $\frac{n}{d}$ when the dividend $n \in \mathbb{S}_N$ is signed.
 
-**Lemma 1**: *Let $d, N \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil$ and $m = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil$. Then $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_{N - 1}$.*
+**Lemma**: *If*
+$$ \frac{n - 1}{d} \leq x < \frac{n}{d} $$
 
-**Proof**: This follows from replacing $N$ by $N - 1$ in theorem 3.
+*then*
+$$ \lfloor x \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1 $$
+
+**Proof**: Set $\frac{n - 1}{d} = a + \frac{b}{d}$ with $a \in \mathbb{Z}$, $b \in \{ 0, 1, ..., d - 1 \}$. Then $\frac{n}{d} = a + \frac{b + 1}{d}$. Now $\lfloor \frac{n - 1}{d} \rfloor = a$ and $\lceil \frac{n}{d} \rceil = a + 1$ so that $\lceil \frac{n}{d} \rceil = \lfloor \frac{n - 1}{d} \rfloor + 1$. So $\lfloor \frac{n - 1}{d} \rfloor \leq \lfloor x \rfloor < \lfloor \frac{n - 1}{d} \rfloor + 1$. Since $\lfloor x \rfloor$ is an integer, it follows that $x = \lfloor \frac{n - 1}{d} \rfloor = \lceil \frac{n}{d} \rceil - 1$.
 $\square$
 
-Lemma 1 doesn't quite extend to negative integers. However, we have the following result.
 
-**Lemma 2**: *Let $d, N \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil$ and $m = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil$. When $m \cdot n$ is not a multiple of $2^{N + \ell}$, we have $\lfloor \frac{m \cdot -n}{2^{N - 1 + \ell}} \rfloor = [ \frac{-n}{d} ] - 1$ for all $n \in \mathbb{U}_{N - 1}$.*
+**Lemma**: *If*
+$$ 2^{N - 1 + \ell} < m \cdot n \leq 2^{N - 1 + \ell} + 2^\ell $$
 
-**Proof**: Let $n \in \mathbb{U}_{N - 1}$ with $m \cdot n$ not a multiple of $2^{N + \ell}$. Then we have
-$$\lfloor \frac{m \cdot -n}{2^{N - 1 + \ell}} \rfloor = -\lceil \frac{m \cdot n}{2^{N - 1 + \ell}} \rceil = -\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor - 1 = -[\frac{n}{d}] - 1 = [\frac{-n}{d}] - 1$$
+*then*
+$$\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1 $$
+
+*for all negative $n \in \mathbb{S}_N$.*
+
+**Proof**: Multiply $2^{N - 1 + \ell} < m \cdot n \leq 2^{N - 1 + \ell} + 2^\ell$ by $\frac{n}{d \cdot 2^{N + \ell}}$. Remember that $n$ is negative, so the inequality 'flips' and we get
+$\frac{n}{d} + \frac{n}{2^{N - 1}} \cdot \frac{1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. Now, using that $-2^{N - 1} < n$ we see that $-1 \leq \frac{n}{2^{N - 1}}$, so we have $\frac{n}{d} - \frac{1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. The result now follows from lemma 1.
 $\square$
 
-**Lemma 3**: *Let $d, N \in \mathbb{N}_+$ and define $\ell = \lceil \log_2(d) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{d} \rfloor + 1$. There is no $n \in \mathbb{S}_N$ for which $n \cdot m$ is a multiple of $2^{N - 1 + \ell}$.*
+**Theorem**: *Let $d$ and $N$ be integers with $N > 0$ and define $\ell = \lceil \log_2(|d|) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{|d|} \rfloor + 1$. Then $m \in \mathbb{U}_N \setminus \mathbb{U}_{N - 1}$ and*
+$$[ \frac{n}{d} ] = \text{sgn}(d) \cdot \left(\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} \right)$$
 
-**Proof**: TODO
-$\square$
+*for all $n \in \mathbb{S}_N$.*
 
-**Theorem 4**: *Let $d$ and $N$ be integers with $N > 0$ and define $\ell = \lceil \log_2(|d|) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{|d|} \rfloor + 1$. Then $m \in \mathbb{U}_N \setminus \mathbb{U}_{N - 1}$ and $[ \frac{n}{d} ] = \left( \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1_{n < 0} \right)$ for all $n \in \mathbb{S}_N$.*
-
-**Proof**: If $d$ is not a power of two it follows that $\lfloor \frac{2^{N - 1 + \ell}}{d} \rfloor + 1 = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil$ and the result follows from lemma 1. If $d$ is a power of two TODO
+**Proof**: Suppose that $d$ is positive. When $n \geq 0$, the result follows from replacing $N$ by $N - 1$ in theorem 3. When $n < 0$, the result follows from lemma 2. Now, when $d$ is negative we have $[ \frac{n}{-d} ] = - [\frac{n}{d}]$... TODO
 $\square$
 
 
