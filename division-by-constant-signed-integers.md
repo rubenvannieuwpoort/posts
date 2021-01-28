@@ -1,9 +1,8 @@
-
 # Division by constant signed integers
 
 Division is a relatively slow operation. When the divisor is constant, the division can be optimized significantly. In [division by constant unsigned integers](https://rubenvannieuwpoort.nl/posts/division-by-constant-unsigned-integers) I explored how this can be done for unsigned integers. In this follow-up article, I cover how we can optimize division by constant signed integers. This article essentially provides the same information as [1].
 
-To optimize signed division, we want to round $\frac{n}{d}$ toward zero. This presents some challenges which are different than those for optimizing unsigned division. We are only dealing with numbers $n$ with a magnitude $|n|$ of at most $2^{N - 1}$, which means we can always use the round-up method. However, the rounding presents a challenge, since we want to round up when the dividend $n$ is negative. Most of the complexity in the implementation comes from correctly handling the rounding.
+To optimize signed division, we want to round $\frac{n}{d}$ toward zero. This presents some challenges which are different than those for optimizing unsigned division. We are only dealing with numbers with a magnitude of at most $2^{N - 1}$, and we will see that this means we can always use the round-up method. However, the rounding presents a challenge, since we want to round up when the dividend $n$ is negative. Most of the complexity in the implementation comes from correctly handling the rounding.
 
 
 ## Mathematical background
@@ -22,7 +21,7 @@ For some real number $x \in \mathbb{R}$, I will denote the absolute value of $x$
 $$ |x| = \begin{cases} x & \text{when $x \geq 0$} \\ -x & \text{otherwise} \end{cases}$$
 
 I will use the notation $\lfloor x \rfloor$ for the biggest integer smaller than or equal to $x$, and $\lceil x \rceil$ for the smallest integer bigger than or equal to $x$. I will use $[ x ]$ to denote the value of $x$ when rounded toward zero. That is
-$$ [x] = \begin{cases} \lfloor x \rfloor & \text{when $x \geq 0$} \\ \lceil x \rceil & \text{otherwise} \end{cases}$$
+$$ [x] = \begin{cases} \lceil x \rceil & \text{when $x < 0$} \\ \lfloor x \rfloor & \text{when $x \geq 0$} \end{cases}$$
 
 I will use the notation $\text{sgn}(x)$ for the *sign function*:
 $$ \text{sgn}(x) = \begin{cases} -1 & \text{when $x < 0$} \\ 0 & \text{when $x = 0$} \\ 1 & \text{when $x > 0$} \end{cases}$$
@@ -30,11 +29,12 @@ $$ \text{sgn}(x) = \begin{cases} -1 & \text{when $x < 0$} \\ 0 & \text{when $x =
 Finally, I will use the notation $1_P$ where $P$ is a predicate to denote the *characteristic function*:
 $$ 1_P = \begin{cases} 0 & \text{when $P$ is false} \\ 1 & \text{when $P$ is true} \end{cases}$$
 
+
 ### Signed division
 
 From the results in [TODO: LINK], it is relatively easy to compute the rounded-down quotient $\frac{n}{d}$ when the dividend $n \in \mathbb{S}_N$ is signed.
 
-**Lemma**: *If*
+**Lemma**: *Let $n \in \mathbb{Z}, d \in \mathbb{N}_+$, and $x \in \mathbb{R}$. When*
 $$ \frac{n - 1}{d} \leq x < \frac{n}{d} $$
 
 *then*
@@ -44,15 +44,15 @@ $$ \lfloor x \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1 $$
 $\square$
 
 
-**Lemma**: *If*
-$$ 2^{N - 1 + \ell} < m \cdot n \leq 2^{N - 1 + \ell} + 2^\ell $$
+**Lemma**: *Let $d, m, N \in \mathbb{N}_+$. If*
+$$ 2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell $$
 
 *then*
 $$\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1 $$
 
 *for all negative $n \in \mathbb{S}_N$.*
 
-**Proof**: Multiply $2^{N - 1 + \ell} < m \cdot n \leq 2^{N - 1 + \ell} + 2^\ell$ by $\frac{n}{d \cdot 2^{N + \ell}}$. Remember that $n$ is negative, so the inequality 'flips' and we get
+**Proof**: Multiply $2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell$ by $\frac{n}{d \cdot 2^{N + \ell}}$. Remember that $n$ is negative, so the inequality 'flips' and we get
 $\frac{n}{d} + \frac{n}{2^{N - 1}} \cdot \frac{1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. Now, using that $-2^{N - 1} < n$ we see that $-1 \leq \frac{n}{2^{N - 1}}$, so we have $\frac{n}{d} - \frac{1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. The result now follows from lemma 1.
 $\square$
 
@@ -61,7 +61,7 @@ $$[ \frac{n}{d} ] = \text{sgn}(d) \cdot \left(\left \lfloor \frac{m \cdot n}{2^{
 
 *for all $n \in \mathbb{S}_N$.*
 
-**Proof**: Suppose that $d$ is positive. When $n \geq 0$, the result follows from replacing $N$ by $N - 1$ in theorem 3. When $n < 0$, the result follows from lemma 2. Now, when $d$ is negative we have $[ \frac{n}{-d} ] = - [\frac{n}{d}]$... TODO
+**Proof**: When $n \geq 0$ we have $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor$. By replacing $N$ by $N - 1$ in theorem 3 we see that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \lfloor \frac{n}{|d|} \rfloor = [ \frac{n}{|d|} ]$ for all $n \in \mathbb{U}_{N - 1}$, so this also holds for all positive $n \in \mathbb{S}_N$. When $n < 0$ we have $1_{n < 0} = 1$. From lemma 2 we see that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil \frac{n}{|d|} \right \rceil - 1$, so that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1 = \lceil \frac{n}{|d|} \rceil = [ \frac{n}{|d|} ]$ for all negative $n \in \mathbb{S}_N$. Combining these results we see that $[ \frac{n}{|d|} ] = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0}$. Using $[ \frac{n}{d} ] = \text{sgn}(d) \cdot [ \frac{n}{|d|} ]$ the result follows.
 $\square$
 
 
