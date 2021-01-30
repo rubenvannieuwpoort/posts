@@ -32,7 +32,7 @@ $$ 1_P = \begin{cases} 0 & \text{when $P$ is false} \\ 1 & \text{when $P$ is tru
 
 ### Signed division
 
-From the results in [TODO: LINK], it is relatively easy to compute the rounded-down quotient $\frac{n}{d}$ when the dividend $n \in \mathbb{S}_N$ is signed.
+The following result will come in handy for negative dividends.
 
 **Lemma**: *Let $n \in \mathbb{Z}, d \in \mathbb{N}_+$, and $x \in \mathbb{R}$. When*
 $$ \frac{n - 1}{d} \leq x < \frac{n}{d} $$
@@ -44,7 +44,7 @@ $$ \lfloor x \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1 $$
 $\square$
 
 
-**Lemma**: *Let $d, m, N \in \mathbb{N}_+$. If*
+**Lemma 1**: *Let $d, m, N \in \mathbb{N}_+$. If*
 $$ 2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell $$
 
 *then*
@@ -56,12 +56,12 @@ $$\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil
 $\frac{n}{d} + \frac{n}{2^{N - 1}} \cdot \frac{1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. Now, using that $-2^{N - 1} < n$ we see that $-1 \leq \frac{n}{2^{N - 1}}$, so we have $\frac{n}{d} - \frac{1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. The result now follows from lemma 1.
 $\square$
 
-**Theorem**: *Let $d$ and $N$ be integers with $N > 0$ and define $\ell = \lceil \log_2(|d|) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{|d|} \rfloor + 1$. Then $m \in \mathbb{U}_N \setminus \mathbb{U}_{N - 1}$ and*
+**Theorem 2**: *Let $d$ and $N$ be integers with $N > 0$ and define $\ell = \lceil \log_2(|d|) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{|d|} \rfloor + 1$. Then $m \in \mathbb{U}_N \setminus \mathbb{U}_{N - 1}$ and*
 $$[ \frac{n}{d} ] = \text{sgn}(d) \cdot \left(\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} \right)$$
 
 *for all $n \in \mathbb{S}_N$.*
 
-**Proof**: When $n \geq 0$ we have $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor$. By replacing $N$ by $N - 1$ in theorem 3 we see that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \lfloor \frac{n}{|d|} \rfloor = [ \frac{n}{|d|} ]$ for all $n \in \mathbb{U}_{N - 1}$, so this also holds for all positive $n \in \mathbb{S}_N$. When $n < 0$ we have $1_{n < 0} = 1$. From lemma 2 we see that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil \frac{n}{|d|} \right \rceil - 1$, so that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1 = \lceil \frac{n}{|d|} \rceil = [ \frac{n}{|d|} ]$ for all negative $n \in \mathbb{S}_N$. Combining these results we see that $[ \frac{n}{|d|} ] = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0}$. Using $[ \frac{n}{d} ] = \text{sgn}(d) \cdot [ \frac{n}{|d|} ]$ the result follows.
+**Proof**: When $n \geq 0$ we have $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor$. By replacing $N$ by $N - 1$ in [theorem 3](https://rubenvannieuwpoort.nl/posts/division-by-constant-unsigned-integers) we see that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \lfloor \frac{n}{|d|} \rfloor = [ \frac{n}{|d|} ]$ for all $n \in \mathbb{U}_{N - 1}$, so this also holds for all positive $n \in \mathbb{S}_N$. When $n < 0$ we have $1_{n < 0} = 1$. From lemma 2 we see that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil \frac{n}{|d|} \right \rceil - 1$, so that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1 = \lceil \frac{n}{|d|} \rceil = [ \frac{n}{|d|} ]$ for all negative $n \in \mathbb{S}_N$. Combining these results we see that $[ \frac{n}{|d|} ] = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0}$. Using $[ \frac{n}{d} ] = \text{sgn}(d) \cdot [ \frac{n}{|d|} ]$ the result follows.
 $\square$
 
 
@@ -69,7 +69,7 @@ $\square$
 
 In this section, I use the `uint` and `sint` datatypes, which are an $N$-bit unsigned integer and an $N$-bit signed integer, respectively. I try to provide a general strategy that should work well on most instruction set architectures. Variations in the implementation might give a more efficient result. In general, you should always benchmark your implementation if performance is critical.
 
-While the theorem 4 in the previous section seems to provide a straightforward method to compute the quotient $[ \frac{n}{d} ]$ for any $n, d \in \mathbb{S}_N$, there is one subtlety we glanced over. In theorem 4, we use the $2N$-bit expression $m \cdot n$, where $m \in \mathbb{U}_N$ is an unsigned value and $n \in \mathbb{S}_N$ is a signed value. While most processors have instructions to compute the full $2N$-bit product of two $N$-bit unsigned integers or two $N$-bit signed integers, most processors do not provide an instruction to compute the $2N$-bit product of an $N$-bit unsigned integer and an $N$-bit signed integer.
+While theorem 2 in the previous section seems to provide a straightforward method to compute the quotient $[ \frac{n}{d} ]$ for any $n, d \in \mathbb{S}_N$, there is one subtlety we glanced over. In theorem 4, we use the $2N$-bit expression $m \cdot n$, where $m \in \mathbb{U}_N$ is an unsigned value and $n \in \mathbb{S}_N$ is a signed value. While most processors have instructions to compute the full $2N$-bit product of two $N$-bit unsigned integers or two $N$-bit signed integers, most processors do not provide an instruction to compute the $2N$-bit product of an $N$-bit unsigned integer and an $N$-bit signed integer.
 
 While it is also possible to compute the product $m \cdot n$ by first extending $m$ and $n$ to $2N$-bit signed values and computing the product of those extended values, this is less efficient.
 
@@ -171,7 +171,7 @@ sint fast_divide(sint n, sdivdata_t dd) {
 
 In this section, I will consider how to generate optimized code for division by compile-time constant signed integers.
 
-Most of the tricks that are applicable to calculate a quotient of unsigned integers efficiently also apply to signed integers, although we might have to do some work to handle negative integers. Of course, a division by one can be ignored and a division by minus one is equivalent to a negation. For some instruction-set architectures, it might be beneficial to implement a special case for big divisors with an absolute value of more than $2^{N - 1}$. In this case ,the value of the quotient $[ \frac{n}{d} ]$ is $\text{sgn}(n)$ when $|n| \geq d$ and zero otherwise.
+Most of the tricks that are applicable to calculate a quotient of unsigned integers efficiently also apply to signed integers, although we might have to do some work to handle negative integers. Of course, a division by one can be ignored and a division by minus one is equivalent to a negation. For some instruction-set architectures, it might be beneficial to implement a special case for big divisors with an absolute value of more than $2^{N - 1}$. In this case, the value of the quotient $[ \frac{n}{d} ]$ is $\text{sgn}(n)$ when $|n| \geq d$ and zero otherwise.
 
 ```
 expression_t div_by_const_sint(const sint d, expression_t n) {
