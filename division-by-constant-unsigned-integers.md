@@ -137,6 +137,8 @@ $\square$
 
 This theorem also implies that we never need to check if a divisor is efficient for the $N$-bit round-down method. We can simply test if a divisor is efficient for the $N$-bit round-up method, and use the round-down method if it is not.
 
+**Exercise** (solution can be found at the end of this document): *Let $N \in \mathbb{N}$, let $d \in \mathbb{U}_N$ be a positive integer that is not a power of two. Define $\ell = \lceil \log_2(d) \rceil - 1$, $x = \frac{2^{N + \ell}}{d}$, $m_\text{up} = \lceil x \rceil$, and $m_\text{down} = \lfloor x \rfloor$. Show that if $x$ is closer to $m_\text{up}$ than to $m_\text{down}$, the condition of theorem 2 is satisfied with $m = m_\text{up}$. Then show that if $x$ is closer to $m_\text{down}$ than to $m_\text{up}$, the condition of theorem 4 is satisfied by $m = m_\text{down}$.*
+
 The following result gives a more efficient condition to check if a given divisor is efficient for the round-up method.
 
 **Lemma 7**: *Let $N \in \mathbb{N}_+$ and $d \in \mathbb{U}_N$ and define $\ell = \lceil \log_2(d) \rceil - 1$ and $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. If $\text{mod}_{2^N}(m_\text{up} \cdot d) \leq 2^\ell$ then $d$ is efficient for the round-up method.*
@@ -161,11 +163,21 @@ $\square$
 
 On some architectures it is faster to shift by fewer bits. So, for the purpose of optimization, we might be interested in finding the smallest $\ell$ such that $m_\text{up}$ satisfies the condition of theorem 2 (or the smallest). Surprisingly, there is an easy way to find the smallest $m_\text{up}$ or $m_\text{down}$ that satisfies the condition of theorem 2 or theorem 4.
 
-**Lemma 9**: *Let $d \in \mathbb{U}_N$ be a positive integer that is not a power of two and let $0 < \ell \leq \lfloor \log_2(d) \rfloor$, such that $\ell, m$ satisfy the condition of theorem 2 (or theorem 4, respectively). If $m$ is odd, this is the smallest $m$ that satisfies this condition. If $m$ is even, $\ell' = \ell - 1, m' = \frac{m}{2}$ also satisfy the condition.*
+The following theorem says that to find the smallest $m$
 
-**Proof**: Suppose that $m$ satisfies the condition of theorem 2. In this case, we have $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$. It is easy to see that when $m$ is even all expressions in the inequality are even, so we can divide by two and see that $2^{N + \ell - 1} \leq \frac{m}{2} \cdot d \leq 2^{N + \ell - 1} + 2^{\ell - 1}$. The case for an $m$ that satisfies the condition of theorem 4 is analogous.
+**Theorem 9**: *Let $d, m \in \mathbb{U}_N$, where $d > 0$ is not a power of two. Let $\ell \in \mathbb{N}_+$ such that $\ell \leq \lfloor \log_2(d) \rfloor$ and let $\ell, m$ satisfy the condition of theorem 2:*
+$$ 2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell $$
 
-Suppose that there is a smaller pair $\ell', m'$ that satisfies the condition $2^{N + \ell'} \leq m' \cdot d \leq 2^{N + \ell'} + 2^{\ell'}$. By multiplying the whole thing by $2^{\ell - \ell'}$, we see that $2^{N + \ell} \leq 2^{\ell - \ell'}m' \cdot d \leq 2^{N + \ell} + 2^\ell$. The set $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ has $2^\ell + 1$ elements. We have $2^{N + \ell'} \leq 2^{\lfloor \log_2(d) \rfloor} + 1 \leq d$ (this last inequality holds since $d$ is not a power of two), so there can only be one multiple of $d$ in this set, which is $m \cdot d$. So we have $m = 2^{\ell - \ell'} \cdot m'$, so $m$ must be even.
+*or the condition of theorem 4, respectively:*
+$$ 2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$$
+
+*If $m$ is even, then $\ell', m'$ with $\ell' = \ell - 1$ and $m' = \frac{m}{2}$ also satisfy the condition. So $2^{N + \ell'} \leq m' \cdot d \leq 2^{N + \ell'} + 2^{\ell'}$, respectively $2^{N + \ell'} - 2^{\ell'} \leq m' \cdot d < 2^{N + \ell'}$.*
+
+*If $m$ is odd, this is the smallest $m$ that satisfies this condition.*
+
+**Proof**: Suppose that $m$ satisfies the condition of theorem 2. In this case, we have $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$. It is easy to see that when $m$ is even all expressions in the inequality are even, so we can divide by two and see that $2^{N + \ell - 1} \leq \frac{m}{2} \cdot d \leq 2^{N + \ell - 1} + 2^{\ell - 1}$. The case for the condition of theorem 4 is analogous.
+
+Suppose that there is a smaller pair $\ell', m'$ that satisfies the condition $2^{N + \ell'} \leq m' \cdot d \leq 2^{N + \ell'} + 2^{\ell'}$. By multiplying the whole thing by $2^{\ell - \ell'}$, we see that $2^{N + \ell} \leq 2^{\ell - \ell'} \cdot m' \cdot d \leq 2^{N + \ell} + 2^\ell$. The set $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ has $2^\ell + 1$ elements. We have $2^\ell + 1 \leq 2^{\lfloor \log_2(d) \rfloor} + 1 \leq d$ (this last inequality holds since $d$ is not a power of two), so there can only be one multiple of $d$ in this set, which is $m \cdot d$. So we have $m = 2^{\ell - \ell'} \cdot m'$, so $m$ must be even.
 $\square$
 
 **Example**: Take $N = 8$, $d = 36$. We compute $\ell = \lfloor \log_2(d) \rfloor = 5$ so $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil = 228$. We see that $\text{mod}_{256}(228 \cdot 36) = 16 \leq 32 = 2^\ell$. So $36$ is efficient for the round-up method and we have $\lfloor \frac{228 \cdot n}{2^{13}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_8$. However, we see that $m_\text{up}$ is even, so we can reduce $m_\text{up}$ by dividing it by two and decrementing $\ell$. We get $m_\text{up} = 114$, $\ell = 4$. Now $m_\text{up}$ is still even, so again we divide $m_\text{up}$ by two and decrement $\ell$. We get $m_\text{up} = 57$ and $\ell = 3$. So we have $\lfloor \frac{57 \cdot n}{2^{11}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_8$.
@@ -525,16 +537,40 @@ This will still take a long time, but it is feasible; The above code took slight
 For $N = 64$, exhaustive testing is completely infeasible. I recommend making a set $S$ of special values consisting of all numbers from 0 up to 256, all numbers of the form $2^k - 1$, $2^k$, $2^k + 1$, the divisors of these numbers, and the divisors of $2^{64} + 1$. Then we can test if the result is correct for each $n \in S$, $d \in S \setminus \{ 0 \}$. On top of that, you can run some randomized testing. I recommend that you pick $n$ and $d$ uniformly random in $\mathbb{U}_{64}$ and then mask out each byte with some probability. Then, you can run random tests for some time. If you find a bug in the implementations, add $n$ and $d$ for which the result is not correct to $S$ and verify that your test set triggers the bug before you fix it.
 
 
+## Solution to the exercise
+
+Note that since $d$ is not a power of two $x = \frac{2^{N + \ell}}{d}$ is never an integer, so we have $m_\text{up} = m_\text{down} + 1$.
+
+Suppose that $x = \frac{2^{N + \ell - 1}}{d}$ is closer to $m_\text{up}$ than to $m_\text{down}$. This means that $m_\text{up} - x < \frac{1}{2}$, or, equivalently, $m_\text{up} < x + \frac{1}{2}$. Since $m_\text{up} = \lceil x \rceil$ we have $x < m_\text{up}$. Combining these inequalities, we see that
+$$ x < m_\text{up} < x + \frac{1}{2} $$
+
+Substituting $x = \frac{2^{N + \ell - 1}}{d}$ we get
+$$\frac{2^{N + \ell - 1}}{d} < m_\text{up} < \frac{2^{N + \ell - 1}}{d} + \frac{1}{2} $$
+
+Multiplying by $d$ and using $\frac{d}{2} < 2^\ell$ gives
+$$ 2^{N + \ell} < m_\text{up} \cdot d < 2^{N + \ell} + \frac{d}{2} < 2^{N + \ell} + 2^\ell $$
+
+which is stricter than the condition $2^{N + \ell} \leq m \cdot d \leq 2^{N + \ell} + 2^\ell$ of theorem 2, so the round-up method can be applied.
+
+Similarly, if we assume that $x$ is closer to $m_\text{down}$ we find
+$$ \frac{2^{N + \ell}}{d} - \frac{1}{2} < m_\text{down} < \frac{2^{N + \ell}}{d} $$
+
+And by multiplying by $d$ we find
+$$ 2^{N + \ell} - 2^\ell < 2^{N + \ell} - \frac{d}{2} < m_\text{down} \cdot d < 2^{N + \ell} $$
+
+This is stricter than the condition of theorem 4, so the round-down method can be applied.
+
+
 ## References and further reading
 
 The classic reference for optimization of division by both signed and unsigned integers is [1], which states and proves theorem 2 (round-up method). In [2], the approach is extended to the round-down method. The resources [3] and [4] are by far the easiest to read, and cover essentially everything in this article in a more accessible way. They sacrifice some rigor and completeness, though. If you are interested in optimizing division, I recommend reading these articles as your starting point. Finally, in [5] it is shown that we can also use fixed point math to compute the modulo operation.
 
-[1]: [Division by Invariant Integers using Multiplication](https://gmplib.org/~tege/divcnst-pldi94.pdf), Torbjörn Granlund and Peter L. Montgomery, 1994.
+[1] [Division by Invariant Integers using Multiplication](https://gmplib.org/~tege/divcnst-pldi94.pdf), Torbjörn Granlund and Peter L. Montgomery, 1994.
 
-[2]: [N-Bit Unsigned Divison Via N-Bit Multiply-Add](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.512.2627&rep=rep1&type=pdf), Arch D. Robinson, 2005.
+[2] [N-Bit Unsigned Divison Via N-Bit Multiply-Add](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.512.2627&rep=rep1&type=pdf), Arch D. Robinson, 2005.
 
-[3]: [Labor of Divison (Episode I)](https://ridiculousfish.com/blog/posts/labor-of-division-episode-i.html), fish, 2010.
+[3] [Labor of Divison (Episode I)](https://ridiculousfish.com/blog/posts/labor-of-division-episode-i.html), fish, 2010.
 
-[4]: [Labor of Divison (Episode III): Fast Unsigned Division by Constants](https://ridiculousfish.com/blog/posts/labor-of-division-episode-iii.html), fish, 2011.
+[4] [Labor of Divison (Episode III): Fast Unsigned Division by Constants](https://ridiculousfish.com/blog/posts/labor-of-division-episode-iii.html), fish, 2011.
 
-[5]: [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/pdf/1902.01961), Daniel Lemire, Owen Kaser, Nathan Kurz, 2019.
+[5] [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/pdf/1902.01961), Daniel Lemire, Owen Kaser, Nathan Kurz, 2019.
