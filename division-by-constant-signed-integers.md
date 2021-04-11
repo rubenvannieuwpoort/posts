@@ -2,7 +2,7 @@
 
 The code accompanying this article can be found in a [github repository](https://github.com/rubenvannieuwpoort/division-by-constant-integers).
 
-Division is a relatively slow operation. When the divisor is constant, the division can be optimized significantly. In [1] I explored how this can be done for unsigned integers. In this follow-up article, I cover how we can optimize division by constant signed integers. This article should be read as a continuation of [1]. This article essentially provides the same information as [2].
+Division is a relatively slow operation. When the divisor is constant, the division can be optimized significantly. In [1] I explored how this can be done for unsigned integers. In this follow-up article, I cover how we can optimize division by constant signed integers. This article should be read as a continuation of [1]. As far as I know, the information in this article was first presented in [2].
 
 I assume that like in most programming languages, the result of the signed division is rounded toward zero. This presents some challenges which are different than those for optimizing unsigned division. We are only dealing with numbers with a magnitude of at most $2^{N - 1}$, and we will see that this means we can always use the round-up method as described in [1]. The challenge consists of efficiently rounding up the quotient when $n$ is negative.
 
@@ -34,10 +34,95 @@ $$ 1_P = \begin{cases} 0 & \text{when $P$ is false} \\ 1 & \text{when $P$ is tru
 
 ### Signed division
 
-Supposing that $d$ is positive, we want to evaluate
-$$ [\frac{n}{d}] = \begin{cases} \lceil \frac{n}{d} \rceil & \text{when $n < 0$} \\ \lfloor \frac{n}{d} \rfloor & \text{when $n \geq 0$} \end{cases}$$
+To simplify things, I will assume that the divisor $d$ is positive. When $d$ is negative, we can use $[\frac{n}{-d}] = -[\frac{n}{d}]$. This means that to compute $[\frac{n}{d}]$ we can simply compute the quotient $[\frac{n}{|d|}]$ and negate it when $d$ is negative.
 
-So, it is natural to try to find two expressions, one which equals $\lfloor \frac{n}{d} \rfloor$ and one which equals $\lceil \frac{n}{d} \rceil$.
+So, assuming that $d$ is positive, we want to evaluate
+$$ \left [ \frac{n}{d} \right ] = \begin{cases} \lceil \frac{n}{d} \rceil & \text{when $n < 0$} \\ \lfloor \frac{n}{d} \rfloor & \text{when $n \geq 0$} \end{cases}$$
+
+Since the rounding is defined separately for negative and nonnegative dividends, it is natural to look at these cases separately.
+
+When $n$ is nonnegative this is essentially an unsigned division, since we assumed that $d$ is positive. Since $n$ is a nonnegative $N$-bit signed, we know that the most significant bit will be zero. So $n$ can be represented as an $(N - 1)$-bit unsigned integer. With the results from [1], it is straightforward to find an expression that can be efficiently evaluated and equals $[\frac{n}{d}]$ when $n$ and $d$ are positive.
+
+**Corollary 16**: Let $d, N \in \mathbb{N}$ with $d > 0$, $\ell = \lceil \log_2(d) \rceil$, and $m = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil$. Then $m \in \mathbb{U}_N$ and
+$$ \left \lfloor \frac{n \cdot m}{2^{N - 1+ \ell}} \right \rfloor = \left[ \frac{n}{d} \right] $$
+
+for every nonnegative $n \in \mathbb{S}_N$.
+
+**Proof**: Observe that if $n$ is nonnegative and $n \in \mathbb{S}_N$ implies that $n \in \mathbb{U}_{N - 1}$. The result now follows by replacing $N$ by $N - 1$ and $m_\text{up}$ by $m$ in theorem 4.
+$\square$
+
+We will now take this same expression and consider what happens when $n$ is negative. We will proceed by proving results that are analogues for the unsigned case.
+
+The following lemma is a result complementary to lemma 1.
+
+**Lemma 17**: *Let $n \in \mathbb{Z}, d \in \mathbb{N}_+$, and $x \in \mathbb{R}$. When*
+$$ \frac{n - 1}{d} \leq x < \frac{n}{d} $$
+
+*then*
+$$ \lfloor x \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1 $$
+
+**Proof**: Set $\frac{n - 1}{d} = a + \frac{b}{d}$ with $a \in \mathbb{Z}$, $b \in \{ 0, 1, ..., d - 1 \}$. Then $\frac{n}{d} = a + \frac{b + 1}{d}$. Now $\lfloor \frac{n - 1}{d} \rfloor = a$ and $\lceil \frac{n}{d} \rceil = a + 1$ so that $\lceil \frac{n}{d} \rceil = \lfloor \frac{n - 1}{d} \rfloor + 1$. So $\lfloor \frac{n - 1}{d} \rfloor \leq \lfloor x \rfloor < \lfloor \frac{n - 1}{d} \rfloor + 1$. Since $\lfloor x \rfloor$ is an integer, it follows that $x = \lfloor \frac{n - 1}{d} \rfloor = \lceil \frac{n}{d} \rceil - 1$.
+$\square$
+
+The following result is complementary to corollary 16.
+
+**Theorem 18**: *Let $d, m, N \in \mathbb{N}_+$. If*
+$$ 2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell $$
+
+*then*
+$$\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1 $$
+
+*for all negative $n \in \mathbb{S}_N$.*
+
+**Proof**: Multiply $2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell$ by $\frac{n}{d \cdot 2^{N + \ell}}$. Remember that $n$ is negative, so the inequality 'flips' and we get $\frac{n}{d} + \frac{n}{2^{N - 1}} \cdot \frac{1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. Now, using $|n| \leq 2^{N - 1}$ we see that $-1 \leq \frac{n}{2^{N - 1}}$, so we have $\frac{n - 1}{d} \leq \frac{m \cdot n}{2^{N - 1 + \ell}} < \frac{n}{d}$. The result now follows from lemma 17.
+$\square$
+
+This theorem allows us to prove an analogue of theorem 3 for signed numbers.
+
+TODO: check value for ell with theorem 2 or 3 from [1]
+**Lemma 19**: Let $d \in \mathbb{S}_N$ with $d > 0$ and $\ell = \lceil \log_2(d) \rceil$. Then ...
+$$ \left \lfloor \frac{n \cdot m}{2^{N + \ell}} \right \rfloor = \left [ \frac{n}{d} \right ] - 1 $$
+
+for every negative $n \in \mathbb{S}_N$.
+
+**Proof**: TODO
+$\square$
+
+**Note**: TODO: consider case where $m$ has MSB one. In this case $m \cdot n$ the product $m \cdot n$ should be calculated as a product of an unsigned integer and a signed integer.
+
+With these results, it is easy to derive an expression which equals the rounded quotient without the restriction that $d$ is positive. The following theorem is the main result of this article.
+
+**Theorem 20**: *Let $d$ and $N$ be integers with $N > 0$ and define $\ell = \lceil \log_2(|d|) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{|d|} \rfloor + 1$. Then*
+$$\left[ \frac{n}{d} \right] = \text{sgn}(d) \cdot \left(\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} \right)$$
+
+*for all $n \in \mathbb{S}_N$.*
+
+**Proof**: First, observe that $m \cdot |d|$ is simply the first multiple of $|d|$ larger than $2^{N - 1 + \ell}$. Since there are $2^\ell = 2^{\lceil \log_2(|d|) \rceil} \geq |d|$, there must be at least one multiple of $d$ in the range $(2^{N - 1 + \ell}, 2^{N - 1 + \ell} + 2^\ell]$. So we have $2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell$. Using corollary 11 we see that $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1_{n < 0} = \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor = \lceil \frac{n}{d} \rceil$ for nonnegative $n \in \mathbb{S}_N$. Using lemma 13, we see that $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1_{n < 0} = \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1 = \lfloor \frac{n}{d} \rfloor$ for negative $n \in \mathbb{S}_N$. So $[ \frac{n}{|d|} ] = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0}$ for all $n \in \mathbb{S}_N$. Using $[ \frac{n}{d} ] = \text{sgn}(d) \cdot [ \frac{n}{|d|} ]$ the result follows.
+$\square$
+
+TODO: phrase next note better and mention that it only matters when MSB of m is one
+**Note**: While this theorem seems like everything you need for implementation, there is a subtle detail sweeped under the rug. The product $m \cdot n$ is a $2N$-bit product of an $N$-bit unsigned number and an $N$-bit signed number. Most processors do not have support for this operation. The evaluation of this product is considered in the section about implementation.
+
+In [1], we saw that there exists a simple trick to reduce the 'magic constant' $m$. This same trick works for signed division as well.
+
+**Theorem**: TODO (this is essentially corollary 19 in the old version, see below)
+
+**Proof**: TODO (note that we only have to prove that $m \cdot d$ stays within the limits of theorem 2 and its analogue for signed division).
+$\square$
+
+
+
+
+
+
+
+
+
+
+
+
+
+TODO: delete the following
 
 In [1], we saw that we for every $d \in \mathbb{N}$ we can always find an $(N + 1)$-bit magic number $m$ such that $\lfloor \frac{m \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for every $n \in \mathbb{U}_N$. For unsigned division this was a problem since we want $m$ to fit in $N$ bits. For nonnegative $n \in \mathbb{S}_N$ we have $n \in \mathbb{U}_{N - 1}$ so in this case $m$ will always fit in $N$ bits.
 
@@ -83,15 +168,35 @@ $$\left[ \frac{n}{d} \right] = \text{sgn}(d) \cdot \left(\left \lfloor \frac{m \
 **Proof**: First, observe that $m \cdot |d|$ is simply the first multiple of $|d|$ larger than $2^{N - 1 + \ell}$. Since there are $2^\ell = 2^{\lceil \log_2(|d|) \rceil} \geq |d|$, there must be at least one multiple of $d$ in the range $(2^{N - 1 + \ell}, 2^{N - 1 + \ell} + 2^\ell]$. So we have $2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell$. Using corollary 11 we see that $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1_{n < 0} = \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor = \lceil \frac{n}{d} \rceil$ for nonnegative $n \in \mathbb{S}_N$. Using lemma 13, we see that $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1_{n < 0} = \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1 = \lfloor \frac{n}{d} \rfloor$ for negative $n \in \mathbb{S}_N$. So $[ \frac{n}{|d|} ] = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0}$ for all $n \in \mathbb{S}_N$. Using $[ \frac{n}{d} ] = \text{sgn}(d) \cdot [ \frac{n}{|d|} ]$ the result follows.
 $\square$
 
-Lemma 5 tells us that the magic number $m = \lceil \frac{2^{N - 1 + \lceil \log_2(d) \rceil}}{d} \rceil$ is a positive number with at most $N$ bits. In the following section on implementation, we will see that multiplying an $N$-bit signed number $n \in \mathbb{S}_N$ by an $N$-bit unsigned number $m \in \mathbb{U}_N \setminus \mathbb{U}_{N - 1}$ is slightly less efficient than multiplying an $N$-bit signed number by an $(N - 1)$-bit unsigned number. For some divisors, we can use the following result to reduce the number of bits that we need to represent $m$.
+Lemma 5 tells us $m = \lceil \frac{2^{N - 1 + \lceil \log_2(d) \rceil}}{d} \rceil$ is a positive number with at most $N$ bits. In the following section on implementation, we will see that multiplying an $N$-bit signed number $n \in \mathbb{S}_N$ by an $N$-bit unsigned number $m \in \mathbb{U}_N \setminus \mathbb{U}_{N - 1}$ is slightly less efficient than multiplying an $N$-bit signed number by an $(N - 1)$-bit unsigned number. For some divisors, we can use the following result to reduce the number of bits that we need to represent $m$.
 
 **Corollary 16**: *Let $d \in \mathbb{S}_N$ be a positive integer that is not a power of two, $m \in \mathbb{U}_N$ and let $0 < \ell \leq \lfloor \log_2(d) \rfloor$, such that $\ell, m$ satisfy the condition of lemma corollary 11 and lemma 13:*
 $$ 2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell $$
 
 *If $m$ is even, then this condition also holds for $m' = \frac{m}{2}, \ell' = \ell - 1$, so we have $2^{N - 1 + \ell'} < m' \cdot d \leq 2^{N - 1 + \ell'} + 2^{\ell'}$. If $m$ is odd, then it is the smallest integer for which this condition holds.*
 
-**Proof**: This follows directly from theorem 9.
+**Proof**: This follows directly from theorem 9. TODO what
 $\square$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Implementation
 
@@ -232,5 +337,5 @@ expression_t div_by_const_signed_power_of_two(expression_t n, sint d) {
 
 ## References
 
-[1] Division by constant unsigned integers, https://rubenvannieuwpoort.nl/posts/division-by-constant-unsigned-integers
+[1] [Division by constant unsigned integers](https://rubenvannieuwpoort.nl/posts/division-by-constant-unsigned-integers), Ruben van Nieuwpoort, 2020.
 [2] [Division by Invariant Integers using Multiplication](https://gmplib.org/~tege/divcnst-pldi94.pdf), Torbjörn Granlund and Peter L. Montgomery, 1994.
