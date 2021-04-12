@@ -86,7 +86,7 @@ First, let's do some examples.
 
 This last example shows that $m_\text{up}$ does not always fit in $N$ bits. The following theorem shows that $m_\text{up}$ always fits in $N + 1$ bits.
 
-**Theorem 4**: *Let $N, d \in \mathbb{N}_0$ with $d > 0$ and define $\ell = \lceil \log_2(d) \rceil, m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Then $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$ and $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
+**Theorem 4**: *Let $N \in \mathbb{N}_+$, $d \in \mathbb{U}_N$ with $d > 0$ and define $\ell = \lceil \log_2(d) \rceil, m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$. Then $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$ and $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
 **Proof**: The range $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ consists of $2^\ell + 1$ consecutive numbers. We have $\ell = \lceil \log_2(d) \rceil$, so $2^\ell + 1 > d$ and there must be a multiple of $d$ in this range. Since $d \cdot m_\text{up} = d \cdot \lceil \frac{2^{N + \ell}}{d} \rceil$ is simply the first multiple greater than or equal to $2^{N + \ell}$, this is a multiple of $d$ in this range. So $m_\text{up}$ satisfies the condition of lemma 2, and it follows that $\lfloor \frac{m_\text{up} \cdot n}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ for all $n \in \mathbb{U}_N$. By using lemma 8 with $N + 1$ instead of $N$, we see that $2^N \leq m_\text{up} < 2^{N + 1}$, so $m_\text{up} \in \mathbb{U}_{N + 1} \setminus \mathbb{U}_N$.
 $\square$
@@ -129,7 +129,7 @@ When using the round-up or round-down method, we want $m$ to be an $N$-bit numbe
 
 The following result tells us that $\ell = \lceil \log_2(d) \rceil - 1$ is the biggest value for $\ell$ that we can pick so that $m_\text{up}$ and $m_\text{down}$ still fit in $N$ bits.
 
-**Lemma 8**: *Let $N \in \mathbb{N}_+$, $d \in \mathbb{U}_N$ and define $m' = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d}, m_\text{down} = \lfloor m' \rfloor, m_\text{up} = \lceil m' \rceil$. Now $m_\text{down}, m_\text{up} \in \mathbb{U}_N$ with*
+**Lemma 8**: *Let $N \in \mathbb{N}_+$, $d \in \mathbb{U}_N$ with $d > 0$ and define $m' = \frac{2^{N + \lceil \log_2(d) \rceil - 1}}{d}, m_\text{down} = \lfloor m' \rfloor, m_\text{up} = \lceil m' \rceil$. Now $m_\text{down}, m_\text{up} \in \mathbb{U}_N$ with*
 $$2^{N - 1} \leq m_\text{down} \leq m_\text{up} \leq 2^N - 1$$
 
 *That is, the binary representations of $m_\text{down}$ and $m_\text{up}$ have exactly $N$ bits.*
