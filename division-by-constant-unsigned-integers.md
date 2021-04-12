@@ -215,7 +215,7 @@ $$ 2^{N + \ell} - 2^\ell \leq m \cdot d < 2^{N + \ell}$$
 Suppose that there is a smaller pair $\ell', m'$ that satisfies the condition $2^{N + \ell'} \leq m' \cdot d \leq 2^{N + \ell'} + 2^{\ell'}$. By multiplying the whole thing by $2^{\ell - \ell'}$, we see that $2^{N + \ell} \leq 2^{\ell - \ell'} \cdot m' \cdot d \leq 2^{N + \ell} + 2^\ell$. The set $\{ 2^{N + \ell}, 2^{N + \ell} + 1, ..., 2^{N + \ell} + 2^\ell \}$ has $2^\ell + 1$ elements. We have $2^\ell + 1 \leq 2^{\lceil \log_2(d) \rceil - 1} + 1 \leq d$, so there can only be one multiple of $d$ in this set, which is $m \cdot d$. So we have $m = 2^{\ell - \ell'} \cdot m'$, so $m$ must be even.
 $\square$
 
-Basically, we can set $\ell = \lceil \log_2(d) \rceil$, and see if 
+Basically, we can set $\ell = \lceil \log_2(d) \rceil$, and see if TODO
 
 once we have found an $m$ that satisfies the condition of lemma 2 or lemma 5, we can keep dividing it by two (and decreasing $\ell$ by one) as long as it is even. Once the result is odd, we have find the smallest $m$ that satisfies the condition.
 
@@ -517,10 +517,10 @@ $$ \lfloor \frac{m_\text{down} \cdot \max(n + 1, 2^N - 1)}{2^{N + \ell}} \rfloor
 When $n = 2^N - 1$ we do not increment and we are effectively computing $\lfloor \frac{2^N - 2}{d} \rfloor$ instead of $\lfloor \frac{2^N - 1}{d} \rfloor$. The only way that this difference can matter is when $\frac{2^N - 2}{d} = \lfloor \frac{2^N - 2}{d} \rfloor + \frac{d - 1}{d}$, so that $\frac{2^N - 1}{d} = \frac{2^N - 2}{d} + \frac{1}{d} = \lfloor \frac{2^N - 2}{d} \rfloor + 1$. In this case $d$ is a divisor of $2^N  - 1$, and according to the following result a divisor of $2^N - 1$ is efficient for the $N$-bit round-up method. So as long as we only use the round-down method for divisors which are not efficient for the round-up method, we will never get an incorrect result when we use a saturating increment.
 
 **Lemma 14**: *Let $d \in \mathbb{U}_N$ with $d > 0$. Then*
-  - *If $\text{mod}_d(2^{N + \ell}) \leq 2^\ell$, then $\lfloor \frac{m_\text{up} \cdot d}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ with $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$ for all $n \in \mathbb{U}_N$.*
+  - *If $\text{mod}_d(-2^{N + \ell}) \leq 2^\ell$, then $\lfloor \frac{m_\text{up} \cdot d}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ with $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil$ for all $n \in \mathbb{U}_N$.*
   - *If $0 < \text{mod}_d(2^{N + \ell}) \leq 2^\ell$, then $\lfloor \frac{m_\text{down} \cdot (n + 1)}{2^{N + \ell}} \rfloor = \lfloor \frac{n}{d} \rfloor$ with $m_\text{down} = \lfloor \frac{2^{N + \ell}}{d} \rfloor$ for all $n \in \mathbb{U}_N$.*
 
-**Proof**: Suppose that $\text{mod}_d(2^{N + \ell}) \leq 2^\ell$. The expression $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is just $2^{N + \ell}$ rounded up to the nearest multiple of $d$, so we have $m_\text{up} \cdot d \leq 2^{N + \ell}$. Now, we write $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil = \frac{2^{N + \ell} + \text{mod}_d(-2^{N + \ell})}{d}$. Substituting this in $m_\text{up} \cdot d$ gives
+**Proof**: The expression $m_\text{up} \cdot d = \lceil \frac{2^{N + \ell}}{d} \rceil \cdot d$ is just $2^{N + \ell}$ rounded up to the nearest multiple of $d$, so we have $2^{N + \ell} \leq m_\text{up} \cdot d$. Now, we write $m_\text{up} = \lceil \frac{2^{N + \ell}}{d} \rceil = \frac{2^{N + \ell} + \text{mod}_d(-2^{N + \ell})}{d}$. Substituting this in $m_\text{up} \cdot d$ gives
 $$ m_\text{up} \cdot d = \left( \frac{2^{N + \ell} + \text{mod}_d(-2^{N + \ell})}{d} \right) \cdot d = 2^{N + \ell} + \text{mod}_d(-2^{N + \ell}) $$
 
 So the condition of lemma 2 is satisfied if and only if $\text{mod}_d(-2^{N + \ell}) \leq 2^\ell$.
@@ -532,7 +532,7 @@ $\square$
 
 **Lemma 15**: *If $d$ is a divisor of $2^N - 1$, then $d$ is efficient for the $N$-bit round-up method.*
 
-**Proof**: Take $\ell = \lfloor \log_2(d) \rfloor$ and define $e = \text{mod}_d(-2^{N + 1})$ and $e' = \text{mod}_d(2^{N + 1})$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
+**Proof**: Take $\ell = \lfloor \log_2(d) \rfloor$ and define $e = \text{mod}_d(-2^{N + \ell})$ and $e' = \text{mod}_d(2^{N + \ell})$. Using $\text{mod}_d(2^N) = 1$ and $2^{\lfloor \log_2(d) \rfloor} < d$, we see:
 $$ e' = \text{mod}_d(2^{N + \ell}) = \text{mod}_d(2^N \cdot 2^{\lfloor \log_2(d) \rfloor}) = \text{mod}_d(2^{\lfloor \log_2(d) \rfloor}) = 2^{\lfloor \log_2(d) \rfloor} $$
 
 Here, we used that $2^{\lfloor \log_2(d) \rfloor} < d$. Since $d$ is a divisor of $2^N - 1$, it can't be a power of two, so we have $e, e' \in \{ 1, 2, ..., d - 1 \}$. It follows that $e + e' = d$ since $e + e' \equiv 0 \mod d$. We find that
