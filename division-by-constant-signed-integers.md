@@ -44,7 +44,7 @@ Since the rounding is defined separately for negative and nonnegative dividends,
 When $n$ is nonnegative this is essentially an unsigned division, since we assumed that $d$ is positive. Since $n$ is a nonnegative $N$-bit signed, we know that the most significant bit will be zero. So $n$ can be represented as an $(N - 1)$-bit unsigned integer. With the results from [1], it is straightforward to find an expression that can be efficiently evaluated and equals $[\frac{n}{d}]$ when $n$ and $d$ are positive.
 
 **Corollary 16**: Let $d, N \in \mathbb{N}$ with $d > 0$, $\ell = \lceil \log_2(d) \rceil$, and $m = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil$. Then $m \in \mathbb{U}_N$ and
-$$ \left \lfloor \frac{n \cdot m}{2^{N - 1+ \ell}} \right \rfloor = \left[ \frac{n}{d} \right] $$
+$$ \left \lfloor \frac{n \cdot m}{2^{N - 1+ \ell}} \right \rfloor = \left \lfloor \frac{n}{d} \right \rfloor $$
 
 for every nonnegative $n \in \mathbb{S}_N$.
 
@@ -79,28 +79,24 @@ $\square$
 
 This theorem allows us to prove an analogue of theorem 3 for signed numbers.
 
-TODO: check value for ell with theorem 2 or 3 from [1]
-**Lemma 19**: Let $d \in \mathbb{S}_N$ with $d > 0$ and $\ell = \lceil \log_2(d) \rceil$. Then ...
-$$ \left \lfloor \frac{n \cdot m}{2^{N + \ell}} \right \rfloor = \left [ \frac{n}{d} \right ] - 1 $$
+**Lemma 19**: Let $d \in \mathbb{S}_N$ with $d > 0$, $\ell = \lceil \log_2(d) \rceil$, and $m_\text{up} = \lceil \frac{2^{N - 1+ \ell}}{d} \rceil$. Then
+$$ \left \lfloor \frac{n \cdot m_\text{up}}{2^{N - 1 + \ell}} \right \rfloor = \left [ \frac{n}{d} \right ] - 1 $$
 
 for every negative $n \in \mathbb{S}_N$.
 
-**Proof**: TODO
+**Proof**: Since $m_\text{up} \cdot d = \lceil \frac{2^{N - 1 + \ell}}{d} \rceil \cdot d$ is just $2^{N - 1 + \ell}$ rounded up to the nearest multiple of $d$, we have $2^{N - 1 + \ell} \leq m_\text{up} \cdot d$. We also have $\lceil \frac{2^{N - 1 + \ell}}{d} \rceil - \frac{2^{N - 1 + \ell}}{d} < 1$. Multiplying by $d$ and adding $2^{N - 1 + \ell}$ gives $m_\text{up} \cdot d < 2^{N - 1 + \ell} + d \leq 2^{N + \ell} + 2^{\lceil \log_2(d) \rceil} = 2^{N + \ell} + 2^{\ell}$. So we have $2^{N + \ell} \leq m_\text{up} \cdot d \leq 2^{N + \ell} + 2^{\ell}$. By theorem 18, it follows that $\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor = \left \lceil \frac{n}{d} \right \rceil - 1$ for all negative $n \in \mathbb{S}_N$.
 $\square$
-
-**Note**: TODO: consider case where $m$ has MSB one. In this case $m \cdot n$ the product $m \cdot n$ should be calculated as a product of an unsigned integer and a signed integer.
 
 With these results, it is easy to derive an expression which equals the rounded quotient without the restriction that $d$ is positive. The following theorem is the main result of this article.
 
 **Theorem 20**: *Let $d$ and $N$ be integers with $N > 0$ and define $\ell = \lceil \log_2(|d|) \rceil$ and $m = \lfloor \frac{2^{N - 1 + \ell}}{|d|} \rfloor + 1$. Then*
-$$\left[ \frac{n}{d} \right] = \text{sgn}(d) \cdot \left(\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} \right)$$
+$$\text{sgn}(d) \cdot \left(\left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0} \right) = \left[ \frac{n}{d} \right]$$
 
 *for all $n \in \mathbb{S}_N$.*
 
 **Proof**: First, observe that $m \cdot |d|$ is simply the first multiple of $|d|$ larger than $2^{N - 1 + \ell}$. Since there are $2^\ell = 2^{\lceil \log_2(|d|) \rceil} \geq |d|$, there must be at least one multiple of $d$ in the range $(2^{N - 1 + \ell}, 2^{N - 1 + \ell} + 2^\ell]$. So we have $2^{N - 1 + \ell} < m \cdot d \leq 2^{N - 1 + \ell} + 2^\ell$. Using corollary 11 we see that $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1_{n < 0} = \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor = \lceil \frac{n}{d} \rceil$ for nonnegative $n \in \mathbb{S}_N$. Using lemma 13, we see that $\lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1_{n < 0} = \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \rfloor + 1 = \lfloor \frac{n}{d} \rfloor$ for negative $n \in \mathbb{S}_N$. So $[ \frac{n}{|d|} ] = \left \lfloor \frac{m \cdot n}{2^{N - 1 + \ell}} \right \rfloor + 1_{n < 0}$ for all $n \in \mathbb{S}_N$. Using $[ \frac{n}{d} ] = \text{sgn}(d) \cdot [ \frac{n}{|d|} ]$ the result follows.
 $\square$
 
-TODO: phrase next note better and mention that it only matters when MSB of m is one
 **Note**: While this theorem seems like everything you need for implementation, there is a subtle detail sweeped under the rug. The product $m \cdot n$ is a $2N$-bit product of an $N$-bit unsigned number and an $N$-bit signed number. Most processors do not have support for this operation. The evaluation of this product is considered in the section about implementation.
 
 In [1], we saw that there exists a simple trick to reduce the 'magic constant' $m$. This same trick works for signed division as well.
