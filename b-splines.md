@@ -1,4 +1,4 @@
-﻿# B-splines
+# B-splines
 
 This is an edited section from my thesis "[Solving Poisson’s equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
 
@@ -14,7 +14,7 @@ In order to define spline spaces, we introduce the concept of a knot vector:
 
 We can now define a space of splines, where the continuity along the breaks is defined by the multiplicities of the knots:
 
-**Definition**: *The **spline space** $\mathbb{S}_p(\boldsymbol{\Xi})$ of degree $p$ for a knot vector $\boldsymbol{\Xi} = (\xi_0, \xi_1, ..., \xi_m)$ is defined as the space of splines $s$ of order $p$, with breaks $\xi_0$, $\xi_1$, ..., $\xi_m$ and support on a subset of $[\xi_0, \xi_m]$. Additionally, all splines $s$ in the space should satisfy the continuity requirements*
+**Definition**: *The **spline space** $\mathbb{S}_p(\boldsymbol{\Xi})$ of degree $p$ for a knot vector $\boldsymbol{\Xi} = (\xi_0, \xi_1, ..., \xi_m)$ is defined as the space of splines $s$ of order $p$, with breaks $\xi_0$, $\xi_1$, ..., $\xi_m$ and support on a subset of $[\xi_0, \xi_m]$. Additionally, all splines $s$ in the space should satisfy the following continuity requirement:*
 $$\text{$s$ is $C^{p - \mu_k}$-continuous on $\xi_k$, for $k = 0$, $1$, ..., $m$}$$
 
 To ensure that $\mathbb{S}_p(\boldsymbol{\Xi})$ is well-defined and continuous, we demand that $\boldsymbol{\Xi}$ is a knot vector of degree $p$.
@@ -82,7 +82,8 @@ $$N'_{i, p}(\xi) = \frac{p}{\xi_{i + p} - \xi_i} N_{i, p - 1} - \frac{p}{\xi_{i 
 7. *On any point in the $\mathbb{R}$, there are at most $p + 1$ nonzero basis functions. More specifically, there are $p + 1$ nonzero basis functions on $\xi \in (\xi_p, \xi_n)$, whenever $\xi \not \in \boldsymbol{\Xi}$ is not a knot.*
 8. *If $\boldsymbol{\Xi}$ is an open knot vector, $\mathbf{s}$ interpolates the first and last control points: $\mathbf{s}(0) = \mathbf{c}_0$, $\mathbf{s}(1) = \mathbf{c}_{n - 1}$.*
 
-**Proof**: A sketch of the proofs is given. The interested reader can try to prove the properties more rigorously, or look at proofs given in [2], [6] or [7]. The first property follows from the Curry-Schoenberg theorem. The second property can be proved by taking the derivative of the recursive definition of the B-spline basis functions. Using the definition of a B-spline basis function, it can be proved by induction on the degree $p$ that $\sum_{i = 0}^{n - 1} N_{i, p}(\xi) = 1$ ($\xi = 1$ should be treated differently, since the value is defined by the convention that is introduced). By taking the derivative of both sides, it follows that $\sum_{i = 0}^{n - 1} N'_{i, p} = 0$, and the third property follows. The fourth property follows from the definition of the B-spline basis functions by induction (except for the case $i = n - 1$, which follows from the convention we use). The fifth property follows from the fourth. The sixth property follows from the second and third property. The seventh property follows from the fourth. For the eighth property, we can prove that $N_{p - j, j}(0) = 1$ for $0 \leq j \leq p$ by using the definition of the B-spline basis functions and induction on $j$. Likewise we have $N_{n - 1, p}(1) = 1$ by the used convention. From the third property we have $\sum_{i = 0}^{n - 1} N_i = 1$, so that it follows that $\mathbf{s}(0) = \mathbf{c}_0$, $\mathbf{s}(1) = \mathbf{c}_{n - 1}$. $\square$
+**Proof**: A sketch of the proofs is given. The interested reader can try to prove the properties more rigorously, or look at proofs given in [2], [6] or [7]. The first property follows from the Curry-Schoenberg theorem. The second property can be proved by taking the derivative of the recursive definition of the B-spline basis functions. Using the definition of a B-spline basis function, it can be proved by induction on the degree $p$ that $\sum_{i = 0}^{n - 1} N_{i, p}(\xi) = 1$ should be treated differently, since the value is defined by the convention that is introduced). By taking the derivative of both sides, it follows that $\sum_{i = 0}^{n - 1} N'_{i, p} = 0$, and the third property follows. The fourth property follows from the definition of the B-spline basis functions by induction (except for the case $i = n - 1$, which follows from the convention we use). The fifth property follows from the fourth. The sixth property follows from the second and third property. The seventh property follows from the fourth. For the eighth property, we can prove that $N_{p - j, j}(0) = 1$ for $0 \leq j \leq p$ by using the definition of the B-spline basis functions and induction on $j$. Likewise we have $N_{n - 1, p}(1) = 1$ by the used convention. From the third property we have $\sum_{i = 0}^{n - 1} N_i = 1$, so that it follows that $\mathbf{s}(0) = \mathbf{c}_0$, $\mathbf{s}(1) = \mathbf{c}_{n - 1}$.
+$\square$
 
 Now, the problem of finding an interpolating B-spline is considered. Suppose that we define a one-dimensional B-spline $f(\xi) = \sum\limits_{j = 0}^{n - 1} f_j N_j(\xi)$ and we want to choose the control points $f_0$, $f_1$, ..., $f_{n - 1}$ such that $f(\xi_0) = y_0$, $f(\xi_1) = y_1$, ..., $f(\xi_{m - 1}) = y_{m - 1}$. This is called the *interpolation problem*. We have the following theorem:
 
@@ -99,7 +100,8 @@ $$N_{k, p}(x_k) \not= 0 \quad \text{for k = 0, 1, ..., n - 1}$$
 
 **Proof**: Suppose that $\xi_k = x_k$. Then we have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$. So, the knot $\xi_k$ has multiplicity $p + 1$. If $k \not= 0, n - 1$, we have that the multiplicity of $\xi_{k + 1}$ is at most $p$. So, we can’t have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$ or $\xi_{k + 1} = \xi_{k + 2} = ... = \xi_{k + p + 1}$ and both inequalities are strict, so we have $x_k \in (\xi_k, \xi_{k + p + 1})$. By property 4, it follows that $N_k(x_k) \not = 0$.
 
-Suppose now that $k = 0$. Then $\xi_k$ is the first knot, and has multiplicity $p + 1$, so it follows that $\xi_k = \xi_{k + 1} = ... = \xi_{k + p} = 0 < \xi_{p + 1}$. So it follows that $x_k = 0$, and we have $N_0(0) = 1$ by property 4. $\square$
+Suppose now that $k = 0$. Then $\xi_k$ is the first knot, and has multiplicity $p + 1$, so it follows that $\xi_k = \xi_{k + 1} = ... = \xi_{k + p} = 0 < \xi_{p + 1}$. So it follows that $x_k = 0$, and we have $N_0(0) = 1$ by property 4.
+$\square$
 
 This means that the Greville abscissae are suitable as a standard choice for interpolation points for B-splines.
 
