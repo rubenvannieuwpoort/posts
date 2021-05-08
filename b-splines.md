@@ -1,3 +1,4 @@
+
 # B-splines
 
 This is an edited section from my thesis "[Solving Poisson’s equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
@@ -40,7 +41,8 @@ The term 'B-spline' is an abbreviation for 'basis spline'. B-splines were introd
 The recursive definition that is commonly used to introduce B-splines was presented in [2] by de Boor.
 
 **Definition**: *For $d \geq 1$, a $d$-dimensional *B-spline* curve $\mathbf{s} : \mathbb{R} \rightarrow \mathbb{R}^d$ is defined as a linear combination of *B-spline basis functions* $N_{0, p}, N_{1, p}, ..., N_{n - 1, p} : \mathbb{R} \rightarrow \mathbb{R}$:*
-$$\mathbf{s}(\xi) = \sum_{i = 0}^{n - 1} \mathbf{c_i} N_{i, p}(\xi)$$
+$$\begin{align} \mathbf{s}(\xi) = \sum_{i = 0}^{n - 1} \mathbf{c_i} N_{i, p}(\xi) \end{align}$$
+
 *The image $\mathbf{s}$ is a one-dimensional subset of $\mathbb{R}^d$. It is common to identify $\mathbf{s}$ with this subset and refer to both as a B-spline curve. The coefficients $\mathbf{c}_0, \mathbf{c}_1, ..., \mathbf{c}_{n - 1} \in \mathbb{R}^d$ are called **control points**, and the B-spline basis functions $N_{0, p}, N_{1, p}, ..., N_{n - 1, p} : \mathbb{R} \rightarrow \mathbb{R}$ are defined by the **Cox-de-Boor recursion formula**. The following version is from [3]:*
 $$ N_{i, 0}(\xi) = \begin{cases} 1 & \text{if } \xi \in [\xi_i, \xi_{i + 1}) \\ 0 & \text{otherwise} \end{cases}$$
 
@@ -76,7 +78,7 @@ $$N_{n - 1, p}(1) = 1$$
 
 This convention ensures that B-spline curves are continuous mappings from $[0, 1]$ to $\mathbb{R}^d$. In code, this is achieved by including a special check for the last basis function: If the last basis function is evaluated at the last knot of an open knot vector, it should evaluate to one (instead of zero).
 
-**Theorem**: *Suppose that $\boldsymbol{\Xi} = (\xi_0, \xi_1, ..., \xi_{n + p})$ is a (not necessarily open) knot vector of degree $p$. The basis functions $N_0, N_1, ..., N_{n - 1}$ of order $p$ associated to $\boldsymbol{\Xi}$, and the B-spline curve $\mathbf{s}$ as in (\ref{eq:bsplinedef}) with satisfy the following properties:
+**Theorem**: *Suppose that $\boldsymbol{\Xi} = (\xi_0, \xi_1, ..., \xi_{n + p})$ is a (not necessarily open) knot vector of degree $p$. Then the basis functions $N_0, N_1, ..., N_{n - 1}$ of order $p$ associated to $\boldsymbol{\Xi}$, and the B-spline curve $\mathbf{s}$ as defined in $(1)$ satisfy the following properties:*
 
 1. *$N_{0, p}$, $N_{1, p}$, ..., $N_{n - 1, p} \in \mathbb{S}_p(\boldsymbol{\Xi})$*
 2. *If the derivative of a B-spline basis function $N_{i, p}$ exists at a point $\xi$, it is given by*
@@ -101,12 +103,15 @@ Given a knot vector, it is not immediately obvious how we can choose interpolati
 
 **Definition**: *For a knot vector $\boldsymbol{\Xi} = (\xi_0, \xi_1, ..., \xi_{m - 1})$ of degree $p$, the **Greville abscissae** $x_0, x_1, ..., x_{m - p - 1}$ are defined as*
 $$x_k = \frac{\xi_{k + 1} + \xi_{k + 2} ... + \xi_{k + p}}{p}$$
+
 **Theorem**: *For B-spline basis functions $N_{0, p}, N_{1, p}, ..., N_{n - 1, p}$ associated to an open knot vector $\boldsymbol{\Xi} = (\xi_0, \xi_1, ..., \xi_{n + p})$ of degree $p$ we have*
 $$N_{k, p}(x_k) \neq 0 \quad \text{for k = 0, 1, ..., n - 1}$$
 
-**Proof**: Suppose that $\xi_k = x_k$. Then we have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$. So, the knot $\xi_k$ has multiplicity $p + 1$. If $k \neq 0, n - 1$, we have that the multiplicity of $\xi_{k + 1}$ is at most $p$. So, we can’t have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$ or $\xi_{k + 1} = \xi_{k + 2} = ... = \xi_{k + p + 1}$ and both inequalities are strict, so we have $x_k \in (\xi_k, \xi_{k + p + 1})$. By property 4, it follows that $N_k(x_k) \neq 0$.
+**Proof**: Suppose that $\xi_k = x_k$. Then we have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$. So, the knot $\xi_k$ has multiplicity $p + 1$.
 
-Suppose now that $k = 0$. Then $\xi_k$ is the first knot, and has multiplicity $p + 1$, so it follows that $\xi_k = \xi_{k + 1} = ... = \xi_{k + p} = 0 < \xi_{p + 1}$. So it follows that $x_k = 0$, and we have $N_0(0) = 1$ by property 4.
+If $k \neq 0, n - 1$, we have that the multiplicity of $\xi_{k + 1}$ is at most $p$. So, we can’t have $\xi_k = \xi_{k + 1} = ... = \xi_{k + p}$ or $\xi_{k + 1} = \xi_{k + 2} = ... = \xi_{k + p + 1}$ and both inequalities are strict, so we have $x_k \in (\xi_k, \xi_{k + p + 1})$. By property 4, it follows that $N_k(x_k) \neq 0$.
+
+If $k = 0$, then$\xi_k$ is the first knot, and has multiplicity $p + 1$, so it follows that $\xi_k = \xi_{k + 1} = ... = \xi_{k + p} = 0 < \xi_{p + 1}$. So it follows that $x_k = 0$, and we have $N_0(0) = 1$ by property 4.
 $\square$
 
 This means that the Greville abscissae are suitable as a standard choice for interpolation points for B-splines.
