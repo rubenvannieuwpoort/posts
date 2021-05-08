@@ -40,7 +40,7 @@ The term 'B-spline' is an abbreviation for 'basis spline'. B-splines were introd
 The recursive definition that is commonly used to introduce B-splines was presented in [2] by de Boor.
 
 **Definition**: *For $d \geq 1$, a $d$-dimensional *B-spline* curve $\mathbf{s} : \mathbb{R} \rightarrow \mathbb{R}^d$ is defined as a linear combination of *B-spline basis functions* $N_{0, p}, N_{1, p}, ..., N_{n - 1, p} : \mathbb{R} \rightarrow \mathbb{R}$:*
-$$\begin{align} \mathbf{s}(\xi) = \sum_{i = 0}^{n - 1} \mathbf{c_i} N_{i, p}(\xi) \end{align}$$
+$$ \mathbf{s}(\xi) = \sum_{i = 0}^{n - 1} \mathbf{c_i} N_{i, p}(\xi) \tag{1}$$
 
 *The image $\mathbf{s}$ is a one-dimensional subset of $\mathbb{R}^d$. It is common to identify $\mathbf{s}$ with this subset and refer to both as a B-spline curve. The coefficients $\mathbf{c}_0, \mathbf{c}_1, ..., \mathbf{c}_{n - 1} \in \mathbb{R}^d$ are called **control points**, and the B-spline basis functions $N_{0, p}, N_{1, p}, ..., N_{n - 1, p} : \mathbb{R} \rightarrow \mathbb{R}$ are defined by the **Cox-de-Boor recursion formula**. The following version is from [3]:*
 $$ N_{i, 0}(\xi) = \begin{cases} 1 & \text{if } \xi \in [\xi_i, \xi_{i + 1}) \\ 0 & \text{otherwise} \end{cases}$$
