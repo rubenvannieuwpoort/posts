@@ -84,7 +84,8 @@ This convention ensures that B-spline curves are continuous mappings from $[0, 1
 $$N'_{i, p}(\xi) = \frac{p}{\xi_{i + p} - \xi_i} N_{i, p - 1} - \frac{p}{\xi_{i + p + 1} - \xi_{i + 1}} N_{i + 1, p - 1}$$
 3. *The B-spline basis functions satisfy $\sum_{i = 0}^{n - 1} N_i = 1$ and $\sum_{i = 0}^{n - 1} N'_i = 0$.*
 4. *For a B-spline basis function $N_{i, p}$ we have $\overline{\text{supp}(N_{i, p})} = \overline{\text{supp}(N'_{i, p})} = [\xi_i, \xi_{i + p + 1}]$. Moreover $\xi_i \in \text{supp}(N_{i, p})$ iff $p = 0$ or $i = 0$ and $\boldsymbol{\Xi}$ is an open knot vector of degree $p$.*
-5. *$\int N_{i, p}(\xi) N_{j, p}(\xi)\ \text{d}\xi$, $\int N_{i, p}(\xi) N'_{j, p}(\xi)\ \text{d}\xi$, $\int N_{i, p}(\xi) N'_{j, p}(\xi)\ \text{d}\xi$, and $\int N'_{i, p}(\xi) N'_{j, p}(\xi)\ \text{d}\xi$ are all zero whenever $|i - j| > p$. It follows that* $$\int N_{i, p}(\xi) N_{j, p}(\xi)\ \text{d}\xi = 0 \text{ whenever } | j - i| > p$$
+5. *$\int N_{i, p}(\xi) N_{j, p}(\xi)\ \text{d}\xi$, $\int N_{i, p}(\xi) N'_{j, p}(\xi)\ \text{d}\xi$, $\int N_{i, p}(\xi) N'_{j, p}(\xi)\ \text{d}\xi$, and $\int N'_{i, p}(\xi) N'_{j, p}(\xi)\ \text{d}\xi$ are all zero whenever $|i - j| > p$. It follows that*
+$$ \int N_{i, p}(\xi) N_{j, p}(\xi)\ \text{d}\xi = 0 \text{ whenever } | j - i| > p $$
 6. *The B-spline basis functions satisfy $0 \leq N_{i, p} \leq 1$ and $-\frac{p}{h} \leq N'_{i, p} \leq \frac{p}{h}$, where $h := \min_{i \in \{\ 1, 2, ..., n\ \}} \{\ \xi_i - \xi_{i - 1} : \xi_{i - 1} \neq \xi_i\ \}$ is the smallest nonzero difference between two consecutive knots.*
 7. *On any point in the $\mathbb{R}$, there are at most $p + 1$ nonzero basis functions. More specifically, there are $p + 1$ nonzero basis functions on $\xi \in (\xi_p, \xi_n)$, whenever $\xi \not \in \boldsymbol{\Xi}$ is not a knot.*
 8. *If $\boldsymbol{\Xi}$ is an open knot vector, $\mathbf{s}$ interpolates the first and last control points: $\mathbf{s}(0) = \mathbf{c}_0$, $\mathbf{s}(1) = \mathbf{c}_{n - 1}$.*
@@ -94,7 +95,8 @@ $\square$
 
 Now, the problem of finding an interpolating B-spline is considered. Suppose that we define a one-dimensional B-spline $f(\xi) = \sum\limits_{j = 0}^{n - 1} f_j N_j(\xi)$ and we want to choose the control points $f_0$, $f_1$, ..., $f_{n - 1}$ such that $f(\xi_0) = y_0$, $f(\xi_1) = y_1$, ..., $f(\xi_{m - 1}) = y_{m - 1}$. This is called the *interpolation problem*. We have the following theorem:
 
-**Theorem (Whitney-Schoenberg)**: *For basis functions $N_{i_0}$, $N_{i_1}$, ..., $N_{i_{n - 1}}$ with $i_0 < i_1 < ... < i_{n - 1}$ which are a subset of the B-spline basis functions $N_0$, $N_1$, ... associated to a not necessarily open knot vector $\boldsymbol{\Xi}$, and interpolations points $\xi_0 < \xi_1 < ... < \xi_{m - 1}$, the interpolation matrix $\mathbf{J}$ is nonsingular if and only if $n = m$, and $$N_{i_k}(\xi_k) \neq 0 \quad \text{for $k = 0, 1, ..., n - 1$}$$*
+**Theorem (Whitney-Schoenberg)**: *For basis functions $N_{i_0}$, $N_{i_1}$, ..., $N_{i_{n - 1}}$ with $i_0 < i_1 < ... < i_{n - 1}$ which are a subset of the B-spline basis functions $N_0$, $N_1$, ... associated to a not necessarily open knot vector $\boldsymbol{\Xi}$, and interpolations points $\xi_0 < \xi_1 < ... < \xi_{m - 1}$, the interpolation matrix $\mathbf{J}$ is nonsingular if and only if $n = m$, and*
+$$ N_{i_k}(\xi_k) \neq 0 \quad \text{for $k = 0, 1, ..., n - 1$} $$
 
 See [6], section 3.3, theorem 3.2 on page 19 for a proof.
 

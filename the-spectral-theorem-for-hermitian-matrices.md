@@ -23,7 +23,7 @@ Now, we are ready to define Hermitian operators:
 **Definition**: *A **Hermitian** or **self-adjoint** operator $A$ on a space $X$ with an inner product $\left< \cdot, \cdot \right> : X \times X \rightarrow \mathbb{R}$ is an operator for which*
 $$ \left< Ax, y \right> = \left< x, Ay \right> $$
 
-*for all $ x, y \in X $*
+*for all $x, y \in X$*
 
 By this definition, symmetric matrices with real elements are Hermitian. However, for matrices with complex elements, the condition is slightly different due to the complex conjugation in the second argument of the inner product.
 
