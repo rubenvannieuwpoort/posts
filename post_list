@@ -1,3 +1,5 @@
+Bounds for rational approximations to square roots	bounds-for-rational-approximations-to-square-roots	I give a bound for rational approximations to square roots.
+Solving the maximum subarray problem with prefix sums	solving-the-maximum-subarray-problem-with-prefix-sums	I show how the maximum subarray problem can easily be solved using prefix sums.
 Cardano's formula	cardanos-formula	In this article, I'll try to explain Cardano's formula for finding the roots of a polynomial of degree three.
 B-splines	b-splines	Splines, or piecewise polynomial functions, are a convenient way to define smooth functions. In this article I introduce some theory behind them.
 Division by constant signed integers	division-by-constant-signed-integers	Division is a relatively slow operation. When the divisor is constant, the division can be optimized significantly. In <a href="https://rubenvannieuwpoort.nl/posts/division-by-constant-unsigned-integers">division by constant unsigned integers</a> I explored how this can be done for unsigned integers. In this follow-up article, I cover how we can optimize division by constant signed integers.
