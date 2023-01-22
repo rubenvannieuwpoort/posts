@@ -19,7 +19,7 @@ $$ (x + \frac{a}{2})^2 = c +\frac{a^2}{4} $$
 
 which is quite easy to work out. Assuming that $a$ and $c$ are positive for the moment, we can gain some geometric intuition for the procedure by using this figure:
 
-![Square, divided into four sections.](./images/square.png)
+![Square, divided into four sections.](./images/square.png =161x161)
 
 The blue square has width and height $x$. The red rectangles are chosen so that their area adds up to $ax$, which means that they have one side with length $x$ and one side with length $\frac{a}{2}$. The green square has area $(\frac{a}{2})^2$ and represents the quantity we added.
 
@@ -49,7 +49,7 @@ $$ y^3 + py = q $$
 
 Now, consider the following three-dimensional analogue of the figure in the last section:
 
-![Cube, divided into five sections.](./images/cube.png)
+![Cube, divided into five sections.](./images/cube.png =221x221)
 
 Let $u$ be the length of the side of the large cube that is formed by the blue cube, the red boxes, and the green cube. Let $v = u - y$. Now, the green cube has side $v$ and the blue cube has side $y$. The three red rectangular boxes have sides with lengths $u$, $v$, and $y$, and the big cube that is formed by all the other shapes has side length $u$.
 

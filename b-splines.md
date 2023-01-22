@@ -3,7 +3,7 @@
 This is an edited section from my thesis "[Solving Poisson’s equation with Dataflow computing](http://resolver.tudelft.nl/uuid:c5dfd1d4-6494-47e9-90d9-486d2a7b26b3)". It might be a bit more formal than most of my other posts.
 
 Splines are a mathematical concept which can be used to define smooth (or less smooth) curves and surfaces.
-![](images/bsplines.png)
+![](images/bsplines.png =1000x405)
 
 In this article, I'll cover some mathematical background.
 
@@ -58,7 +58,7 @@ The index $p$, denoting the polynomial degree, will often be omitted when its va
 
 The next image shows the B-spline basis functions associated to the uniform knot vector $\boldsymbol{\Xi} = (0, \frac{1}{6}, \frac{1}{3}, \frac{1}{2}, \frac{2}{3}, \frac{5}{6}, 1)$ for polynomials orders $p = 0, 1, 2, 3$:
 
-![](images/uniformknotvectorbsplinebasisfuncsplot.png)
+![](images/uniformknotvectorbsplinebasisfuncsplot.png =773x562)
 
 The following characterization of B-spline basis functions is due to Curry and Schoenberg in [4] and [5]:
 
@@ -68,7 +68,7 @@ For a proof that $N_{p, 0}, N_{p, 1}, ..., N_{p, n}$ is a basis of $\mathbb{S}_p
 
 In computer-aided design (CAD), it is convenient to have continuous curves that interpolate the first and last control point. This means that $\mathbf{s}(0) = \mathbf{c_0}$, and $\mathbf{s}(1) = \mathbf{c_{n - 1}}$ if $\mathbf{c_{n - 1}}$ is the last control point. This can be achieved by using an open knot vector to define the B-spline basis functions. The effect of taking the open knot vector $\boldsymbol{\Xi} = (0, 0, 0, \frac{1}{5}, \frac{2}{5}, \frac{3}{5}, \frac{4}{5}, 1, 1, 1)$ of degree 2 is illustrated in the next image.
 
-![](images/openknotvectorbsplinebasisfuncsplot.png)
+![](images/openknotvectorbsplinebasisfuncsplot.png =612x409)
 
 It can be seen that the first and the last B-spline basis functions $N_0$ and $N_6$ are discontinuous at the first knot $\xi_0 = 0$, and the last knot $\xi_7 = 1$, since $N_0(\xi) = 0$ for $\xi < 0$, but $N_0(0) = 1$. Likewise, we have $\lim_{\xi \rightarrow 1}N_6{\xi} = 1$, but $N_6(\xi) = 0$ for $\xi \geq 1$. However, since $\mathbf{s}$ is only defined on $[0, 1)$, $\mathbf{s}$ is still continuous. In practice, we will extend the domain of $\mathbf{s}$ to $[0, 1]$ by the following convention.
 
