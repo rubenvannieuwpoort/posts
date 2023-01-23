@@ -1,3 +1,5 @@
+Gaussian quadrature and orthogonal polynomials	gaussian-quadrature-and-orthogonal-polynomials	I show how orthogonal polynomials can be used to compute quadrature rules.
+Computing decimal digits of square roots	computing-decimal-digits-of-square-roots	I show how to manually compute decimal digits of square roots.
 Bounds for rational approximations to square roots	bounds-for-rational-approximations-to-square-roots	I give a bound for rational approximations to square roots.
 Solving the maximum subarray problem with prefix sums	solving-the-maximum-subarray-problem-with-prefix-sums	I show how the maximum subarray problem can easily be solved using prefix sums.
 Cardano's formula	cardanos-formula	In this article, I'll try to explain Cardano's formula for finding the roots of a polynomial of degree three.
