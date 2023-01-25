@@ -1,3 +1,5 @@
+Dirichlet's approximation theorem	dirichlets-approximation-theorem	I prove Dirichlet's approximation theorem.
+Euler's gamma function	eulers-gamma-function	I prove the most important property of Euler's gamma function.
 Gaussian quadrature and orthogonal polynomials	gaussian-quadrature-and-orthogonal-polynomials	I show how orthogonal polynomials can be used to compute quadrature rules.
 Computing decimal digits of square roots	computing-decimal-digits-of-square-roots	I show how to manually compute decimal digits of square roots.
 Bounds for rational approximations to square roots	bounds-for-rational-approximations-to-square-roots	I give a bound for rational approximations to square roots.
