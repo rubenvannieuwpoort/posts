@@ -1,11 +1,11 @@
 # sRGB and gamma correction
 
-Today, most images and monitors use the sRGB color space. It is convenient that they use the same color space, since it means that the RGB values from an image can be fed directly to the display. However, there is a downside to using sRGB which not enough people realize. To provide a set of colors that is perceptually uniformly distributed, sRGB encodes the RGB components in a nonlinear way.
+Today, most images and monitors use the sRGB color space. It is convenient that they use the same color space, since it means that the RGB values from an image can be fed directly to the display. However, there is a downside to using sRGB which not enough people realize: sRGB encodes the RGB components in a nonlinear way to provide a set of colors that is perceptually uniform.
 ![Encoding vs linear intensity](./images/intensities.png "Encoding vs linear intensity" =606x118)
 
 The fact that sRGB is a nonlinear color space means that adding or multiplying sRGB colors is **wrong**. This means that things like linear interpolation, fade-outs, and bilinear filtering are wrong when they are done on sRGB colors. They should be done only on *linear* sRGB color representations.
 
-Now, incorrect implementations seem to work OK, but in some edge cases it's painfully obvious that something's off. For example, consider this example where I places a red circle onto a green background and applied a CSS blur filter:
+It is not always noticeable when sRGB colors are used incorrectly, but the effect is obvious in some edge cases. For example, consider this example where I places a red circle onto a green background and applied a CSS blur filter:
 ![Comparison of incorrect vs correct gamma](./images/incorrect.png "Comparison of incorrect vs correct gamma" =256x256)
 
 If you think the blurred edges of the circle look too dark, you are right. When I make the same picture in GIMP, it looks like this:
@@ -34,8 +34,8 @@ $$ C_\text{sRGB} = g(C_\text{linear}) $$
 with
 $$ g(x) = \begin{cases} 12.92 x & \text{if $x \in [0, 0.0031308]$} \\ 1.055 x^{\frac{1}{2.4}} - 0.055 & \text{if $x \in (0.0031308, 1]$} \end{cases} $$
 
-This is a an odd transformation. It is chosen to be very close to the mapping $y = x^{2.2}$ but to be linear for very dark values. As a simplification or optimization, you could use this mapping as well, and get very close results (although the results might be off for small values). So we have $C_\text{sRGB} \approx (C_\text{linear})^{2.2}$ so that $C_\text{linear} \approx (C_\text{sRGB})^{\frac{1}{2.2}}$.
+This is a an odd transformation. It is chosen to be very close to the mapping $y = x^{2.2}$ but to be linear for very dark values. So $C_\text{sRGB} \approx (C_\text{linear})^{2.2}$ so that $C_\text{linear} \approx (C_\text{sRGB})^{\frac{1}{2.2}}$. As a simplification or optimization, you could use this mapping as well, and get very close results (although the results might be off for small values).
 
-For any graphics project, I'd first suggest to investigate if you happen to use a library or framework that already handles gamma for your. In particular, OpenGL has support for sRGB as outlined in [the article about gamma correction on learnopengl.com](https://learnopengl.com/Advanced-Lighting/Gamma-Correction).
+If you have a graphics application and you're not sure if it uses gamma correctly, I'd first suggest to investigate if you happen to use a library or framework that already handles gamma for your. In particular, OpenGL has support for sRGB as outlined in [the article about gamma correction on learnopengl.com](https://learnopengl.com/Advanced-Lighting/Gamma-Correction).
 
 If you really need to do it yourself, I'd suggest to transform the input images to linear floating point values when you load them. Then, you perform one final conversion back to sRGB before displaying or saving the picture.

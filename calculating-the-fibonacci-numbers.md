@@ -9,7 +9,7 @@ So, it starts as 0, 1, 1, 2, 3, 5, 8, 13, ...
 Mathematically, it is defined as
 $$ \begin{aligned} F_0 &= 1\\ F_1 &= 1\\ F_n &= F_{n - 1} + F_{n - 2} \end{aligned} $$
 
-Now, let's write a fast Python function to calculate the $n$th Fibonacci number.
+Now, let's write a fast Python function to calculate the $n$th Fibonacci number. (This is just for fun, Python is not normally a language I'd use to write something that needs to be fast. In this case I choose it because it's built-in big number support is so convenient. It could also be written in, say, C++, although you'd need something like boost to provide the support for big numbers.)
 
 
 ## A naive implementation
@@ -22,7 +22,7 @@ def fibonacci_naive(n):
     return fibonacci_naive(n - 1) + fibonacci_naive(n - 2)
 ```
 
-However, it turns out that this is very slow, even just calculating $F_{35}$ already takes more than a second on my machine. Even worse, the runtime of `fibonacci_naive(n)` seems to increase very rapidly when we increase `n`: calculting $F_{38}$ already takes more than five seconds.
+However, it turns out that this is very slow, even just calculating $F_{35}$ already takes more than a second on my machine. Even worse, the runtime of `fibonacci_naive(n)` seems to increase very rapidly when we increase `n`: calculating $F_{38}$ already takes more than five seconds.
 
 If we think about this function a bit, we can see that the only way the recursion can "end", is when it returns `0` or `1`. So to calculate $F_n$, at least $F_n$ function calls need to be made. Now, $F_n$ turns out to be exponential as a function of $n$. **The runtime of `fibonacci_naive(n)` is at least exponential in `n`.**
 
