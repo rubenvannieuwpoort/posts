@@ -1,3 +1,4 @@
+sRGB and gamma correction	srgb-and-gamma-correction	Many graphical applications display colors incorrectly because they do not do gamma correction. In this post I explain the problem and the solution.
 Calculating the Fibonacci numbers	calculating-the-fibonacci-numbers	I optimize the computation of the nth Fibonacci number in Python.
 Dirichlet's approximation theorem	dirichlets-approximation-theorem	I prove Dirichlet's approximation theorem.
 Euler's gamma function	eulers-gamma-function	I prove the most important property of Euler's gamma function.
