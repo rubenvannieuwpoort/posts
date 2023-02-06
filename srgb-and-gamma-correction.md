@@ -20,7 +20,9 @@ The following, more pronounced example is from [the article about gamma correcti
 
 ## Gamma correction
 
-If we want to apply any transformation, we should convert the RGB of sRGB colors to *linear* RGB components. This is also known as [gamma correction](https://en.wikipedia.org/wiki/Gamma_correction) and is done by applying the conversion
+If we want to apply any transformation to an image in the sRGB color space, the colors should be converted to the *linear* sRGB color space before doing the transformation (and back to sRGB before displaying the transformed image). These conversions are known as [gamma correction](https://en.wikipedia.org/wiki/Gamma_correction).
+
+To convert a color from sRGB to linear sRGB we apply the conversion
 $$ C_\text{linear} = f(C_\text{sRGB}) $$
 
 where
@@ -28,7 +30,7 @@ $$ f(x) = \begin{cases} \frac{x}{12.92} & \text{if $x \in [0, 0.04045]$} \\ \lef
 
 This conversion should be done to each of the R, G, and B components. If there is an alpha component it should *not* be converted.
 
-Before displaying the colors, we should convert the linear sRGB color back to a proper sRGB representation by applying the inverse transformation
+Before displaying the colors, we should convert the linear sRGB color back to a proper sRGB representation by applying the inverse transformation:
 $$ C_\text{sRGB} = g(C_\text{linear}) $$
 
 with
