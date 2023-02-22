@@ -18,7 +18,7 @@ I will often write $C = (R, G, B)$ because in the equations we don't need to dis
 ## The compositing equation
 
 First, we consider the case where we composite a pixel $X$ on a pixel $Y$ which is opaque (so $\alpha_Y = 1$). If $\alpha_X = 1$ we expect the resulting color to be equal to $C_X$, and if $\alpha_X = 0$ we expect the resulting color to be equal to $C_Y$. Assuming that the transition is linear we derive
-$$ \begin{equation} \begin{aligned} \alpha_{X \rightarrow Y} &= 1 \\ C_{X \rightarrow Y} &= \alpha_X C_X + (1 - \alpha_X) C_Y \end{aligned} \end{equation} $$
+$$ \begin{aligned} \alpha_{X \rightarrow Y} &= 1 \\ C_{X \rightarrow Y} &= \alpha_X C_X + (1 - \alpha_X) C_Y \end{aligned} $$
 
 The generic case is a bit more complicated. We start with the alpha component. Physically, transparent object lets a certain fraction of light pass through it. If we have two objects on top of each other, and the first object lets a fraction $(1 - \alpha_X)$ of light through, and the second lets a fraction $(1 - \alpha_Y)$ of light through, we expect a fraction of $(1 - \alpha_X)(1 - \alpha_Y)$ to go through both objects. Applying the same principles, we expect that $1 - \alpha_{X \rightarrow Y} = (1 - \alpha_X)(1 - \alpha_Y)$. More elegantly put,
 $$ \alpha_{X \rightarrow Y} = \alpha_X + \alpha_Y - \alpha_X \alpha_Y $$
@@ -35,7 +35,7 @@ Now, setting $C_{(X \rightarrow Y) \rightarrow Z} = C_{X \rightarrow (Y \rightar
 $$ \alpha_{X \rightarrow Y} C_{X \rightarrow Y} = \alpha_X C_X + (1 - \alpha_X) \alpha_Y C_Y $$
 
 This finally gives us the full, generic composition equation
-$$ \begin{equation} \begin{aligned} \alpha_{X \rightarrow Y} &= \alpha_X + \alpha_Y - \alpha_X \alpha_Y \\ C_{X \rightarrow Y} &= \frac{\alpha_X C_X + (1 - \alpha_X) \alpha_Y C_Y}{\alpha_{X \rightarrow Y}} \end{aligned} \end{equation} $$
+$$ \begin{aligned} \alpha_{X \rightarrow Y} &= \alpha_X + \alpha_Y - \alpha_X \alpha_Y \\ C_{X \rightarrow Y} &= \frac{\alpha_X C_X + (1 - \alpha_X) \alpha_Y C_Y}{\alpha_{X \rightarrow Y}} \end{aligned} $$
 
 
 ## Premultiplied alpha
@@ -44,7 +44,7 @@ It is worth noting that the composition equation we derived in the last section 
 
 This technique is known as **premultiplied alpha** or **associated alpha** (and not using it is sometimes called **straight alpha** or **unassociated alpha**). It makes computing compositions much nicer; instead of computing $C_{X \rightarrow Y}$ we compute $\alpha_{X \rightarrow Y} C_{X \rightarrow Y}$ and the composition equation becomes
 
-$$ \begin{equation} \begin{aligned} \alpha_{X \rightarrow Y} &= \alpha_X + \alpha_Y - \alpha_X \alpha_Y \\ \alpha_{X \rightarrow Y} C_{X \rightarrow Y} &= \alpha_X C_X + (1 - \alpha_X) \alpha_Y C_Y \end{aligned} \end{equation} $$
+$$ \begin{aligned} \alpha_{X \rightarrow Y} &= \alpha_X + \alpha_Y - \alpha_X \alpha_Y \\ \alpha_{X \rightarrow Y} C_{X \rightarrow Y} &= \alpha_X C_X + (1 - \alpha_X) \alpha_Y C_Y \end{aligned} $$
 
 It is worth noting that using premultiplied alpha throws away information in the color components for which $\alpha \neq 1$. So you should never store images with premultiplied alpha if you intend on making changes to the alpha channel. So in the context of a project, it's probably best to have images with straight alpha under version control, and then convert them to premultiplied alpha as a build step. Alternatively, your application can convert to premultiplied alpha when it imports images (this is also a good place to convert to a linear color space, if it is necessary).
 
