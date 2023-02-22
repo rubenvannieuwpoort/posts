@@ -1,6 +1,6 @@
-# Compositing
+# Alpha compositing
 
-Compositing is combining multiple (possibly partially transparent) layers of image data into a single image. If you have ever used Photoshop or GIMP, compositing is how all the layers are combined into a final image that can be displayed on screen.
+Alpha compositing (or simply *compositing*) is combining multiple (possibly partially transparent) layers of image data into a single image. If you have ever used Photoshop or GIMP, compositing is how all the layers are combined into a final image that can be displayed on screen.
 
 The image data is assumed to be saved in the form of a grid of pixels, so that compositing can be done per pixel. In this post I will derive the composition equation, which describes how to compose one pixel onto another.
 
