@@ -15,7 +15,7 @@ $$ \left| \alpha - \frac{p}{q} \right| \leq \frac{1}{2q} $$
 
 It follows from Dirichlet's theorem that there exist infinitely many rationals $\frac{p}{q}$ such that $\left| \alpha - \frac{p}{q} \right| < \frac{1}{q^2}$. The quadratic order of the error turns out to be optimal; This is what Hurwitz' theorem proves.
 
-It seems that Dirichlet was fond of arithmetic progressions; Dirichlet's most [famous theorem]() is about arithmetic progressions, and they turn out to play an important role in the proof of this theorem as well.
+It seems that Dirichlet was fond of arithmetic progressions; Dirichlet's most [famous theorem](https://en.wikipedia.org/wiki/Dirichlet%27s_theorem_on_arithmetic_progressions) is about arithmetic progressions, and they turn out to play an important role in the proof of this theorem as well.
 
 Let $\alpha \in \mathbb{R}$. Now consider the sequence $0, \{ \alpha \}, \{ 2 \alpha \}, \{ 3 \alpha \}, ..., \{ N \alpha \}$, where $\{ x \} = x - \lfloor x \rfloor$ (so $0 \leq \{ x \} < 1$ for any $x \in \mathbb{R}$). It turns out that if two fractional parts are close, we can find a good rational approximation to $\alpha$.
 

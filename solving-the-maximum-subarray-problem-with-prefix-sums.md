@@ -17,7 +17,7 @@ If there are only positive numbers, the maximum subarray sum and the maximum non
 
 A naive solution would be to loop over all indices $0 \leq a \leq b \leq N$ and compute $\sum_{k = a}^{b - 1} x_k$. There are $O(n^2)$ such pairs $(a, b)$ and the sum consists of $O(n)$ terms, so this would have a runtime of $O(n^3)$.
 
-A slightly smarter solution would compute the sums in a smarter order so that the previously computed sum can be re-used (e.g. $sum_{k = a}^{b} x_k$ can be found in constant time by adding $x_b$ to $\sum_{k = a}^{b - 1}$). This way, every sum can be computed in $O(1)$, which gives a runtime of $O(n^2)$. 
+A slightly smarter solution would compute the sums in a smarter order so that the previously computed sum can be re-used (e.g. $\sum_{k = a}^{b} x_k$ can be found in constant time by adding $x_b$ to $\sum_{k = a}^{b - 1}$). This way, every sum can be computed in $O(1)$, which gives a runtime of $O(n^2)$. 
 
 Can we do better than this?
 
