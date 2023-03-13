@@ -1,3 +1,4 @@
+Linear congruential generators	linear-congruential-generators	Linear congruential generators are a quick-and-dirty way to generate pseudorandom numbers.	2022-03-13
 The Fowler-Noll-Vo hash	the-fowler-noll-vo-hash	A fast, simple, effective hash function.	2022-03-11
 Button debouncing	button-debouncing	How to debounce a button.	2023-02-22
 Alpha compositing	alpha-compositing	I derive the composition equation.	2023-02-14
