@@ -9,7 +9,7 @@ So, it starts as 0, 1, 1, 2, 3, 5, 8, 13, ...
 Mathematically, it is defined as
 $$ \begin{aligned} F_0 &= 1\\ F_1 &= 1\\ F_n &= F_{n - 1} + F_{n - 2} \end{aligned} $$
 
-Now, let's write a fast Python function to calculate the $n$th Fibonacci number. (This is just for fun, Python is not normally a language I'd use to write something that needs to be fast. In this case I choose it because it's built-in big number support is so convenient. It could also be written in, say, C++, although you'd need something like boost to provide the support for big numbers.)
+Now, let's write a fast Python function to calculate the $n$th Fibonacci number. (Python is not normally a language I'd use to write something that needs to be fast, but this is just for fun. In this case I choose it because its built-in big number support is so convenient. It could also be written in, say, C++, although you'd need something like boost to provide the support for big numbers.)
 
 
 ## A naive implementation
@@ -99,13 +99,13 @@ $$ \left( \begin{matrix} 1 & 1 \\ 1 & 0 \end{matrix} \right) = \left( \begin{mat
 and
 $$ \left( \begin{matrix} 1 & 1 \\ 1 & 0 \end{matrix} \right) \left( \begin{matrix} F_{k + 1} & F_k \\ F_k & F_{k - 1} \end{matrix} \right) = \left( \begin{matrix} F_{k + 1} + F_k & F_k + F_{k - 1} \\ F_{k + 1} & F_k \end{matrix} \right) = \left( \begin{matrix} F_{k + 2} & F_{k + 1} \\ F_{k + 1} & F_k \end{matrix} \right) $$
 
-(We see here that the entry $F_k$ in the right top is calculated as $F_k + F_{k + 1}$ even though $F_k$ is already in the matrix. Since our previous algorithm uses this exact calculation, we can already see that it is probably not optimal)
+We see here that the entry $F_{k + 1}$ in the right top of the right matrix is calculated as $F_k + F_{k - 1}$ even though $F_{k + 1}$ is already in the matrix on the left. From this we already see that the previous algorithm, which uses this exact algorithm, is not optimal.
 
-So that
+From these two identities, it follows by induction that
 $$ \left( \begin{matrix} 1 & 1 \\ 1 & 0 \end{matrix} \right)^n  = \left( \begin{matrix} F_{n + 1} & F_n \\ F_n & F_{n - 1} \end{matrix} \right) $$
 
 Using $\left( \begin{matrix} 1 & 1 \\ 1 & 0 \end{matrix} \right)^{a + b}  = \left( \begin{matrix} 1 & 1 \\ 1 & 0 \end{matrix} \right)^a \left( \begin{matrix} 1 & 1 \\ 1 & 0 \end{matrix} \right)^b$ we see
-$$ \left( \begin{matrix} F_{a + b + 1} & F_{a + b} \\ F_{a + b} & F_{a + b - 1} \end{matrix} \right)^n  = \left( \begin{matrix} F_{a + 1} & F_a \\ F_a & F_{a - 1} \end{matrix} \right) \left( \begin{matrix} F_{b + 1} & F_b \\ F_b & F_{b - 1} \end{matrix} \right) $$
+$$ \left( \begin{matrix} F_{a + b + 1} & F_{a + b} \\ F_{a + b} & F_{a + b - 1} \end{matrix} \right)  = \left( \begin{matrix} F_{a + 1} & F_a \\ F_a & F_{a - 1} \end{matrix} \right) \left( \begin{matrix} F_{b + 1} & F_b \\ F_b & F_{b - 1} \end{matrix} \right) $$
 
 Looking at the element in the left top and the element in the right bottom of the left and right side, we obtain the identities
 $$ \begin{aligned} F_{a + b} &= F_{a + 1} F_b + F_a F_{b - 1} = F_a F_b + F_a F_{b - 1} + F_{a - 1} F_b \\ F_{a + b - 1} &= F_a F_b + F_{a - 1} F_{b - 1} \end{aligned} $$
@@ -135,7 +135,7 @@ And this is the fastest code I could write to calculate the Fibonacci numbers (i
 
 ## Benchmarks
 
-Note that **both axes are logarithmic**. In this types of graphs, graphs of the form $y = c x^d$ map to a straight line. Two graphs $y_a = c_a x^{d_a}$ and $y_b = c_b x^{d_b}$ have the same slope if the exponents $d_a$ and $d_b$ are the same. They have an offset if $c_a$ and $c_b$ are different.
+Note that **both axes are logarithmic**. In this type of graphs, graphs of the form $y = c x^d$ map to a straight line. Two graphs $y_a = c_a x^{d_a}$ and $y_b = c_b x^{d_b}$ have the same slope if the exponents $d_a$ and $d_b$ are the same. They have a vertical offset if the constants $c_a$ and $c_b$ are different.
 
 ![Benchmarks of the different functions to calculate the Fibonacci numbers.](./images/fibonacci_benchmark.png "Benchmarks" =868x576)
 
