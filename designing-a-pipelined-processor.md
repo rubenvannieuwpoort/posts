@@ -1,14 +1,12 @@
 # Designing a pipelined processor
 
-In this post I will lay down a template that has the necessary pipelining logic to implement a stage in a pipelined CPU.
+I have been working on a simple in-order pipelined processor for a few months now. While there's still a lot to do, things are (finally) coming together nicely. One of the most difficult parts in the design process was to get the pipelining logic right. So I decided to document the pipelining logic for myself. Maybe it is useful for someone else as well? The template I made can be found [on github](https://github.com/rubenvannieuwpoort/stage_template).
 
-I have been working on a simple in-order pipelined processor for a few months now. While there's still a lot to do, things are (finally) coming together nicely. One of the most difficult parts in the design process was to get the pipelining logic right. So I decided to write something about it, in the hope that it might help someone.
+Pretty much any pipelined processor will need to handle *pipeline stalls*. In case of a pipeline stall a stage cannot process data coming from the previous stage, and needs to signal this to the previous stage. However, for speed, all stages are *synchronous*, meaning that the output in clock cycle N depends on the state in clock cycle N - 1. So, if a stage can't process the output of the previous stage in clock cycle N, it can only tell the previous stage in clock cycle N + 1. But in clock cycle N + 1, the previous stage has already pushed new output. The essential idea is that this new output needs to be buffered by the current stage.
 
-When I started working on the processor, I had the impression that designing a pipelined processor was easy, or at least not *that* hard. Well, it's not *that* hard, but only if you know how to do it (and of course I did not).
+That's essentially all there is to the pipelining logic. If you have a clear conceptual understanding of the problem, it's not that hard. As an inexperienced hardware engineer, it took me a long time to get there. Over many iterations the idea formed to buffer the output from the previous stage in case of a pipeline stall, but I was not confident this was the right approach. I could not find any discussion of this problem online. Finally, I found the post ["Strategies for pipelining logic"](https://zipcpu.com/blog/2017/08/14/strategies-for-pipelining.html), which gives a conceptually clear explanation, and provided a much-needed sanity check.
 
-I insisted that all stages in the pipeline should be strictly synchronous. Pretty much any pipelined processor will need to handle *pipeline stalls*, in which a stage cannot process data coming from the previous stage, and needs to signal this to the previous stage. However, when a stage discovers it cannot process the output of the previous stage in clock cycle N, it can only signal this to the previous stage in clock cycle N + 1 (because the stage is synchronous). But in clock cycle N + 1 the previous stage will already output the next data. So, this data needs to be buffered somewhere.
-
-That's essentially all there is to the pipelining logic. Like I said, it's not *that* hard, once you know how to do it. However, it took me a long time to have a clear conceptual picture of the problem. I went over many iterations of writing something, testing it, and discovering it did not work. On top of that, I could not find much literature on the topic. I slowly iterated toward a design where the data of the previous stage would be buffered in case of a pipeline stall, but was not sure this was the right approach. Finally, a blog post [TODO] explained the topic clearly, and provided a much needed sanity check that my solution was a sensible approach.
+Since the whole template might be a bit hard to understand in one go, I will iterate from the simplest possible pipeline stage and add the logic as we go, explaining each step.
 
 
 ## 1. Pipelining without stalls
@@ -83,9 +81,9 @@ This code captures the *idea* of the `hold` signal quite well, but don't try to 
 
 ## 3. Making it work
 
-So, before I said something about buffering input, right? The code from the last section *doesn't actually work*. Or well, it will work to some extent, but data will get dropped from the pipeline when a pipeline stall occurs. Not very nice.
+So, before I said something about buffering input, right? The code from the last section *doesn't actually work*: Data will get dropped from the pipeline when a pipeline stall occurs.
 
-As I tried to explain before, if the `hold_in` signal from a stage gets raised in clock cycle N, in clock cycle N + 1 the output from the stage before it will get lost. Why? In clock cycle N the previous clock cycle can't know about the pipeline stall yet, so it will happily output data in clock cycle N + 1, which will than not get accepted by the current stage (because `hold_in` is already high for that stage).
+As mentioned before, if the `hold_in` signal from a stage gets raised in clock cycle N, in clock cycle N + 1 the output from the stage before it will get lost. Why? In clock cycle N the previous clock cycle can't know about the pipeline stall yet, so it will happily output data in clock cycle N + 1, which will than not get accepted by the current stage (because `hold_in` is already high for that stage).
 
 This change is a bit more complicated. I have added a `valid` signal to the input. If it is zero, the data is not valid and can be ignored. The input is now chosen from either the buffered input or the actual input to the stage; if `buffered_input` is valid, the variable `v_input` is taken as the input, otherwise the input to the stage (e.g. the `input` signal) is taken as the input.
 
@@ -158,7 +156,6 @@ entity stage_template is
 	);
 end stage_template;
 
-
 architecture Behavioral of stage_template is
 	signal buffered_input: previous_stage_output_type := DEFAULT_PREVIOUS_STAGE_OUTPUT;
 
@@ -208,3 +205,83 @@ end Behavioral;
 ```
 
 This finally is a template that is sufficient for most stages.
+
+
+## 5. Adding transient output
+
+Some stages need to communicate with a component that is not part of the pipeline. Those components outside of the pipeline are not subject to the pipelining logic, and will interpret data that is frozen for a few cycles as multiple occurances of the same data.
+
+To avoid this, we can add a *transient* output which is held at most one cycle. This is very similar to the normal output, except that it gets reset whenever `hold_in` is high.
+
+It's a bit of a stretch to add this since this is usually not needed, but I'll put it in here anyway.
+
+```
+entity stage_template is
+	port(
+		clk: in std_logic;
+		input: in previous_stage_output_type;
+		output: out stage_output_type := DEFAULT_STAGE_OUTPUT;
+		transient_output: out stage_transient_output_type := DEFAULT_STAGE_TRANSIENT_OUTPUT;
+		hold_in: in std_logic;
+		hold_out: out std_logic
+	);
+end stage_template;
+
+architecture Behavioral of stage_template is
+	signal buffered_input: previous_stage_output_type := DEFAULT_PREVIOUS_STAGE_OUTPUT;
+
+	function should_stall(input: previous_stage_output_type) return boolean is
+	begin
+		-- TODO: implement
+	end function;
+
+	function f(input: previous_stage_output_type) return stage_output_type is
+	begin
+		if input.valid = '0' then
+			return DEFAULT_STAGE_OUTPUT;
+		end if;
+
+		-- TODO: implement
+	end function;
+
+	function g(input: previous_stage_output_type) return stage_transient_output_type is
+	begin
+		if input.valid = '0' then
+			return DEFAULT_STAGE_TRANSIENT_OUTPUT;
+		end if;
+
+		-- TODO: implement
+	end function;
+begin
+	hold_out <= buffered_input.valid;
+
+	process(clk)
+		variable v_input: previous_stage_output_type;
+		variable v_should_stall: boolean;
+	begin
+		if rising_edge(clk) then
+			if buffered_input.valid = '1' then
+				v_input := buffered_input;
+			else
+				v_input := input;
+			end if;
+
+			if hold_in = '0' then
+				v_should_stall := should_stall(v_input)
+				if v_should_stall then
+					output <= DEFAULT_STAGE_OUTPUT;
+				end if;
+			end if;
+
+			if hold_in = '0' and not(v_should_stall) then
+				output <= f(v_input);
+				transient_output <= g(v_input);
+				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
+			else
+				transient_output <= DEFAULT_STAGE_TRANSIENT_OUTPUT;
+				buffered_input <= v_input;
+			end if;
+		end if;
+	end process;
+end Behavioral;
+```
