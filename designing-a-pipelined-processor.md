@@ -180,21 +180,25 @@ begin
 		variable v_should_stall: boolean;
 	begin
 		if rising_edge(clk) then
+			-- input selection
 			if buffered_input.valid = '1' then
 				v_input := buffered_input;
 			else
 				v_input := input;
 			end if;
 
+			-- output selection
 			if hold_in = '0' then
 				v_should_stall := should_stall(v_input)
 				if v_should_stall then
 					output <= DEFAULT_STAGE_OUTPUT;
+				else
+					output <= f(v_input);
 				end if;
 			end if;
 
+			-- input buffering
 			if hold_in = '0' and not(v_should_stall) then
-				output <= f(v_input);
 				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
 			else
 				buffered_input <= v_input;
@@ -260,26 +264,35 @@ begin
 		variable v_should_stall: boolean;
 	begin
 		if rising_edge(clk) then
+			-- input selection
 			if buffered_input.valid = '1' then
 				v_input := buffered_input;
 			else
 				v_input := input;
 			end if;
 
+			-- output selection
 			if hold_in = '0' then
 				v_should_stall := should_stall(v_input)
 				if v_should_stall then
 					output <= DEFAULT_STAGE_OUTPUT;
+				else
+					output <= f(v_input);
 				end if;
 			end if;
 
+			-- input buffering and transient output reset
 			if hold_in = '0' and not(v_should_stall) then
-				output <= f(v_input);
-				transient_output <= g(v_input);
 				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
 			else
-				transient_output <= DEFAULT_STAGE_TRANSIENT_OUTPUT;
 				buffered_input <= v_input;
+			end if;
+
+			-- transient output
+			if hold_in = '0' and not(v_should_stall) then
+				transient_output <= g(v_input);
+			else
+				transient_output <= DEFAULT_TRANSIENT_OUTPUT;
 			end if;
 		end if;
 	end process;
