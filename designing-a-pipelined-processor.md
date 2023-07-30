@@ -58,16 +58,12 @@ entity stage_template is
 end stage_template;
 
 architecture Behavioral of stage_template is
-	function f(input: previous_stage_output_type) return stage_output_type is
-	begin
-		-- TODO: implement
-	end function;
 begin
 	process(clk)
 	begin
 		if rising_edge(clk) then
 			if hold_in = '0' then
-				output <= f(input);
+				-- TO DO: set output based on input
 			end if;
 
 			hold_out <= hold_in;
@@ -105,15 +101,6 @@ end stage_template;
 
 architecture Behavioral of stage_template is
 	signal buffered_input: previous_stage_output_type := DEFAULT_PREVIOUS_STAGE_OUTPUT;
-
-	function f(input: previous_stage_output_type) return stage_output_type is
-	begin
-		if input.valid = '0' then
-			return DEFAULT_STAGE_OUTPUT;
-		end if;
-
-		-- TODO: implement
-	end function;
 begin
 	hold_out <= buffered_input.valid;
 
@@ -121,6 +108,7 @@ begin
 		variable v_input: previous_stage_output_type;
 	begin
 		if rising_edge(clk) then
+			-- input selection
 			if buffered_input.valid = '1' then
 				v_input := buffered_input;
 			else
@@ -128,7 +116,7 @@ begin
 			end if;
 
 			if hold_in = '0' then
-				output <= f(v_input);
+				-- TODO: set output based on v_input
 				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
 			else
 				buffered_input <= v_input;
@@ -158,25 +146,12 @@ end stage_template;
 
 architecture Behavioral of stage_template is
 	signal buffered_input: previous_stage_output_type := DEFAULT_PREVIOUS_STAGE_OUTPUT;
-
-	function should_stall(input: previous_stage_output_type) return boolean is
-	begin
-		-- TODO: implement
-	end function;
-
-	function f(input: previous_stage_output_type) return stage_output_type is
-	begin
-		if input.valid = '0' then
-			return DEFAULT_STAGE_OUTPUT;
-		end if;
-
-		-- TODO: implement
-	end function;
 begin
 	hold_out <= buffered_input.valid;
 
 	process(clk)
 		variable v_input: previous_stage_output_type;
+		variable v_output: stage_output_type;
 		variable v_should_stall: boolean;
 	begin
 		if rising_edge(clk) then
@@ -189,16 +164,12 @@ begin
 
 			-- output selection
 			if hold_in = '0' then
-				v_should_stall := should_stall(v_input)
-				if v_should_stall then
-					output <= DEFAULT_STAGE_OUTPUT;
-				else
-					output <= f(v_input);
-				end if;
+				-- TO DO: set v_output and v_should_stall based on v_input
 			end if;
 
 			-- input buffering
 			if hold_in = '0' and not(v_should_stall) then
+				output <= v_output;
 				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
 			else
 				buffered_input <= v_input;
@@ -233,34 +204,13 @@ end stage_template;
 
 architecture Behavioral of stage_template is
 	signal buffered_input: previous_stage_output_type := DEFAULT_PREVIOUS_STAGE_OUTPUT;
-
-	function should_stall(input: previous_stage_output_type) return boolean is
-	begin
-		-- TODO: implement
-	end function;
-
-	function f(input: previous_stage_output_type) return stage_output_type is
-	begin
-		if input.valid = '0' then
-			return DEFAULT_STAGE_OUTPUT;
-		end if;
-
-		-- TODO: implement
-	end function;
-
-	function g(input: previous_stage_output_type) return stage_transient_output_type is
-	begin
-		if input.valid = '0' then
-			return DEFAULT_STAGE_TRANSIENT_OUTPUT;
-		end if;
-
-		-- TODO: implement
-	end function;
 begin
 	hold_out <= buffered_input.valid;
 
 	process(clk)
 		variable v_input: previous_stage_output_type;
+		variable v_output: stage_output_type;
+		variable v_transient_output: stage_transient_output_type;
 		variable v_should_stall: boolean;
 	begin
 		if rising_edge(clk) then
@@ -273,25 +223,17 @@ begin
 
 			-- output selection
 			if hold_in = '0' then
-				v_should_stall := should_stall(v_input)
-				if v_should_stall then
-					output <= DEFAULT_STAGE_OUTPUT;
-				else
-					output <= f(v_input);
-				end if;
+				-- TODO: based on v_input, set v_output,
+				-- v_should_stall, and v_transient_output
 			end if;
 
 			-- input buffering and transient output reset
 			if hold_in = '0' and not(v_should_stall) then
+				output <= v_output;
+				transient_output <= v_transient_output;
 				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
 			else
 				buffered_input <= v_input;
-			end if;
-
-			-- transient output
-			if hold_in = '0' and not(v_should_stall) then
-				transient_output <= g(v_input);
-			else
 				transient_output <= DEFAULT_TRANSIENT_OUTPUT;
 			end if;
 		end if;
