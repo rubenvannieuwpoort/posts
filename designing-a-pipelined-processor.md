@@ -163,13 +163,15 @@ begin
 			end if;
 
 			-- output selection
+			-- TO DO: set v_output and v_should_stall based on v_input
+
+			-- set output
 			if hold_in = '0' then
-				-- TO DO: set v_output and v_should_stall based on v_input
+				output <= v_output;
 			end if;
 
 			-- input buffering
 			if hold_in = '0' and not(v_should_stall) then
-				output <= v_output;
 				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
 			else
 				buffered_input <= v_input;
@@ -180,63 +182,3 @@ end Behavioral;
 ```
 
 This finally is a template that is sufficient for most stages.
-
-
-## 5. Adding transient output
-
-Some stages need to communicate with a component that is not part of the pipeline. Those components outside of the pipeline are not subject to the pipelining logic, and will interpret data that is frozen for a few cycles as multiple occurances of the same data.
-
-To avoid this, we can add a *transient* output which is held at most one cycle. This is very similar to the normal output, except that it gets reset whenever `hold_in` is high.
-
-It's a bit of a stretch to add this since this is usually not needed, but I'll put it in here anyway.
-
-```
-entity stage_template is
-	port(
-		clk: in std_logic;
-		input: in previous_stage_output_type;
-		output: out stage_output_type := DEFAULT_STAGE_OUTPUT;
-		transient_output: out stage_transient_output_type := DEFAULT_STAGE_TRANSIENT_OUTPUT;
-		hold_in: in std_logic;
-		hold_out: out std_logic
-	);
-end stage_template;
-
-architecture Behavioral of stage_template is
-	signal buffered_input: previous_stage_output_type := DEFAULT_PREVIOUS_STAGE_OUTPUT;
-begin
-	hold_out <= buffered_input.valid;
-
-	process(clk)
-		variable v_input: previous_stage_output_type;
-		variable v_output: stage_output_type;
-		variable v_transient_output: stage_transient_output_type;
-		variable v_should_stall: boolean;
-	begin
-		if rising_edge(clk) then
-			-- input selection
-			if buffered_input.valid = '1' then
-				v_input := buffered_input;
-			else
-				v_input := input;
-			end if;
-
-			-- output selection
-			if hold_in = '0' then
-				-- TODO: based on v_input, set v_output,
-				-- v_should_stall, and v_transient_output
-			end if;
-
-			-- input buffering and transient output reset
-			if hold_in = '0' and not(v_should_stall) then
-				output <= v_output;
-				transient_output <= v_transient_output;
-				buffered_input <= DEFAULT_PREVIOUS_STAGE_OUTPUT;
-			else
-				buffered_input <= v_input;
-				transient_output <= DEFAULT_TRANSIENT_OUTPUT;
-			end if;
-		end if;
-	end process;
-end Behavioral;
-```
